@@ -245,4 +245,8 @@ public final class Statement {
   public final TypedOperation getOperation() {
     return operation;
   }
+
+  public List<RelativeNegativeIndex> getInputs() {
+    return inputs;
+  }
 }

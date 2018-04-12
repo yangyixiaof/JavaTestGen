@@ -51,7 +51,7 @@ public class ComponentManager {
   // Seeds are all contained in gralComponents. This list
   // is kept to restore seeds if the user calls
   // clearGeneratedSequences().
-  private final Collection<Sequence> gralSeeds;
+  public final Collection<Sequence> gralSeeds;
 
   /**
    * A set of additional components representing literals that should only be used as input to
@@ -143,7 +143,7 @@ public class ComponentManager {
   /**
    * Removes any components sequences added so far, except for seed sequences, which are preserved.
    */
-  void clearGeneratedSequences() {
+  public void clearGeneratedSequences() {
     gralComponents = new SequenceCollection(this.gralSeeds);
   }
 
@@ -234,7 +234,7 @@ public class ComponentManager {
    *
    * @return the sequences for primitive values
    */
-  Set<Sequence> getAllPrimitiveSequences() {
+  public Set<Sequence> getAllPrimitiveSequences() {
 
     Set<Sequence> result = new LinkedHashSet<>();
     if (classLiterals != null) {

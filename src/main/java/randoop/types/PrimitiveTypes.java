@@ -32,7 +32,7 @@ public final class PrimitiveTypes {
   }
 
   /** Map from primitive to boxed primitive {@code Class<?>} objects. */
-  private static final Map<Class<?>, Class<?>> primitiveToBoxed = new LinkedHashMap<>(8);
+  public static final Map<Class<?>, Class<?>> primitiveToBoxed = new LinkedHashMap<>(8);
 
   static {
     primitiveToBoxed.put(boolean.class, Boolean.class);

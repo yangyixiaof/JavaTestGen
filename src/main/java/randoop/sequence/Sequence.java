@@ -35,7 +35,7 @@ import randoop.util.WeightedElement;
  * contain any information about the runtime behavior of the sequence. The class
  * randoop.ExecutableSequence adds functionality that executes the sequence.
  */
-public final class Sequence implements WeightedElement {
+public class Sequence implements WeightedElement {
 
   public double lastTimeUsed = java.lang.System.currentTimeMillis();
 
@@ -79,7 +79,7 @@ public final class Sequence implements WeightedElement {
    * @param hashCode the hashcode for the new sequence
    * @param netSize the net size for the new sequence
    */
-  private Sequence(SimpleList<Statement> statements, int hashCode, int netSize) {
+  protected Sequence(SimpleList<Statement> statements, int hashCode, int netSize) {
     if (statements == null) {
       throw new IllegalArgumentException("`statements' argument cannot be null");
     }
@@ -435,8 +435,8 @@ public final class Sequence implements WeightedElement {
    * @param v the variable
    * @return the relative negative index computed from the position and variable
    */
-  private static RelativeNegativeIndex getRelativeIndexForVariable(
-      int statementPosition, Variable v) {
+  protected static RelativeNegativeIndex getRelativeIndexForVariable(
+          int statementPosition, Variable v) {
     if (v.index >= statementPosition) throw new IllegalArgumentException();
     return new RelativeNegativeIndex(-(statementPosition - v.index));
   }
@@ -465,7 +465,7 @@ public final class Sequence implements WeightedElement {
    * @param statements the list of statements over which to compute the hash code
    * @return the sum of the hash codes of the statements in the sequence
    */
-  private static int computeHashcode(SimpleList<Statement> statements) {
+  protected static int computeHashcode(SimpleList<Statement> statements) {
     int hashCode = 0;
     for (int i = 0; i < statements.size(); i++) {
       Statement s = statements.get(i);
@@ -481,7 +481,7 @@ public final class Sequence implements WeightedElement {
    * @param statements the list of {@link Statement} objects
    * @return count of statements other than primitive initializations
    */
-  private static int computeNetSize(SimpleList<Statement> statements) {
+  protected static int computeNetSize(SimpleList<Statement> statements) {
     int netSize = 0;
     for (int i = 0; i < statements.size(); i++) {
       if (!(statements.get(i).isNonreceivingInitialization())) {
@@ -777,7 +777,7 @@ public final class Sequence implements WeightedElement {
   // Argument checker for extend method.
   // These checks should be caught by checkRep() too.
   @SuppressWarnings("ReferenceEquality")
-  private void checkInputs(TypedOperation operation, List<Variable> inputVariables) {
+  protected void checkInputs(TypedOperation operation, List<Variable> inputVariables) {
     if (operation.getInputTypes().size() != inputVariables.size()) {
       String msg =
           "statement.getInputTypes().size():"
@@ -1270,11 +1270,11 @@ public final class Sequence implements WeightedElement {
    * <p>Now concatenation is easier: to concatenate two sequences, concatenate their statements.
    * Also, we do not need to create any new statements.
    */
-  static final class RelativeNegativeIndex {
+  public static final class RelativeNegativeIndex {
 
     public final int index;
 
-    RelativeNegativeIndex(int index) {
+    public RelativeNegativeIndex(int index) {
       if (index >= 0) {
         throw new IllegalArgumentException("index should be non-positive: " + index);
       }
