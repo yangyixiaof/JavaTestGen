@@ -10,7 +10,7 @@ public class ReferenceModify extends MutationOperation {
   Variable targetVariable = null;
 
   public ReferenceModify(
-		  TraceableSequence sequence, int stmtIndex, int varIndex, Variable targetVariable) {
+      TraceableSequence sequence, int stmtIndex, int varIndex, Variable targetVariable) {
     super(sequence);
     this.stmtIndex = stmtIndex;
     this.varIndex = varIndex;

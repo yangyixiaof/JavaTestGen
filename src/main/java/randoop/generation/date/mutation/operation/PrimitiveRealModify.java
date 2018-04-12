@@ -9,7 +9,7 @@ public class PrimitiveRealModify extends MutationOperation {
   Object deltaValue = null;
 
   public PrimitiveRealModify(
-		  TraceableSequence sequence, int stmtIndex, int varIndex, Object deltaValue) {
+      TraceableSequence sequence, int stmtIndex, int varIndex, Object deltaValue) {
     super(sequence);
     this.stmtIndex = stmtIndex;
     this.varIndex = varIndex;

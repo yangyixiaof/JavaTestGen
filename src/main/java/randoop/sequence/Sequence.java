@@ -436,7 +436,7 @@ public class Sequence implements WeightedElement {
    * @return the relative negative index computed from the position and variable
    */
   protected static RelativeNegativeIndex getRelativeIndexForVariable(
-          int statementPosition, Variable v) {
+      int statementPosition, Variable v) {
     if (v.index >= statementPosition) throw new IllegalArgumentException();
     return new RelativeNegativeIndex(-(statementPosition - v.index));
   }

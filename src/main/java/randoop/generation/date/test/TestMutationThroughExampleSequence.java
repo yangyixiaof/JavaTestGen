@@ -1,5 +1,6 @@
 package randoop.generation.date.test;
 
+import java.util.*;
 import org.junit.Test;
 import randoop.generation.date.mutation.MutationAnalyzer;
 import randoop.generation.date.mutation.operation.MutationOperation;
@@ -7,8 +8,6 @@ import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.types.*;
-
-import java.util.*;
 
 public class TestMutationThroughExampleSequence {
 

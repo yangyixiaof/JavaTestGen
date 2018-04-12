@@ -1,5 +1,6 @@
 package randoop.generation.date.mutation;
 
+import java.util.*;
 import randoop.generation.date.mutation.operation.*;
 import randoop.generation.date.sequence.StatementWithIndex;
 import randoop.generation.date.sequence.TraceableSequence;
@@ -11,8 +12,6 @@ import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
-import java.util.*;
-
 public class MutationAnalyzer {
 
   TraceableSequence sequence = null;
@@ -22,7 +21,7 @@ public class MutationAnalyzer {
   }
 
   public void GenerateMutationOperations(
-		  Set<TypedOperation> candidates, List<MutationOperation> mutates) {
+      Set<TypedOperation> candidates, List<MutationOperation> mutates) {
     // remove
     GenerateRemoveOperations(mutates);
     // insert
@@ -32,7 +31,7 @@ public class MutationAnalyzer {
   }
 
   public void GenerateInsertOperations(
-		  List<MutationOperation> mutates, Set<TypedOperation> candidates) {
+      List<MutationOperation> mutates, Set<TypedOperation> candidates) {
     int i_len = sequence.size();
     for (int i = 0; i <= i_len; i++) {
       Iterator<TypedOperation> citr = candidates.iterator();

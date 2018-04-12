@@ -1,11 +1,10 @@
 package randoop.generation.date.mutation.operation;
 
+import java.util.LinkedList;
+import java.util.List;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class Insert extends MutationOperation {
 

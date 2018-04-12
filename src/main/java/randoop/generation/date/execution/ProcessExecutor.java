@@ -1,10 +1,9 @@
 package randoop.generation.date.execution;
 
-import randoop.generation.date.util.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import randoop.generation.date.util.FileUtil;
 
 public class ProcessExecutor {
 

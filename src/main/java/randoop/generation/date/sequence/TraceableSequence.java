@@ -1,5 +1,6 @@
 package randoop.generation.date.sequence;
 
+import java.util.*;
 import randoop.Globals;
 import randoop.generation.date.runtime.DateRuntime;
 import randoop.operation.TypedOperation;
@@ -10,8 +11,6 @@ import randoop.types.PrimitiveType;
 import randoop.types.Type;
 import randoop.util.SimpleArrayList;
 import randoop.util.SimpleList;
-
-import java.util.*;
 
 public class TraceableSequence extends Sequence {
 
@@ -59,7 +58,7 @@ public class TraceableSequence extends Sequence {
    * @return 插入语句后的新 sequence
    */
   public final TraceableSequence insert(
-		  int index, TypedOperation operation, List<Variable> inputVariables) {
+      int index, TypedOperation operation, List<Variable> inputVariables) {
     // 1 检查参数
     if (index < 0 || this.size() < index) {
       String msg = "this.size():" + this.size() + " but index:" + index;
@@ -730,7 +729,8 @@ public class TraceableSequence extends Sequence {
               argStmtIndex == 0
                   ? howManyRemovedBetween0And[i]
                   : howManyRemovedBetween0And[i] - howManyRemovedBetween0And[argStmtIndex - 1];
-          newInputs.add(new Sequence.RelativeNegativeIndex(rni.index + howManyRemovedBetweenArgAndCall));
+          newInputs.add(
+              new Sequence.RelativeNegativeIndex(rni.index + howManyRemovedBetweenArgAndCall));
         }
         newStatements.add(new Statement(stmt.getOperation(), newInputs));
       }

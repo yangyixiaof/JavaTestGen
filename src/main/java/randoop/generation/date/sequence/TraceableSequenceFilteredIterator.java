@@ -1,10 +1,9 @@
 package randoop.generation.date.sequence;
 
+import java.lang.reflect.Method;
 import randoop.operation.CallableOperation;
 import randoop.operation.MethodCall;
 import randoop.sequence.Statement;
-
-import java.lang.reflect.Method;
 
 public class TraceableSequenceFilteredIterator {
 

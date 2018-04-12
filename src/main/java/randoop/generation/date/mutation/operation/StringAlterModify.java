@@ -10,7 +10,7 @@ public class StringAlterModify extends MutationOperation {
   int deltaValue = -1;
 
   public StringAlterModify(
-		  TraceableSequence sequence, int stmtIndex, int varIndex, int charIndex, int deltaValue) {
+      TraceableSequence sequence, int stmtIndex, int varIndex, int charIndex, int deltaValue) {
     super(sequence);
     this.stmtIndex = stmtIndex;
     this.varIndex = varIndex;

@@ -1,5 +1,9 @@
 package randoop.generation.date.test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import randoop.operation.*;
 import randoop.sequence.Sequence;
@@ -9,11 +13,6 @@ import randoop.types.RandoopTypeException;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 import randoop.util.SimpleArrayList;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /** */
 public class MutationOperationTest {

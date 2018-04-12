@@ -1,10 +1,9 @@
 package randoop.generation.date.test;
 
+import java.util.*;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.types.*;
-
-import java.util.*;
 
 public class SequenceGenerator {
 

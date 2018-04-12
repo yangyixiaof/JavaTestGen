@@ -47,7 +47,6 @@ import randoop.generation.RandoopGenerationError;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.SeedSequences;
 import randoop.generation.TestUtils;
-import randoop.generation.date.DateGenerator;
 import randoop.instrument.CoveredClassVisitor;
 import randoop.operation.Operation;
 import randoop.operation.OperationParseException;
@@ -372,9 +371,9 @@ public class GenTests extends GenInputsAbstract {
     AbstractGenerator explorer =
         new ForwardGenerator(
             operations, observers, new GenInputsAbstract.Limits(), componentMgr, listenerMgr);
-//    AbstractGenerator explorer =
-//            new DateGenerator(
-//                    operations, observers, new GenInputsAbstract.Limits(), componentMgr, listenerMgr);
+    //    AbstractGenerator explorer =
+    //            new DateGenerator(
+    //                    operations, observers, new GenInputsAbstract.Limits(), componentMgr, listenerMgr);
 
     /* log setup. TODO: handle environment variables like other methods in TestUtils do. */
     operationModel.log();

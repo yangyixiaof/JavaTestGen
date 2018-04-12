@@ -1,10 +1,9 @@
 package randoop.generation.date.runtime;
 
-import randoop.types.PrimitiveType;
-import randoop.types.Type;
-
 import java.util.HashMap;
 import java.util.Map;
+import randoop.types.PrimitiveType;
+import randoop.types.Type;
 
 /**
  * 生成的测试用例执行时需要依赖 DateRuntime。
