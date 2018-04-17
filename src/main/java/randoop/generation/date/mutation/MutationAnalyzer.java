@@ -1,27 +1,35 @@
 package randoop.generation.date.mutation;
 
 import java.util.*;
+import randoop.generation.date.DateWtfException;
 import randoop.generation.date.mutation.operation.*;
 import randoop.generation.date.sequence.StatementWithIndex;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.sequence.TraceableSequenceFilteredIterator;
+import randoop.main.GenInputsAbstract;
+import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
+import randoop.reflection.RandoopInstantiationError;
+import randoop.reflection.TypeInstantiator;
 import randoop.sequence.Sequence;
 import randoop.sequence.Statement;
 import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
+import randoop.util.Log;
 
 public class MutationAnalyzer {
 
   TraceableSequence sequence = null;
+  private TypeInstantiator instantiator;
 
-  public MutationAnalyzer(TraceableSequence sequence) {
+  public MutationAnalyzer(TraceableSequence sequence, TypeInstantiator instantiator) {
     this.sequence = sequence;
+    this.instantiator = instantiator;
   }
 
   public void GenerateMutationOperations(
-      Set<TypedOperation> candidates, List<MutationOperation> mutates) {
+      Set<TypedOperation> candidates, List<MutationOperation> mutates) throws DateWtfException {
     // remove
     GenerateRemoveOperations(mutates);
     // insert
@@ -30,13 +38,51 @@ public class MutationAnalyzer {
     GenerateModifyOperations(mutates);
   }
 
+  /**
+   * 模仿 ForwardGenerator 的 createNewUniqueSequence
+   *
+   * <p>其中 instantiator 的来源是 OperationModel -> ComponentManager -> ForwardGenerator
+   *
+   * <p>似乎是开局确定、迭代中不变？（喜）
+   *
+   * @param operation
+   * @return
+   */
+  private TypedOperation instantiateGenericType(TypedOperation operation) {
+    try {
+      return instantiator.instantiate((TypedClassOperation) operation);
+    } catch (Throwable e) {
+      if (GenInputsAbstract.fail_on_generation_error) {
+        if (operation.isMethodCall() || operation.isConstructorCall()) {
+          String opName = operation.getOperation().getReflectionObject().toString();
+          throw new RandoopInstantiationError(opName, e);
+        }
+      } else {
+        //          operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+        Log.logLine("Instantiation error for operation " + operation);
+        Log.logStackTrace(e);
+        System.out.println("Instantiation error for operation " + operation);
+        operation = null;
+      }
+    }
+    // failed to instantiate generic
+    return null;
+  }
+
   public void GenerateInsertOperations(
-      List<MutationOperation> mutates, Set<TypedOperation> candidates) {
+      List<MutationOperation> mutates, Set<TypedOperation> candidates) throws DateWtfException {
     int i_len = sequence.size();
     for (int i = 0; i <= i_len; i++) {
       Iterator<TypedOperation> citr = candidates.iterator();
       while (citr.hasNext()) {
         TypedOperation optr = citr.next();
+        if (optr.isGeneric() || optr.hasWildcardTypes()) {
+          if ((optr = instantiateGenericType(optr)) == null) {
+            // TODO 怎样报错好？
+            //            throw new DateWtfException();
+            continue; // hmmmmmm
+          }
+        }
         TypeTuple input_type_tuple = optr.getInputTypes();
         int t_size = input_type_tuple.size();
         List<LinkedList<Variable>> suitable = new LinkedList<LinkedList<Variable>>();

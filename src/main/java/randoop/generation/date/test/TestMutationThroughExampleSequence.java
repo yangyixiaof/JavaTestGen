@@ -1,12 +1,7 @@
 package randoop.generation.date.test;
 
 import java.util.*;
-import org.junit.Test;
-import randoop.generation.date.mutation.MutationAnalyzer;
-import randoop.generation.date.mutation.operation.MutationOperation;
-import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
-import randoop.sequence.Sequence;
 import randoop.types.*;
 
 public class TestMutationThroughExampleSequence {
@@ -29,7 +24,7 @@ public class TestMutationThroughExampleSequence {
         TypedOperation.forMethod(LinkedList.class.getMethod("size")).apply(substLL);
     candidates.add(size);
   }
-
+  /*
   @Test
   public void test1() {
     try {
@@ -64,4 +59,5 @@ public class TestMutationThroughExampleSequence {
     TestMutationThroughExampleSequence tmtes = new TestMutationThroughExampleSequence();
     tmtes.test1();
   }
+  */
 }

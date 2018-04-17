@@ -251,7 +251,7 @@ public class ComponentManager {
     return result;
   }
 
-  TypeInstantiator getTypeInstantiator() {
+  public TypeInstantiator getTypeInstantiator() {
     return gralComponents.getTypeInstantiator();
   }
 

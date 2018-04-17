@@ -13,6 +13,7 @@ import randoop.generation.date.mutation.operation.MutationOperation;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
+import randoop.reflection.TypeInstantiator;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
 import randoop.sequence.SequenceExceptionError;
@@ -44,7 +45,7 @@ public class DateGenerator extends AbstractGenerator {
   private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
   // private final Set<TypedOperation> observers;
-  // private final TypeInstantiator instantiator;
+  private final TypeInstantiator instantiator;
 
   // /**
   // * Constructs a generator with the given parameters.
@@ -94,7 +95,7 @@ public class DateGenerator extends AbstractGenerator {
     super(operations, limits, componentManager, stopper, listenerManager);
 
     // this.observers = observers;
-    // this.instantiator = componentManager.getTypeInstantiator();
+    this.instantiator = componentManager.getTypeInstantiator();
 
     initializeRuntimePrimitivesSeen();
   }
@@ -138,11 +139,11 @@ public class DateGenerator extends AbstractGenerator {
     //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // 插入的 TypedOperation 是否完全没有类型参数的信息？
-    eSeq.execute(executionVisitor, checkGenerator);
+//    eSeq.execute(executionVisitor, checkGenerator);
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // TODO 弄清 execute 作用……
-    //    process_execute(); // 若 process_execute，则十秒内产生不了会触发 bug 的测试用例
+//    process_execute(); // 若 process_execute，则十秒内产生不了会触发 bug 的测试用例
 
     startTime = System.nanoTime(); // reset start time.
 
@@ -199,12 +200,18 @@ public class DateGenerator extends AbstractGenerator {
    *
    * @return a new sequence, or null
    */
-  private ExecutableSequence createNewUniqueSequence() {
+  private ExecutableSequence
+      createNewUniqueSequence() { // TODO是否 instantiated? 1. operation 2. 初始allSequences
     Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
-    MutationAnalyzer analyzer = new MutationAnalyzer((TraceableSequence) sourceSequence);
+    MutationAnalyzer analyzer =
+        new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
     // TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
     List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
-    analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
+    try {
+      analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
+    } catch (DateWtfException e) {
+      e.printStackTrace();
+    }
     MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
     TraceableSequence newSequence = selectedMutation.ApplyMutation();
 

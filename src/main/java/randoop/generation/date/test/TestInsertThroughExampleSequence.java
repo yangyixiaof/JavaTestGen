@@ -1,10 +1,6 @@
 package randoop.generation.date.test;
 
 import java.util.*;
-import org.junit.Test;
-import randoop.generation.date.mutation.MutationAnalyzer;
-import randoop.generation.date.mutation.operation.MutationOperation;
-import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.types.*;
 
@@ -29,6 +25,7 @@ public class TestInsertThroughExampleSequence {
     candidates.add(size);
   }
 
+  /*
   @Test
   public void test1() throws NoSuchMethodException, SecurityException {
     SequenceGenerator sg = new SequenceGenerator();
@@ -62,4 +59,5 @@ public class TestInsertThroughExampleSequence {
       e.printStackTrace();
     }
   }
+  */
 }
