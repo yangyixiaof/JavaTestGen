@@ -1,0 +1,27 @@
+1. 写入test文件
+
+目标：不用原有execute
+
+杨execute时会检查是否可编译
+所以禁掉写入test时的各种检查
+
+
+2. 
+date generator 
+
+选k个seq，各做n变异
+
+process_execute 能拿到多个
+
+s1
+
+t1
+能拿到单个case的trace，写入文件
+
+也有解析器
+
+t1,1 ... t1,20
+
+（杨）TODO：trace 比对
+
+

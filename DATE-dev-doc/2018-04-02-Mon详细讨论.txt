@@ -1,0 +1,99 @@
+前置的问题：
+
+我们的 Randoop 改造版本里，生成流程有 bug，导致根本走不到泛型 bug 那一步。
+泛型 bug 是在 randoop 的原版里确认的。
+    （randoop 最新版依然有泛型 bug）
+所以现在在修我们的生成流程
+
+
++ Instantiation error for operation 是哪里报错的
++ randoop 提 Bug 
++ 试试最晚的能测 TreeSet 的版本
++ 看 randoop.generation.date.mutation.operation.Insert 是否
+
+
+
+这样由TC到向量的转换，是否有“保相邻”的性质？
+各处参数怎么选取？W
+
+
+Randoop 改造版的泛型错误现象及 debug 思路
+
+# 现在泛型错误的现象
+
+当对一个含有类型参数的被测类生成测试用例时，在 execute 阶段会报错。
+
+例如当对 java.util.ArrayList（它是具有 1 个类型参数的泛型类）生成测试用例时，当生成出如下用例并 execute 时，
+byte byte0 = (byte)-1; // <not_executed>
+java.util.ArrayList<E> arrayList1 = new java.util.ArrayList<E>(); // <not_executed>
+java.util.ListIterator<E> eItor2 = arrayList1.listIterator((int)(byte)-1); // <not_executed>
+java.util.Iterator<E> eItor3 = arrayList1.iterator(); // <not_executed>
+
+会报错：
+ERROR: Randoop stopped because of a flaky test.
+
+# Debug 思路
+
+（此处使用 Java 文档常用的记号“#”和“.”：类名#实例字段名、类名#实例方法名、类名.静态字段名、类名.静态方法名。）
+
+可用插入操作分析方法 MutationAnalyzer#GenerateInsertOperations(List<MutationOperation> mutates, Set<TypedOperation> candidates) 在执行时，会分析 MutationAnalyzer#sequence、从 candidates 里选取 TypedOperation 并构造 MutationOperation 存入 mutates。
+
+现怀疑：构造 MutationOperation 时，未将 TypedOperation 的字段 private final Type outputType 构造成 ParameterizedType 类型的实例，即未填入类型参数。
+
+将以此思路 debug。
+
+
+
+-------------------------
+2018-04-08 12:50:14
+
+flaky tests 之事或可通过 Randoop 4.0 的 --flaky-test-behavior=enum 选项来处理，enum 取值范围：
+HALT Randoop halts with a diagnostic message.
+DISCARD Discard the flaky test. If Randoop produces any flaky tests, this option might slow Randoop down by a factor of 2 or more.
+OUTPUT Output the flaky test; the resulting test suite may fail when it is run.
+
+
+现在症状：跑 TreeSet 时，Run 则 NullPointer，Debug 则 flaky
+
+Before ------eSeq.execute(executionVisitor, checkGenerator);
+long long0 = 0L; // <not_executed>
+java.util.TreeSet<E> treeSet1 = new java.util.TreeSet<E>(); // <not_executed>
+java.lang.Class<?> wildcardClass2 = treeSet1.getClass(); // <not_executed>
+E e3 = treeSet1.pollLast(); // <not_executed>
+
+
+Throwable thrown while handling command: java.lang.NullPointerException
+java.lang.NullPointerException
+	at randoop.operation.TypedClassOperationWithCast.execute(TypedClassOperationWithCast.java:61)
+	at randoop.sequence.Statement.execute(Statement.java:163)
+	at randoop.sequence.ExecutableSequence.executeStatement(ExecutableSequence.java:403)
+	at randoop.sequence.ExecutableSequence.execute(ExecutableSequence.java:300)
+	at randoop.sequence.ExecutableSequence.execute(ExecutableSequence.java:228)
+	at randoop.generation.date.DateGenerator.step(DateGenerator.java:148)
+	at randoop.generation.AbstractGenerator.createAndClassifySequences(AbstractGenerator.java:299)
+	at randoop.main.GenTests.handle(GenTests.java:466)
+	at randoop.main.Main.nonStaticMain(Main.java:64)
+	at randoop.main.Main.main(Main.java:28)
+
+Randoop failed.
+Last sequence under execution: 
+java.util.TreeSet<E> treeSet1 = new java.util.TreeSet<E>();
+java.lang.Class<?> wildcardClass2 = treeSet1.getClass();
+E e3 = treeSet1.pollLast();
+
+
+=====
+
+Before ------eSeq.execute(executionVisitor, checkGenerator);
+long long0 = 0L; // <not_executed>
+java.util.TreeSet<E> treeSet1 = new java.util.TreeSet<E>(); // <not_executed>
+E e2 = treeSet1.last(); // <not_executed>
+boolean boolean3 = treeSet1.isEmpty(); // <not_executed>
+
+
+
+ERROR: Randoop stopped because of a flaky test.
+
+This can happen when Randoop is run on methods that side-effect global state.
+See the "Randoop stopped because of a flaky test" section of the user manual.
+For more details, rerun with logging turned on with --log=FILENAME.

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>randoop.types.Type</OriginalElement>
+  <nodes>
+    <node x="0.0" y="344.0">randoop.types.TypeVariable</node>
+    <node x="617.75" y="172.0">randoop.types.ReferenceType</node>
+    <node x="472.75" y="430.0">randoop.types.GenericClassType</node>
+    <node x="359.0" y="344.0">randoop.types.ParameterizedType</node>
+    <node x="944.5" y="258.0">randoop.types.ArrayType</node>
+    <node x="589.0" y="344.0">randoop.types.NonParameterizedType</node>
+    <node x="720.5" y="258.0">randoop.types.NullReferenceType</node>
+    <node x="811.75" y="172.0">randoop.types.PrimitiveType</node>
+    <node x="473.5" y="258.0">randoop.types.ClassOrInterfaceType</node>
+    <node x="263.75" y="430.0">randoop.types.InstantiatedType</node>
+    <node x="846.75" y="86.0">randoop.types.Type</node>
+    <node x="79.75" y="258.0">randoop.types.ParameterType</node>
+    <node x="817.25" y="0.0">java.lang.Comparable</node>
+    <node x="178.0" y="344.0">randoop.types.WildcardType</node>
+    <node x="993.75" y="172.0">randoop.types.VoidType</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="randoop.types.ParameterType" target="randoop.types.ReferenceType">
+      <point x="0.0" y="-18.0" />
+      <point x="168.75" y="228.0" />
+      <point x="639.5" y="228.0" />
+      <point x="-65.25" y="18.0" />
+    </edge>
+    <edge source="randoop.types.WildcardType" target="randoop.types.ParameterType">
+      <point x="0.0" y="-18.0" />
+      <point x="258.5" y="319.0" />
+      <point x="213.25" y="319.0" />
+      <point x="44.5" y="18.0" />
+    </edge>
+    <edge source="randoop.types.NonParameterizedType" target="randoop.types.ClassOrInterfaceType">
+      <point x="0.0" y="-18.0" />
+      <point x="710.0" y="319.0" />
+      <point x="643.75" y="319.0" />
+      <point x="56.75" y="18.0" />
+    </edge>
+    <edge source="randoop.types.VoidType" target="randoop.types.Type">
+      <point x="0.0" y="-18.0" />
+      <point x="1057.25" y="147.0" />
+      <point x="923.4166666666666" y="147.0" />
+      <point x="30.66666666666663" y="18.0" />
+    </edge>
+    <edge source="randoop.types.GenericClassType" target="randoop.types.ParameterizedType">
+      <point x="0.0" y="-18.0" />
+      <point x="569.75" y="405.0" />
+      <point x="516.5" y="405.0" />
+      <point x="52.5" y="18.0" />
+    </edge>
+    <edge source="randoop.types.ParameterizedType" target="randoop.types.ClassOrInterfaceType">
+      <point x="0.0" y="-18.0" />
+      <point x="464.0" y="319.0" />
+      <point x="530.25" y="319.0" />
+      <point x="-56.75" y="18.0" />
+    </edge>
+    <edge source="randoop.types.ArrayType" target="randoop.types.ReferenceType">
+      <point x="0.0" y="-18.0" />
+      <point x="1012.5" y="228.0" />
+      <point x="770.0" y="228.0" />
+      <point x="65.25" y="18.0" />
+    </edge>
+    <edge source="randoop.types.ReferenceType" target="randoop.types.Type">
+      <point x="0.0" y="-18.0" />
+      <point x="704.75" y="147.0" />
+      <point x="862.0833333333334" y="147.0" />
+      <point x="-30.66666666666663" y="18.0" />
+    </edge>
+    <edge source="randoop.types.PrimitiveType" target="randoop.types.Type">
+      <point x="0.0" y="-18.0" />
+      <point x="0.0" y="18.0" />
+    </edge>
+    <edge source="randoop.types.ClassOrInterfaceType" target="randoop.types.ReferenceType">
+      <point x="0.0" y="-18.0" />
+      <point x="587.0" y="238.0" />
+      <point x="683.0" y="238.0" />
+      <point x="-21.75" y="18.0" />
+    </edge>
+    <edge source="randoop.types.InstantiatedType" target="randoop.types.ParameterizedType">
+      <point x="0.0" y="-18.0" />
+      <point x="358.25" y="405.0" />
+      <point x="411.5" y="405.0" />
+      <point x="-52.5" y="18.0" />
+    </edge>
+    <edge source="randoop.types.TypeVariable" target="randoop.types.ParameterType">
+      <point x="0.0" y="-18.0" />
+      <point x="79.0" y="319.0" />
+      <point x="124.25" y="319.0" />
+      <point x="-44.5" y="18.0" />
+    </edge>
+    <edge source="randoop.types.NullReferenceType" target="randoop.types.ReferenceType">
+      <point x="0.0" y="-18.0" />
+      <point x="822.5" y="238.0" />
+      <point x="726.5" y="238.0" />
+      <point x="21.75" y="18.0" />
+    </edge>
+    <edge source="randoop.types.Type" target="java.lang.Comparable">
+      <point x="0.0" y="-18.0" />
+      <point x="0.0" y="18.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="560.5" y="433.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

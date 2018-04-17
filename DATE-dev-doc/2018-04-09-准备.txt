@@ -1,0 +1,67 @@
+DateGenerator
+
+//    ArrayList
+//TreeSet
+    System.out.println("Before------eSeq.execute(executionVisitor, checkGenerator);");
+    System.out.println(eSeq);
+// 插入的 TypedOperation 是否完全没有类型参数的信息？
+    eSeq.execute(executionVisitor, checkGenerator);
+//    process_execute();
+
+
+------------
+
+Before------eSeq.execute(executionVisitor, checkGenerator);
+java.util.ArrayList<E> arrayList0 = new java.util.ArrayList<E>(); // <not_executed>
+boolean boolean1 = arrayList0.remove((java.lang.Object)arrayList0); // <not_executed>
+long long2 = 100L; // <not_executed>
+arrayList0.clear(); // <not_executed>
+int int4 = arrayList0.lastIndexOf((java.lang.Object)arrayList0); // <not_executed>
+
+
+Throwable thrown while handling command: java.lang.IllegalArgumentException: value.getClass()=class java.lang.Integer,type=byte
+java.lang.IllegalArgumentException: value.getClass()=class java.lang.Integer,type=byte
+	at randoop.operation.NonreceiverTerm.<init>(NonreceiverTerm.java:61)
+	at randoop.operation.TypedOperation.createPrimitiveInitialization(TypedOperation.java:481)
+	at randoop.generation.date.sequence.TraceableSequence.modifyIntegral(TraceableSequence.java:432)
+	at randoop.generation.date.mutation.operation.PrimitiveIntegralModify.ApplyMutation(PrimitiveIntegralModify.java:21)
+	at randoop.generation.date.DateGenerator.createNewUniqueSequence(DateGenerator.java:213)
+	at randoop.generation.date.DateGenerator.step(DateGenerator.java:130)
+	at randoop.generation.AbstractGenerator.createAndClassifySequences(AbstractGenerator.java:299)
+	at randoop.main.GenTests.handle(GenTests.java:466)
+	at randoop.main.Main.nonStaticMain(Main.java:64)
+	at randoop.main.Main.main(Main.java:28)
+
+Randoop failed.
+Last sequence under execution: 
+java.util.ArrayList<E> arrayList0 = new java.util.ArrayList<E>();
+boolean boolean1 = arrayList0.remove((java.lang.Object)arrayList0);
+arrayList0.clear();
+int int4 = arrayList0.lastIndexOf((java.lang.Object)arrayList0);
+
+
+--flaky 选项 4.0引入的吧 https://github.com/randoop/randoop/blame/99e3124423a815097fe20376c74c5a30b2689aee/docs/manual/index.html#L881
+
+
+
+---------
+
+赶紧提了 TreeSet issue
+https://github.com/randoop/randoop/issues/338
+
+---
+
+gentests --testclass=randoop.generation.date.test.resource.ToTestGeneration --time-limit=10 --use-jdk-specifications=false --junit-output-dir src/main/java --junit-package-name randoop.generation.date.test.resource
+
+gentests --testclass=java.util.TreeSet --time-limit=10 --use-jdk-specifications=false --junit-output-dir src/main/java --junit-package-name xyz.sonion.randoop.treeset
+
+
+--------
+
+是否 https://github.com/randoop/randoop/issues/178 提出的例子是重现 泛型错误-OutputType NullPointerException 的最小用例？
+
+gentests --testclass=randoop.generation.date.test.resource.Outer --time-limit=10 --use-jdk-specifications=false --junit-output-dir src/main/java --junit-package-name xyz.sonion.randoop.outer
+
+并没有触发。
+
+--------

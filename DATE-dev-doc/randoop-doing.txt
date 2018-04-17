@@ -1,0 +1,38 @@
+testModifyRealfloat
+如果 float1 还被别的方法用到了，那 shortform 还会把 float1 缩没吗？
+---
+
+java.util.LinkedList<java.lang.Float> floatList0 = new java.util.LinkedList<java.lang.Float>();
+java.lang.Float float1 = 1.2f;
+floatList0.addFirst(float1);
+int int3 = floatList0.size();
+
+after - shortform
+java.util.LinkedList<java.lang.Float> floatList0 = new java.util.LinkedList<java.lang.Float>();
+java.lang.Float float3 = randoop.generation.date.runtime.DateRuntime.add(1.2f, (java.lang.Object)(-0.1f));
+floatList0.addFirst(float3);
+int int5 = floatList0.size();
+
+after - longform
+java.util.LinkedList<java.lang.Float> floatList0 = new java.util.LinkedList<java.lang.Float>();
+java.lang.Float float1 = 1.2f;
+java.lang.Float float2 = (-0.1f);
+java.lang.Float float3 = randoop.generation.date.runtime.DateRuntime.add(float1, (java.lang.Object)float2);
+floatList0.addFirst(float3);
+int int5 = floatList0.size();
+
+
+=======
+
+randoop 不会在 TC 生成期检查数值越界的……
+只会在 TC 编译时炸裂( ・_ゝ・)
+
+1. TraceableSequence#modifyIntegral 方法只留下一个重载 modifyIntegral(int stmtIndex, int varIndex, Object deltaValue)。缺陷：现在要针对不同类型的被改变量，传不同类型的 deltaValue。具体是 1,1L,(short)1,(byte)1,(char)1 五种。
+2. DateRuntime 按 IDE 提示，去掉一些不必要的 boxing。
+3. 修正 class MutationOperationLeeTest 里的测试用例，使 modifyIntegral 的单测都 pass.
+
+
+
+===
+
+

@@ -1,0 +1,11 @@
+Dirty(?) Hack of Randoop
+---
+
+2018-03-09
+
+杨前两天：
+
+1. modifyStringXxx 系列，杨只分析 NonReceiverTerm 的，否则没法知道长度( ﾟ∀。)( ﾟ∀。)
+
+2. DateGenerator 也加了一个 getSubsumedSequences，赋值为空。在 getRegression_ 时用它过滤。
+
