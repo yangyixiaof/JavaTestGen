@@ -139,11 +139,11 @@ public class DateGenerator extends AbstractGenerator {
     //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // 插入的 TypedOperation 是否完全没有类型参数的信息？
-//    eSeq.execute(executionVisitor, checkGenerator);
+    //    eSeq.execute(executionVisitor, checkGenerator);
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // TODO 弄清 execute 作用……
-//    process_execute(); // 若 process_execute，则十秒内产生不了会触发 bug 的测试用例
+    //    process_execute(); // 并行化之前挺慢的 TODO 定量测一测
 
     startTime = System.nanoTime(); // reset start time.
 

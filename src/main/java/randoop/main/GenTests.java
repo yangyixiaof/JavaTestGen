@@ -192,7 +192,7 @@ public class GenTests extends GenInputsAbstract {
     // }
 
     // If some properties were specified, set them
-    for (String prop : GenInputsAbstract.system_props) {
+    for (String prop : GenInputsAbstract.system_props) { // 似乎能在启动时用 -D 设置?
       String[] pa = prop.split("=", 2);
       if (pa.length != 2) {
         usage("invalid property definition: %s%n", prop);
@@ -212,6 +212,8 @@ public class GenTests extends GenInputsAbstract {
      */
     // Get names of classes under test
     Set<String> classnames = GenInputsAbstract.getClassnamesFromArgs();
+    // 反正这里能拿到被测类名列表吧
+    // 如果需要方法名列表，在这里反射获取
 
     // Get names of classes that must be covered by output tests
     Set<String> coveredClassnames =
@@ -270,6 +272,7 @@ public class GenTests extends GenInputsAbstract {
       System.exit(1);
     }
 
+    // 解析的运行参数汇总起来，搞出 OperationModel
     OperationModel operationModel = null;
     try {
       operationModel =
@@ -371,7 +374,8 @@ public class GenTests extends GenInputsAbstract {
      */
     //        AbstractGenerator explorer =
     //            new ForwardGenerator(
-    //                operations, observers, new GenInputsAbstract.Limits(), componentMgr, listenerMgr);
+    //                operations, observers, new GenInputsAbstract.Limits(), componentMgr,
+    // listenerMgr);
     AbstractGenerator explorer =
         new DateGenerator(
             operations, observers, new GenInputsAbstract.Limits(), componentMgr, listenerMgr);
@@ -397,6 +401,7 @@ public class GenTests extends GenInputsAbstract {
     /*
      * Setup for test predicate
      */
+    // 咦，必然排除"幺元"？
     // Always exclude a singleton sequence with just new Object()
     TypedOperation objectConstructor;
     try {

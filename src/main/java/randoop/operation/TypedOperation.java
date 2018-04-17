@@ -32,6 +32,7 @@ import randoop.types.TypeVariable;
  * @see randoop.operation.TypedTermOperation
  */
 public abstract class TypedOperation implements Operation, Comparable<TypedOperation> {
+  // 曾经的一个改动瞎尝试是，implements WeightedElement，然后各个子类实现 public double getWeight()
 
   /** The operation to be decorated */
   private final CallableOperation operation;

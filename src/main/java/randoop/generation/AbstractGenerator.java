@@ -213,7 +213,7 @@ public abstract class AbstractGenerator {
    *
    * @return true iff any stopping criterion is met
    */
-  protected boolean shouldStop() {
+  protected boolean shouldStop() { // 调用位置唯一
     return (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis)
         || (numAttemptedSequences() >= limits.attempted_limit)
         || (numGeneratedSequences() >= limits.generated_limit)
@@ -284,7 +284,7 @@ public abstract class AbstractGenerator {
 
     // Notify listeners that exploration is starting.
     if (listenerMgr != null) {
-      listenerMgr.explorationStart();
+      listenerMgr.explorationStart(); // 会通知每个注册了的 listener
     }
 
     while (!shouldStop()) {
