@@ -226,9 +226,11 @@ public abstract class GenInputsAbstract extends CommandHandler {
   public static File require_covered_classes = null;
 
   /**
-   * Flag indicating whether or not to automatically minimize error-revealing tests. Both original
-   * and minimized versions of each test class will be output. Setting this option may cause long
-   * Randoop run times if Randoop outputs and minimizes more than about 100 error-revealing tests.
+   * If true, Randoop outputs both original error-revealing tests and a minimized version. Setting
+   * this option may cause long Randoop run times if Randoop outputs and minimizes more than about
+   * 100 error-revealing tests; consider using <a href="#option:stop-on-error-test"><code>
+   * --stop-on-error-test=true</code></a>. Also see the <a
+   * href="#optiongroup:Test-case-minimization-options">test case minimization options</a>.
    */
   // Omit this to keep the documentation short:
   // Regardless of this option's setting, minimization is enabled when
@@ -367,8 +369,10 @@ public abstract class GenInputsAbstract extends CommandHandler {
 
   ///////////////////////////////////////////////////////////////////
   /**
-   * File containing side-effect-free observer methods. Specifying observers has two benefits: it
-   * makes regression tests stronger, and it helps Randoop create smaller tests.
+   * File containing side-effect-free observer methods, each given as a <a
+   * href="https://randoop.github.io/randoop/manual/#fully-qualified-signature">fully-qualified
+   * signature</a> on a separate line. Specifying observers has two benefits: it makes regression
+   * tests stronger, and it helps Randoop create smaller tests.
    */
   @OptionGroup("Observer methods")
   @Option("File containing observer functions")
@@ -454,7 +458,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
   @Option("Do not generate tests with more than this many statements")
   public static int maxsize = 100;
 
-  /** Stop generation once an error-revealing test has been generated. */
+  /** Stop generation as soon as one error-revealing test has been generated. */
   @Option("Stop after generating any error-revealing test")
   public static boolean stop_on_error_test = false;
 

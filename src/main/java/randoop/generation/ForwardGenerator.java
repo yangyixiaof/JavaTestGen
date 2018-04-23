@@ -47,7 +47,7 @@ public class ForwardGenerator extends AbstractGenerator {
    */
   private final LinkedHashSet<Sequence> allSequences;
 
-  /** The side-effect-free obzerver methods. */
+  /** The side-effect-free observer methods. */
   private final Set<TypedOperation> observers;
 
   /** Sequences that are used in other sequences (and are thus redundant) */
@@ -275,7 +275,7 @@ public class ForwardGenerator extends AbstractGenerator {
       return null;
     }
 
-    // Select a StatementInfo
+    // Select the next operation to use in constructing a new sequence.
     TypedOperation operation = Randomness.randomMember(this.operations);
     Log.logLine("Selected operation: " + operation.toString());
 
