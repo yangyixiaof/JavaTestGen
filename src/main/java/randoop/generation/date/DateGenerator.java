@@ -23,6 +23,10 @@ import randoop.util.Randomness;
 
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
+
+  public int numOfSeqSelected = 1;
+  public int numOfMutSelected = 1;
+
   /**
    * 这个字段简直…… 没有它就难以实现 numGeneratedSequences() 和 getAllSequences() 呢。
    *
@@ -121,18 +125,24 @@ public class DateGenerator extends AbstractGenerator {
       componentManager.clearGeneratedSequences();
     }
 
-    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
-    if (eSeq == null) {
-      return null;
-    }
+    //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
+    List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
+    System.out.println("after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
+    for (ExecutableSequence eSeq : eSeqs) {
+      if (eSeq == null) {
+        return null;
+      }
 
-    // TODO 试试 dontexecute 的选项
-    if (GenInputsAbstract.dontexecute) {
-      this.componentManager.addGeneratedSequence(eSeq.sequence);
-      return null;
-    }
+      // TODO 试试 dontexecute 的选项
+      if (GenInputsAbstract.dontexecute) {
+        this.componentManager.addGeneratedSequence(eSeq.sequence);
+        return null;
+      }
 
-    setCurrentSequence(eSeq.sequence);
+      // 唔 有点让 currSeq 失去意义了……TODO
+      //    setCurrentSequence(eSeq.sequence);
+      setCurrentSequence(eSeq.sequence);
+    }
 
     long gentime1 = System.nanoTime() - startTime; // rename it
 
@@ -143,7 +153,7 @@ public class DateGenerator extends AbstractGenerator {
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // TODO 弄清 execute 作用……
-    //    process_execute(); // 并行化之前挺慢的 TODO 定量测一测
+    process_execute(eSeqs); // 并行化之前挺慢的 TODO 定量测一测
 
     startTime = System.nanoTime(); // reset start time.
 
@@ -161,14 +171,20 @@ public class DateGenerator extends AbstractGenerator {
 
     long gentime2 = System.nanoTime() - startTime; // rename it
 
-    eSeq.gentime = gentime1 + gentime2;
+    //    eSeq.gentime = gentime1 + gentime2;
 
-    return eSeq;
+    //    return eSeq;
+
+    // TODO FFFFFFML?
+    return eSeqs.get(0);
   }
 
-  private void process_execute() {
+  private void process_execute(List<ExecutableSequence> eSeqs) {
     List<String> test_cases = new LinkedList<String>();
-    test_cases.add(currSeq.toString());
+    //    test_cases.add(currSeq.toString());
+    for (ExecutableSequence eSeq : eSeqs) {
+      test_cases.add(eSeq.toCodeString());
+    }
     ProcessExecutor exe_ctor = new ProcessExecutor(test_cases);
     exe_ctor.ExecuteTestCases();
   }
@@ -190,6 +206,46 @@ public class DateGenerator extends AbstractGenerator {
       sequence_set.add(sequence);
     }
     return sequence_set;
+  }
+
+  private List<ExecutableSequence> createNewUniqueSequences(
+      int numOfSeqSelected, int numOfMutSelected) {
+
+    List<Sequence> sourceSequences = new ArrayList<>();
+    for (int i = 0; i < numOfSeqSelected; i++) {
+      sourceSequences.add(
+          Randomness.randomSetMember(this.allSequences.values())); // TODO 去重、或直接高效不选重复
+    }
+    //    Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
+
+    List<ExecutableSequence> newSequences = new ArrayList<>();
+    for (Sequence sourceSequence : sourceSequences) {
+      MutationAnalyzer analyzer =
+          new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
+      // TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
+      List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
+      try {
+        analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
+      } catch (DateWtfException e) {
+        e.printStackTrace();
+      }
+      for (int i = 0; i < numOfMutSelected; i++) {
+        MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
+        TraceableSequence newSequence = selectedMutation.ApplyMutation();
+        // 竟然用 LongFormString 当 key 吗…… 来防止重复 // TODO 用它 HashCode 防？
+        if (this.allSequences.containsKey(newSequence.toLongFormString())) {
+          // TODO 要沿用日志格式的话，就得从 MutationOperation 里拿 TypedOperation
+          // operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+          Log.logLine("Sequence discarded because the same sequence was previously created.");
+          //          return null;
+          // 不加这个而已，别返回 null
+        }
+        this.allSequences.put(newSequence.toLongFormString(), newSequence);
+        newSequences.add(new ExecutableSequence(newSequence));
+      }
+    }
+
+    return newSequences;
   }
 
   /**

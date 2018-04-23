@@ -72,6 +72,7 @@ public class ProcessExecutor {
         new String[] {
           "javac", "-cp", System.getProperty("java.class.path"), test_case_name + ".java"
         };
+    System.out.println("before 执行 javac_cmds 于 " + dir);
     ExecuteOneCmdForTestCase(javac_cmds, dir);
     String[] java_agent_cmds =
         new String[] {
@@ -82,6 +83,7 @@ public class ProcessExecutor {
           "." + System.getProperty("path.separator") + System.getProperty("java.class.path"),
           test_case_name
         };
+    System.out.println("before 执行 java_agent_cmds 于 " + dir);
     ExecuteOneCmdForTestCase(java_agent_cmds, dir);
   }
 
