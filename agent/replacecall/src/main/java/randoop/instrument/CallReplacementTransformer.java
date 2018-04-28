@@ -442,7 +442,7 @@ public class CallReplacementTransformer extends InstructionListUtils
         // oops; we expect NEW to be immediatly followed by DUP
         throw new IllegalClassFormatException("Unable to find NEW DUP pair.");
       }
-      delete_instructions(mg, top.new_inst, top.new_inst.getNext());
+//      delete_instructions(mg, top.new_inst, top.new_inst.getNext());
       new_dup_removed = true;
     }
 

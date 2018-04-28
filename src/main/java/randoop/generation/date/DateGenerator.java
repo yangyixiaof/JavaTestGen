@@ -24,8 +24,8 @@ import randoop.util.Randomness;
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
 
-  public int numOfSeqSelected = 1;
-  public int numOfMutSelected = 1;
+  public int numOfSeqSelected = 3;
+  public int numOfMutSelected = 3;
 
   /**
    * 这个字段简直…… 没有它就难以实现 numGeneratedSequences() 和 getAllSequences() 呢。
@@ -125,6 +125,7 @@ public class DateGenerator extends AbstractGenerator {
       componentManager.clearGeneratedSequences();
     }
 
+    // TODO 有一些产生了的没放进最终结果？
     //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
     List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
     System.out.println("after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
@@ -133,7 +134,7 @@ public class DateGenerator extends AbstractGenerator {
         return null;
       }
 
-      // TODO 试试 dontexecute 的选项
+      // TODO 试试 dontexecute 的未公开选项
       if (GenInputsAbstract.dontexecute) {
         this.componentManager.addGeneratedSequence(eSeq.sequence);
         return null;
