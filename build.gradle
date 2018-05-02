@@ -143,6 +143,8 @@ configurations {
 dependencies {
   implementation configurations.plumelib
   
+  implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.13.102'
+  
   implementation 'org.tensorflow:tensorflow:1.7.0'
   implementation 'com.google.guava:guava:24.1-jre'
   
