@@ -1,0 +1,150 @@
+package randoop.generation.date.embed;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Statement;
+
+public class SimplifiedASTTree {
+	
+	// depth information of ASTNode
+	Map<ASTNode, Integer> depth_forward = new HashMap<ASTNode, Integer>();
+	Map<Integer, LinkedList<ASTNode>> depth_backward = new TreeMap<Integer, LinkedList<ASTNode>>();
+	
+	// the following three are set up by decode and are used both by decode and encode
+	Map<ASTNode, Integer> node_encode_index_map = new HashMap<ASTNode, Integer>();
+	Map<ASTNode, Integer> node_encode_first_child_index_map = new HashMap<ASTNode, Integer>();
+	Map<ASTNode, Integer> node_encode_last_child_index_map = new HashMap<ASTNode, Integer>();
+	
+	public SimplifiedASTTree() {
+	}
+	
+	private void AssertNodeHasSameLevel(ASTNode node, int depth, Map<Integer, LinkedList<ASTNode>> depth_backward) {
+		ASTNode node_parent = node.getParent();
+		LinkedList<ASTNode> same_depth_decode_nodes = depth_backward.get(depth);
+		if (same_depth_decode_nodes != null && same_depth_decode_nodes.size() > 0) {
+			if (node_parent == null) {
+				Assert.isTrue(node_parent == same_depth_decode_nodes.getLast().getParent());
+			} else {
+				Assert.isTrue(node_parent.equals(same_depth_decode_nodes.getLast().getParent()), "node_parent:" + node_parent + "^###^another_parent:" + same_depth_decode_nodes.getLast().getParent() + "^###^another_parent_parent:" + same_depth_decode_nodes.getLast().getParent().getParent());
+			}
+		}
+	}
+
+	public int SetUpAndGetDepth(ASTNode node) {
+		if (depth_forward.containsKey(node)) {
+		} else {
+			// set up depth info
+			ASTNode parent = node.getParent();
+			int node_depth = parent == null ? 0 : (depth_forward.get(parent) == null ? 0 : depth_forward.get(parent) + 1);
+			if (node_depth == 0) {
+				AssertNodeHasSameLevel(node, node_depth, depth_backward);
+			}
+			PutToDepthForwardBackward(depth_forward, depth_backward, node, node_depth);
+		}
+		return depth_forward.get(node);
+	}
+	
+	private void PutListOfNodesToDepthForwardBackward(Map<ASTNode, Integer> depth_forward, Map<Integer, LinkedList<ASTNode>> depth_backward, List<ASTNode> nodes, int depth) {
+		Iterator<ASTNode> nitr = nodes.iterator();
+		while (nitr.hasNext()) {
+			ASTNode node = nitr.next();
+			PutToDepthForwardBackward(depth_forward, depth_backward, node, depth);
+		}
+	}
+	
+	private void PutToDepthForwardBackward(Map<ASTNode, Integer> depth_forward, Map<Integer, LinkedList<ASTNode>> depth_backward, ASTNode node, int depth) {
+		depth_forward.put(node, depth);
+		PutToDepthBackward(depth_backward, node, depth);
+	}
+	
+	private void PutToDepthBackward(Map<Integer, LinkedList<ASTNode>> depth_backward, ASTNode node, int depth) {
+		LinkedList<ASTNode> ll = depth_backward.get(depth);
+		if (ll == null) {
+			ll = new LinkedList<ASTNode>();
+			depth_backward.put(depth, ll);
+		}
+		ll.add(node);
+	}
+	
+	public int Size() {
+		return depth_forward.size();
+	}
+	
+	public boolean Contains(ASTNode node) {
+		return depth_forward.containsKey(node);
+	}
+	
+	public void GenerateEncodeDecodeData() {
+		GenerateEncodeDataFromDepthInfo();
+	}
+	
+	private void GenerateEncodeDataFromDepthInfo() {
+		// start generating tensor which is used for computing embed
+		Map<ASTNode, Integer> node_encode_child_start_map = new HashMap<ASTNode, Integer>();
+		Map<ASTNode, Integer> node_encode_child_end_map = new HashMap<ASTNode, Integer>();
+
+		List<Integer> keys = new ArrayList<Integer>(depth_backward.keySet());
+		Collections.reverse(keys);
+		Iterator<Integer> kitr = keys.iterator();
+		int node_count = 0;
+		while (kitr.hasNext()) {
+			Integer key = kitr.next();
+			LinkedList<ASTNode> all_nodes = depth_backward.get(key);
+			Iterator<ASTNode> aitr = all_nodes.iterator();
+			while (aitr.hasNext()) {
+				ASTNode anode = aitr.next();
+				Integer child_start = node_encode_child_start_map.get(anode);
+				Integer child_end = node_encode_child_end_map.get(anode);
+				int child_start_idx = child_start == null ? -1 : child_start;
+				int child_end_idx = child_end == null ? -1 : child_end;
+				List<ASTNode> anode_children = JDTSearchForChildrenOfASTNode.GetChildren(anode);
+				boolean is_leaf_node = (anode_children == null) || (anode_children.size() == 0);
+				TypeContentID type_content_id = TypeContentIDFetcher.FetchTypeContentID(anode, is_leaf_node, im);
+				if (!is_root_tree || key > 0) {
+//				if (key > 0) {
+					ASTNode parent = anode.getParent();
+					List<ASTNode> children = JDTSearchForChildrenOfASTNode.GetChildren(parent);
+					assert (children != null && children.size() > 0);
+					int aidx = children.indexOf(anode);
+					if (aidx == 0) {
+						int first_index = tensor.StoreOneEncodeNode(-1, -1,
+								im.GetTypeID(IDManager.InitialLeafASTType), im.GetContentID(IDManager.Default),
+								happened_type.get(im.GetTypeID(IDManager.InitialLeafASTType)), happened_content.get(im.GetContentID(IDManager.Default)), IDManager.InitialLeafASTType, IDManager.Default);
+						node_encode_first_child_index_map.put(parent, first_index);
+						node_count++;
+						node_encode_child_start_map.put(parent, first_index);
+					}
+					int anode_index = tensor.StoreOneEncodeNode(child_start_idx, child_end_idx, type_content_id.GetTypeID(),
+							type_content_id.GetContentID(), happened_type.get(type_content_id.GetTypeID()), happened_content.get(type_content_id.GetContentID()), type_content_id.GetType(), type_content_id.GetContent());
+					node_encode_index_map.put(anode, anode_index);
+					node_count++;
+					if (aidx == children.size() - 1) {
+						int last_index = tensor.StoreOneEncodeNode(-1, -1,
+								im.GetTypeID(IDManager.TerminalLeafASTType), im.GetContentID(IDManager.Default),
+								happened_type.get(im.GetTypeID(IDManager.TerminalLeafASTType)), happened_content.get(im.GetContentID(IDManager.Default)), IDManager.TerminalLeafASTType, IDManager.Default);
+						node_encode_last_child_index_map.put(parent, last_index);
+						node_count++;
+						node_encode_child_end_map.put(parent, last_index);
+					}
+				} else {
+					int anode_index = tensor.StoreOneEncodeNode(child_start_idx, child_end_idx, type_content_id.GetTypeID(),
+							type_content_id.GetContentID(), happened_type.get(type_content_id.GetTypeID()), happened_content.get(type_content_id.GetContentID()), type_content_id.GetType(), type_content_id.GetContent());
+					node_encode_index_map.put(anode, anode_index);
+					node_count++;
+				}
+			}
+			tensor.StoreOneParallelEncodePhase(node_count);
+		}
+	}
+	
+}
