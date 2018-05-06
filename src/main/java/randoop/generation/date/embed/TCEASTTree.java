@@ -175,22 +175,24 @@ public class TCEASTTree {
 		}
 		if (node instanceof Assignment) {
 			Assignment as_expr = (Assignment)node;
-			
+			if (as_expr.getParent() instanceof Statement) {
+				
+			}
 		}
 		if (node instanceof MethodInvocation) {
 			MethodInvocation mi_expr = (MethodInvocation)node;
-			
+			if (mi_expr.getParent() instanceof Statement) {
+				
+			}
 		}
 	}
 	
 	private void HandleVariableFragment(VariableDeclarationFragment vdf) {
 		IBinding binding = vdf.getName().resolveBinding();
 		Assert.isTrue(binding != null);
-		if ((vdf.getParent() instanceof Statement) || (vdf.getParent() instanceof VariableDeclarationExpression && vdf.getParent() instanceof Statement)) {
-			binding_statement_map.put(binding, statement_binding_map.size());
-			statement_binding_map.add(binding);
-		}
-		
+		Assert.isTrue((vdf.getParent() instanceof Statement) || (vdf.getParent() instanceof VariableDeclarationExpression && vdf.getParent() instanceof Statement));
+		binding_statement_map.put(binding, statement_binding_map.size());
+		statement_binding_map.add(binding);
 	}
 	
 }
