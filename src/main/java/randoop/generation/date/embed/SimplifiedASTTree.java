@@ -16,6 +16,9 @@ import org.eclipse.jdt.core.dom.Statement;
 
 public class SimplifiedASTTree {
 	
+	// where to store the tensor
+	int[][] to_compute_embed_tensor = null;
+	
 	// depth information of ASTNode
 	Map<ASTNode, Integer> depth_forward = new HashMap<ASTNode, Integer>();
 	Map<Integer, LinkedList<ASTNode>> depth_backward = new TreeMap<Integer, LinkedList<ASTNode>>();
@@ -25,7 +28,8 @@ public class SimplifiedASTTree {
 	Map<ASTNode, Integer> node_encode_first_child_index_map = new HashMap<ASTNode, Integer>();
 	Map<ASTNode, Integer> node_encode_last_child_index_map = new HashMap<ASTNode, Integer>();
 	
-	public SimplifiedASTTree() {
+	public SimplifiedASTTree(int[][] to_compute_embed_tensor) {
+		this.to_compute_embed_tensor = to_compute_embed_tensor;
 	}
 	
 	private void AssertNodeHasSameLevel(ASTNode node, int depth, Map<Integer, LinkedList<ASTNode>> depth_backward) {
@@ -52,14 +56,6 @@ public class SimplifiedASTTree {
 			PutToDepthForwardBackward(depth_forward, depth_backward, node, node_depth);
 		}
 		return depth_forward.get(node);
-	}
-	
-	private void PutListOfNodesToDepthForwardBackward(Map<ASTNode, Integer> depth_forward, Map<Integer, LinkedList<ASTNode>> depth_backward, List<ASTNode> nodes, int depth) {
-		Iterator<ASTNode> nitr = nodes.iterator();
-		while (nitr.hasNext()) {
-			ASTNode node = nitr.next();
-			PutToDepthForwardBackward(depth_forward, depth_backward, node, depth);
-		}
 	}
 	
 	private void PutToDepthForwardBackward(Map<ASTNode, Integer> depth_forward, Map<Integer, LinkedList<ASTNode>> depth_backward, ASTNode node, int depth) {
