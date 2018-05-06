@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -94,12 +95,9 @@ public class TCEASTTree {
 	
 	private void GenerateEncodeDataFromDepthInfo() {
 		// start generating tensor which is used for computing embed
-		Map<ASTNode, Integer> node_encode_child_start_map = new HashMap<ASTNode, Integer>();
-		Map<ASTNode, Integer> node_encode_child_end_map = new HashMap<ASTNode, Integer>();
-		
 		LinkedList<ASTNode> statements_nodes = depth_backward.get(0);
 		for (ASTNode statement_root : statements_nodes) {
-			
+			HandleASTNode(statement_root);
 		}
 //		List<Integer> keys = new ArrayList<Integer>(depth_backward.keySet());
 //		Collections.reverse(keys);
@@ -176,14 +174,30 @@ public class TCEASTTree {
 		if (node instanceof Assignment) {
 			Assignment as_expr = (Assignment)node;
 			if (as_expr.getParent() instanceof Statement) {
-				
+				Expression left_as_expr = as_expr.getLeftHandSide();
+				if (left_as_expr instanceof SimpleName) {
+					SimpleName sn = (SimpleName)left_as_expr;
+					IBinding binding = sn.resolveBinding();
+					binding_statement_map.put(binding, statement_binding_map.size());
+					statement_binding_map.add(binding);
+				}
 			}
+			// TODO
+			
 		}
 		if (node instanceof MethodInvocation) {
 			MethodInvocation mi_expr = (MethodInvocation)node;
 			if (mi_expr.getParent() instanceof Statement) {
-				
+				Expression expr = mi_expr.getExpression();
+				if (expr instanceof SimpleName) {
+					SimpleName sn = (SimpleName)expr;
+					IBinding binding = sn.resolveBinding();
+					binding_statement_map.put(binding, statement_binding_map.size());
+					statement_binding_map.add(binding);
+				}
 			}
+			// TODO
+			
 		}
 	}
 	
@@ -193,6 +207,7 @@ public class TCEASTTree {
 		Assert.isTrue((vdf.getParent() instanceof Statement) || (vdf.getParent() instanceof VariableDeclarationExpression && vdf.getParent() instanceof Statement));
 		binding_statement_map.put(binding, statement_binding_map.size());
 		statement_binding_map.add(binding);
+		// TODO
 	}
 	
 }
