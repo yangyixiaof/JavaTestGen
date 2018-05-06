@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -44,7 +43,7 @@ public class EmbedComputeTensorGenerator extends ASTVisitor {
 			Map<ASTNode, Integer> node_count = new HashMap<ASTNode, Integer>();
 			node.accept(new NodeCountVisitor(node_count));
 			need_to_generate_node_num = node_count.get(node) - 1;
-			to_compute_embed_tensor = new int[6][need_to_generate_node_num];
+			to_compute_embed_tensor = new int[3][need_to_generate_node_num];
 		}
 		super.preVisit(node);
 	}
