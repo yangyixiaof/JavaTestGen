@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -185,8 +186,11 @@ public class TCEASTTree {
 	private void HandleVariableFragment(VariableDeclarationFragment vdf) {
 		IBinding binding = vdf.getName().resolveBinding();
 		Assert.isTrue(binding != null);
-		binding_statement_map.put(binding, statement_binding_map.size());
-		statement_binding_map.add(binding);
+		if ((vdf.getParent() instanceof Statement) || (vdf.getParent() instanceof VariableDeclarationExpression && vdf.getParent() instanceof Statement)) {
+			binding_statement_map.put(binding, statement_binding_map.size());
+			statement_binding_map.add(binding);
+		}
+		
 	}
 	
 }
