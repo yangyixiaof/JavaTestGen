@@ -42,8 +42,8 @@ public class EmbedComputeTensorGenerator extends ASTVisitor {
 			begin_generation = true;
 			Map<ASTNode, Integer> node_count = new HashMap<ASTNode, Integer>();
 			node.accept(new NodeCountVisitor(node_count));
-			need_to_generate_node_num = node_count.get(node) - 1;
-			to_compute_embed_tensor = new int[3][need_to_generate_node_num];
+//			need_to_generate_node_num = node_count.get(node) - 1;
+//			to_compute_embed_tensor = new int[3][need_to_generate_node_num];
 		}
 		super.preVisit(node);
 	}

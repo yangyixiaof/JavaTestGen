@@ -22,23 +22,26 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class TCEASTTree {
 	
-	// where to store the tensor
-	int[][] to_compute_embed_tensor = null;
-	
 	// depth information of ASTNode
 	Map<ASTNode, Integer> depth_forward = new HashMap<ASTNode, Integer>();
 	Map<Integer, LinkedList<ASTNode>> depth_backward = new TreeMap<Integer, LinkedList<ASTNode>>();
 	
 	// the following three are set up by decode and are used both by decode and encode
-	Map<ASTNode, Integer> node_encode_index_map = new HashMap<ASTNode, Integer>();
-	Map<ASTNode, Integer> node_encode_first_child_index_map = new HashMap<ASTNode, Integer>();
-	Map<ASTNode, Integer> node_encode_last_child_index_map = new HashMap<ASTNode, Integer>();
+//	Map<ASTNode, Integer> node_encode_index_map = new HashMap<ASTNode, Integer>();
+//	Map<ASTNode, Integer> node_encode_first_child_index_map = new HashMap<ASTNode, Integer>();
+//	Map<ASTNode, Integer> node_encode_last_child_index_map = new HashMap<ASTNode, Integer>();
 	
 	ArrayList<IBinding> statement_binding_map = new ArrayList<IBinding>();
 	Map<IBinding, Integer> binding_statement_map = new HashMap<IBinding, Integer>();
 	
-	public TCEASTTree(int[][] to_compute_embed_tensor) {
-		this.to_compute_embed_tensor = to_compute_embed_tensor;
+	ArrayList<ArrayList<Integer>> statement_first_row = new ArrayList<ArrayList<Integer>>();
+	ArrayList<ArrayList<Integer>> statement_second_row = new ArrayList<ArrayList<Integer>>();
+	
+	Map<String, Integer> basic_elements_id_backward = null;
+	
+	public TCEASTTree(Map<String, Integer> basic_elements_id_backward) {// int[][] to_compute_embed_tensor
+//		this.to_compute_embed_tensor = to_compute_embed_tensor;
+		this.basic_elements_id_backward = basic_elements_id_backward;
 	}
 	
 	private void AssertNodeHasSameLevel(ASTNode node, int depth, Map<Integer, LinkedList<ASTNode>> depth_backward) {
@@ -208,6 +211,7 @@ public class TCEASTTree {
 		binding_statement_map.put(binding, statement_binding_map.size());
 		statement_binding_map.add(binding);
 		// TODO
+		vdf.getInitializer();
 	}
 	
 }
