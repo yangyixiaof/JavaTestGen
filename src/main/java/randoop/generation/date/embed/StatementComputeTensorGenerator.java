@@ -1,6 +1,7 @@
 package randoop.generation.date.embed;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public class StatementComputeTensorGenerator extends ASTVisitor {
 	ArrayList<Integer> second_row = new ArrayList<Integer>();
 	
 	public StatementComputeTensorGenerator(Map<IBinding, Integer> binding_statement_map, Map<String, Integer> basic_elements_id_backward, Set<ASTNode> skip_nodes) {
-		this.skip_nodes = skip_nodes;
+		this.skip_nodes = skip_nodes != null ? skip_nodes : new HashSet<ASTNode>();
 		this.binding_statement_map = binding_statement_map;
 		this.basic_elements_id_backward = basic_elements_id_backward;
 	}
@@ -59,6 +60,26 @@ public class StatementComputeTensorGenerator extends ASTVisitor {
 			}
 		}
 		return super.preVisit2(node);
+	}
+	
+	public int GetComputeTensorSize() {
+		return first_row.size();
+	}
+	
+	public int[][] ToNormalizedTensor(int tensor_size) {
+		int[][] result = new int[2][tensor_size];
+		int i_len = GetComputeTensorSize();
+		for (int i=0; i<tensor_size; i++) {
+			if (i < i_len) {
+				result[0][i] = first_row.get(i);
+				result[1][i] = second_row.get(i);
+				
+			} else {
+				result[0][i] = -1;
+				result[1][i] = -1;
+			}
+		}
+		return result;
 	}
 	
 }

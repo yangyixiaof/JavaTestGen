@@ -2,9 +2,11 @@ package randoop.generation.date.embed;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
@@ -31,6 +33,7 @@ public class TCEASTTree {
 //	Map<ASTNode, Integer> node_encode_first_child_index_map = new HashMap<ASTNode, Integer>();
 //	Map<ASTNode, Integer> node_encode_last_child_index_map = new HashMap<ASTNode, Integer>();
 	
+	ArrayList<StatementComputeTensorGenerator> statement_compute_tensor = new ArrayList<StatementComputeTensorGenerator>();
 	ArrayList<IBinding> statement_binding_map = new ArrayList<IBinding>();
 	Map<IBinding, Integer> binding_statement_map = new HashMap<IBinding, Integer>();
 	
@@ -157,15 +160,18 @@ public class TCEASTTree {
 	}
 	
 	private void HandleASTNode(ASTNode node) {
+		boolean node_handled = false;
 		if (node instanceof VariableDeclarationStatement) {
 			@SuppressWarnings("unchecked")
 			List<VariableDeclarationFragment> vdfs = ((VariableDeclarationStatement)node).fragments();
 			Assert.isTrue(vdfs.size() == 1);
 			HandleVariableFragment(vdfs.get(0));
+			node_handled = true;
 		}
 		if (node instanceof ExpressionStatement) {
 			Expression expr = ((ExpressionStatement)node).getExpression();
 			HandleASTNode(expr);
+			node_handled = true;
 		}
 		if (node instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression svd_expr = (VariableDeclarationExpression)node;
@@ -173,6 +179,7 @@ public class TCEASTTree {
 			List<VariableDeclarationFragment> vdfs = svd_expr.fragments();
 			Assert.isTrue(vdfs.size() == 1);
 			HandleVariableFragment(vdfs.get(0));
+			node_handled = true;
 		}
 		if (node instanceof Assignment) {
 			Assignment as_expr = (Assignment)node;
@@ -183,10 +190,13 @@ public class TCEASTTree {
 					IBinding binding = sn.resolveBinding();
 					binding_statement_map.put(binding, statement_binding_map.size());
 					statement_binding_map.add(binding);
+					Expression right_as_expr = as_expr.getRightHandSide();
+					StatementComputeTensorGenerator t_gen = new StatementComputeTensorGenerator(binding_statement_map, basic_elements_id_backward, null);
+					right_as_expr.accept(t_gen);
+					statement_compute_tensor.add(t_gen);
+					node_handled = true;
 				}
 			}
-			// TODO
-			
 		}
 		if (node instanceof MethodInvocation) {
 			MethodInvocation mi_expr = (MethodInvocation)node;
@@ -197,10 +207,18 @@ public class TCEASTTree {
 					IBinding binding = sn.resolveBinding();
 					binding_statement_map.put(binding, statement_binding_map.size());
 					statement_binding_map.add(binding);
+					Set<ASTNode> skip_nodes = new HashSet<ASTNode>();
+					skip_nodes.add(expr);
+					StatementComputeTensorGenerator t_gen = new StatementComputeTensorGenerator(binding_statement_map, basic_elements_id_backward, skip_nodes);
+					mi_expr.accept(t_gen);
+					statement_compute_tensor.add(t_gen);
+					node_handled = true;
 				}
 			}
-			// TODO
-			
+		}
+		if (!node_handled) {
+			new Exception("Some strange node not in handling list #node_type:" + node.getClass() + "#node_content:" + node.toString()).printStackTrace();
+			System.exit(1);
 		}
 	}
 	
@@ -210,8 +228,9 @@ public class TCEASTTree {
 		Assert.isTrue((vdf.getParent() instanceof Statement) || (vdf.getParent() instanceof VariableDeclarationExpression && vdf.getParent() instanceof Statement));
 		binding_statement_map.put(binding, statement_binding_map.size());
 		statement_binding_map.add(binding);
-		// TODO
-		vdf.getInitializer();
+		StatementComputeTensorGenerator t_gen = new StatementComputeTensorGenerator(binding_statement_map, basic_elements_id_backward, null);
+		vdf.getInitializer().accept(t_gen);
+		statement_compute_tensor.add(t_gen);
 	}
 	
 }
