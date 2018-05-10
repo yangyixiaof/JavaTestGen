@@ -16,34 +16,28 @@ public class EmbedComputeTensorGenerator extends ASTVisitor {
 	
 	boolean begin_generation = false;
 	int need_to_generate_node_num = -1;
-	int[][] to_compute_embed_tensor = null;
+	int[][][] to_compute_embed_tensor = null;
 	
 	ArrayList<String> basic_elements_id_forward = null;
 	Map<String, Integer> basic_elements_id_backward = null;
 	
-//	ArrayList<Integer> child_start = new ArrayList<Integer>();
-//	ArrayList<Integer> child_end = new ArrayList<Integer>();
-//	ArrayList<Integer> left = new ArrayList<Integer>();
-//	ArrayList<Integer> up = new ArrayList<Integer>();
-//	ArrayList<Integer> content = new ArrayList<Integer>();
-//	ArrayList<Integer> is_statement = new ArrayList<Integer>();
+	TCEASTTree tce_ast = null;
 	
 	public EmbedComputeTensorGenerator(ArrayList<String> basic_elements_id_forward, Map<String, Integer> basic_elements_id_backward) {
 		this.basic_elements_id_forward = basic_elements_id_forward;
 		this.basic_elements_id_backward = basic_elements_id_backward;
+		this.tce_ast = new TCEASTTree(basic_elements_id_backward);
 	}
 	
 	@Override
 	public void preVisit(ASTNode node) {
 		if (begin_generation) {
-			
+			tce_ast.SetUpAndGetDepth(node);
 		}
 		if (node instanceof Block && (node.getParent() instanceof MethodDeclaration) && (node.getParent().getParent() instanceof TypeDeclaration)) {
 			begin_generation = true;
 			Map<ASTNode, Integer> node_count = new HashMap<ASTNode, Integer>();
 			node.accept(new NodeCountVisitor(node_count));
-//			need_to_generate_node_num = node_count.get(node) - 1;
-//			to_compute_embed_tensor = new int[3][need_to_generate_node_num];
 		}
 		super.preVisit(node);
 	}
@@ -51,9 +45,14 @@ public class EmbedComputeTensorGenerator extends ASTVisitor {
 	@Override
 	public void postVisit(ASTNode node) {
 		if (node instanceof Block && (node.getParent() instanceof MethodDeclaration)) {
+			to_compute_embed_tensor = tce_ast.ToNormalizedTensor();
 			begin_generation = false;
 		}
 		super.postVisit(node);
+	}
+	
+	public int[][][] GetToComputeEmbedTensor() {
+		return to_compute_embed_tensor;
 	}
 	
 }
