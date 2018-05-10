@@ -22,6 +22,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
+import randoop.generation.date.util.tensor.NPArrayHelper;
+
 public class TCEASTTree {
 	
 	// depth information of ASTNode
@@ -231,6 +233,25 @@ public class TCEASTTree {
 		StatementComputeTensorGenerator t_gen = new StatementComputeTensorGenerator(binding_statement_map, basic_elements_id_backward, null);
 		vdf.getInitializer().accept(t_gen);
 		statement_compute_tensor.add(t_gen);
+	}
+	
+	public int[][][] ToNormalizedTensor() {
+		int s_len = statement_compute_tensor.size();
+		int max_last_dimension_size = 0;
+		for (int s = 0; s < s_len; s++) {
+			StatementComputeTensorGenerator sctg = statement_compute_tensor.get(s);
+			int s_size = sctg.GetComputeTensorSize();
+			if (max_last_dimension_size < s_size) {
+				max_last_dimension_size = s_size;
+			}
+		}
+		int[][][] result = new int[s_len][2][max_last_dimension_size];
+		for (int s = 0; s < s_len; s++) {
+			StatementComputeTensorGenerator sctg = statement_compute_tensor.get(s);
+			int[][] one_statement_tensor = sctg.ToNormalizedTensor(max_last_dimension_size);
+			NPArrayHelper.CopyArray(one_statement_tensor, result[s]);
+		}
+		return result;
 	}
 	
 }
