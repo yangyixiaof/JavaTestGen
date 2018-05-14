@@ -12,7 +12,7 @@ public class QLearning {
 	
 	Graph graph = new Graph();
 	Session session = new Session(graph);
-
+	
 	public QLearning() {
 		// import model
 		try {
