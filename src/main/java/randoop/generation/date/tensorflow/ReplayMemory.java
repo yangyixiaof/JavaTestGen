@@ -22,7 +22,7 @@ public class ReplayMemory {
 	}
 	
 	public void SampleMiniBatch() {
-		
+		// TODO ha
 	}
 	
 }
