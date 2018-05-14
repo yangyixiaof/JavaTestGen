@@ -29,7 +29,10 @@ public class QLearning {
 	}
 
 	public void QLearn() {
-		
+	        s_t, a_t, r_t, s_t_1 = randoop_interact()
+	        d.store_transition(s_t, a_t, r_t, s_t_1)
+	        this_turn_loss_value = QLearn(sess)(d.sample_minibatch())
+	        print(this_turn_loss_value)
 	}
 
 }
