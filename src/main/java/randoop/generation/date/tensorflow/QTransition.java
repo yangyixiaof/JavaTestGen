@@ -1,13 +1,15 @@
 package randoop.generation.date.tensorflow;
 
+import randoop.generation.date.sequence.TraceableSequence;
+
 public class QTransition {
 	
-	String state = null;
+	TraceableSequence state = null;
 	int action = -1;
 	float reward = 0.0f;
-	String next_state = null;
+	TraceableSequence next_state = null;
 	
-	public QTransition(String state, int action, float reward, String next_state) {
+	public QTransition(TraceableSequence state, int action, float reward, TraceableSequence next_state) {
 		this.state = state;
 		this.action = action;
 		this.reward = reward;

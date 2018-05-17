@@ -73,7 +73,6 @@ public class StatementComputeTensorGenerator extends ASTVisitor {
 			if (i < i_len) {
 				result[0][i] = first_row.get(i);
 				result[1][i] = second_row.get(i);
-				
 			} else {
 				result[0][i] = -1;
 				result[1][i] = -1;

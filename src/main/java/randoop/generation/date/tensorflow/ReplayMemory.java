@@ -1,14 +1,18 @@
 package randoop.generation.date.tensorflow;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
 public class ReplayMemory {
 	
-	Map<String, QTransition> all_transitions = new TreeMap<String, QTransition>();
+	TreeMap<String, QTransition> all_transition_map = new TreeMap<String, QTransition>();
+	ArrayList<QTransition> all_transition_list = new ArrayList<QTransition>();
+	
+	final int batch_size = 10;
+	final double retain_threshold = 0.5;
 	
 	public ReplayMemory() {
 	}
@@ -16,13 +20,29 @@ public class ReplayMemory {
 	public void StoreTransitions(List<QTransition> transitions) {
 		for (QTransition qt : transitions) {
 			String q_tran_representation = qt.toString();
-			Assert.isTrue(!all_transitions.containsKey(q_tran_representation));
-			all_transitions.put(q_tran_representation, qt);
+			Assert.isTrue(!all_transition_map.containsKey(q_tran_representation));
+			all_transition_map.put(q_tran_representation, qt);
+			all_transition_list.add(qt);
 		}
 	}
 	
-	public void SampleMiniBatch() {
-		// TODO ha
+	public ArrayList<QTransition> SampleMiniBatch() {
+		ArrayList<QTransition> result = new ArrayList<QTransition>();
+		int length = all_transition_list.size()-1;
+		int i = length-1;
+		while (i >= 0) {
+			if (Math.random() >= retain_threshold) {
+				QTransition q_tran = all_transition_list.get(i);
+				if (Math.random() <= (((double)i)/((double)length))) {
+					result.add(q_tran);
+				}
+			}
+			if (result.size() >= batch_size) {
+				break;
+			}
+			i--;
+		}
+		return result;
 	}
 	
 }

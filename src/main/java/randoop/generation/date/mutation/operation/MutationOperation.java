@@ -13,4 +13,7 @@ public abstract class MutationOperation {
   public abstract TraceableSequence ApplyMutation();
 
   public abstract String toString();
+  
+  public abstract int[][] toMutationComputeTensor();
+  
 }

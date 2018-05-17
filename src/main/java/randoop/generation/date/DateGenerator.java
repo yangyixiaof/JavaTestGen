@@ -28,9 +28,9 @@ public class DateGenerator extends AbstractGenerator {
   public int numOfMutSelected = 1;
 
   /**
-   * 这个字段简直…… 没有它就难以实现 numGeneratedSequences() 和 getAllSequences() 呢。
+   * 杩欎釜瀛楁绠�鐩粹�︹�� 娌℃湁瀹冨氨闅句互瀹炵幇 numGeneratedSequences() 鍜� getAllSequences() 鍛€��
    *
-   * <p>有字段就得维护字段，哼咕。TODO check TODO 学 ForwardGenerator
+   * <p>鏈夊瓧娈靛氨寰楃淮鎶ゅ瓧娈碉紝鍝煎挄銆俆ODO check TODO 瀛� ForwardGenerator
    *
    * <p>The set of ALL sequences ever generated, including sequences that were executed and then
    * discarded.
@@ -54,7 +54,7 @@ public class DateGenerator extends AbstractGenerator {
   // /**
   // * Constructs a generator with the given parameters.
   // *
-  // * <p>IDEA 自动从基类 copy 的 doc…… 这是个 good practice 么？
+  // * <p>IDEA 鑷姩浠庡熀绫� copy 鐨� doc鈥︹�� 杩欐槸涓� good practice 涔堬紵
   // *
   // * @param operations statements (e.g. methods and constructors) used to create sequences.
   // Cannot
@@ -120,7 +120,7 @@ public class DateGenerator extends AbstractGenerator {
 
     long startTime = System.nanoTime();
 
-    // 以现在的规模，无害
+    // 浠ョ幇鍦ㄧ殑瑙勬ā锛屾棤瀹�
     if (componentManager.numGeneratedSequences() % GenInputsAbstract.clear == 0) {
       componentManager.clearGeneratedSequences();
     }
@@ -133,13 +133,13 @@ public class DateGenerator extends AbstractGenerator {
         return null;
       }
 
-      // TODO 试试 dontexecute 的选项
+      // TODO 璇曡瘯 dontexecute 鐨勯�夐」
       if (GenInputsAbstract.dontexecute) {
         this.componentManager.addGeneratedSequence(eSeq.sequence);
         return null;
       }
 
-      // 唔 有点让 currSeq 失去意义了……TODO
+      // 鍞� 鏈夌偣璁� currSeq 澶卞幓鎰忎箟浜嗏�︹�ODO
       //    setCurrentSequence(eSeq.sequence);
       setCurrentSequence(eSeq.sequence);
     }
@@ -148,22 +148,22 @@ public class DateGenerator extends AbstractGenerator {
 
     //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
-    // 插入的 TypedOperation 是否完全没有类型参数的信息？
+    // 鎻掑叆鐨� TypedOperation 鏄惁瀹屽叏娌℃湁绫诲瀷鍙傛暟鐨勪俊鎭紵
     //    eSeq.execute(executionVisitor, checkGenerator);
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
-    // TODO 弄清 execute 作用……
-    process_execute(eSeqs); // 并行化之前挺慢的 TODO 定量测一测
+    // TODO 寮勬竻 execute 浣滅敤鈥︹��
+    process_execute(eSeqs); // 骞惰鍖栦箣鍓嶆尯鎱㈢殑 TODO 瀹氶噺娴嬩竴娴�
 
     startTime = System.nanoTime(); // reset start time.
 
-    // 口怕，先不管它 ：）
+    // 鍙ｆ�曪紝鍏堜笉绠″畠 锛氾級
     // determineActiveIndices(eSeq);
 
-    //    determineActiveIndices(ExecutableSequence seq) 作用：
-    //    如果执行有任何问题（4种）就把全部 statement 设为不 active；
-    //    如果哪个 Statement 没返回值、是方法调用但方法在observer集里（貌似是在调用randoop时通过参数传入？）、返回值是 primitive，皆设为不 active。
-    //    杨：总之就是，对一个 ExecutableSequence，分析出它产出了哪些能当作输入的值。
+    //    determineActiveIndices(ExecutableSequence seq) 浣滅敤锛�
+    //    濡傛灉鎵ц鏈変换浣曢棶棰橈紙4绉嶏級灏辨妸鍏ㄩ儴 statement 璁句负涓� active锛�
+    //    濡傛灉鍝釜 Statement 娌¤繑鍥炲�笺�佹槸鏂规硶璋冪敤浣嗘柟娉曞湪observer闆嗛噷锛堣矊浼兼槸鍦ㄨ皟鐢╮andoop鏃堕�氳繃鍙傛暟浼犲叆锛燂級銆佽繑鍥炲�兼槸 primitive锛岀殕璁句负涓� active銆�
+    //    鏉細鎬讳箣灏辨槸锛屽涓�涓� ExecutableSequence锛屽垎鏋愬嚭瀹冧骇鍑轰簡鍝簺鑳藉綋浣滆緭鍏ョ殑鍊笺��
 
     // if (eSeq.sequence.hasActiveFlags()) {
     // componentManager.addGeneratedSequence(eSeq.sequence);
@@ -190,7 +190,7 @@ public class DateGenerator extends AbstractGenerator {
   }
 
   /**
-   * 仅用于判定停止。@see
+   * 浠呯敤浜庡垽瀹氬仠姝€�侤see
    *
    * @return
    */
@@ -214,7 +214,7 @@ public class DateGenerator extends AbstractGenerator {
     List<Sequence> sourceSequences = new ArrayList<>();
     for (int i = 0; i < numOfSeqSelected; i++) {
       sourceSequences.add(
-          Randomness.randomSetMember(this.allSequences.values())); // TODO 去重、或直接高效不选重复
+          Randomness.randomSetMember(this.allSequences.values())); // TODO 鍘婚噸銆佹垨鐩存帴楂樻晥涓嶉�夐噸澶�
     }
     //    Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
 
@@ -222,7 +222,7 @@ public class DateGenerator extends AbstractGenerator {
     for (Sequence sourceSequence : sourceSequences) {
       MutationAnalyzer analyzer =
           new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
-      // TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
+      // TODO 璇� GenerateMutationOperations 鏀寔骞夸竴鐐圭殑鏁版嵁缁撴瀯鍚
       List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
       try {
         analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
@@ -232,13 +232,13 @@ public class DateGenerator extends AbstractGenerator {
       for (int i = 0; i < numOfMutSelected; i++) {
         MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
         TraceableSequence newSequence = selectedMutation.ApplyMutation();
-        // 竟然用 LongFormString 当 key 吗…… 来防止重复 // TODO 用它 HashCode 防？
+        // 绔熺劧鐢� LongFormString 褰� key 鍚椻�︹�� 鏉ラ槻姝㈤噸澶� // TODO 鐢ㄥ畠 HashCode 闃诧紵
         if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-          // TODO 要沿用日志格式的话，就得从 MutationOperation 里拿 TypedOperation
+          // TODO 瑕佹部鐢ㄦ棩蹇楁牸寮忕殑璇濓紝灏卞緱浠� MutationOperation 閲屾嬁 TypedOperation
           // operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
           Log.logLine("Sequence discarded because the same sequence was previously created.");
           //          return null;
-          // 不加这个而已，别返回 null
+          // 涓嶅姞杩欎釜鑰屽凡锛屽埆杩斿洖 null
         }
         this.allSequences.put(newSequence.toLongFormString(), newSequence);
         newSequences.add(new ExecutableSequence(newSequence));
@@ -257,11 +257,11 @@ public class DateGenerator extends AbstractGenerator {
    * @return a new sequence, or null
    */
   private ExecutableSequence
-      createNewUniqueSequence() { // TODO是否 instantiated? 1. operation 2. 初始allSequences
+      createNewUniqueSequence() { // TODO鏄惁 instantiated? 1. operation 2. 鍒濆allSequences
     Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
     MutationAnalyzer analyzer =
         new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
-    // TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
+    // TODO 璇� GenerateMutationOperations 鏀寔骞夸竴鐐圭殑鏁版嵁缁撴瀯鍚
     List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
     try {
       analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
@@ -271,9 +271,9 @@ public class DateGenerator extends AbstractGenerator {
     MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
     TraceableSequence newSequence = selectedMutation.ApplyMutation();
 
-    // 竟然用 LongFormString 当 key 吗…… 来防止重复 // TODO 用它 HashCode 防？
+    // 绔熺劧鐢� LongFormString 褰� key 鍚椻�︹�� 鏉ラ槻姝㈤噸澶� // TODO 鐢ㄥ畠 HashCode 闃诧紵
     if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-      // TODO 要沿用日志格式的话，就得从 MutationOperation 里拿 TypedOperation
+      // TODO 瑕佹部鐢ㄦ棩蹇楁牸寮忕殑璇濓紝灏卞緱浠� MutationOperation 閲屾嬁 TypedOperation
       // operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
       Log.logLine("Sequence discarded because the same sequence was previously created.");
       return null;
@@ -304,6 +304,6 @@ public class DateGenerator extends AbstractGenerator {
    */
   @Override
   public Set<Sequence> getSubsumedSequences() {
-    return new HashSet<Sequence>();
-  }
+		return new HashSet<Sequence>();
+	}
 }

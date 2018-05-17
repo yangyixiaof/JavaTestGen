@@ -143,6 +143,7 @@ configurations {
 dependencies {
   implementation configurations.plumelib
   
+  implementation 'colt:colt:1.2.0'
   implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.13.102'
   
   implementation 'org.tensorflow:tensorflow:1.7.0'
