@@ -1,7 +1,12 @@
 package randoop.generation.date.mutation.operation;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.Assert;
+
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
@@ -29,9 +34,23 @@ public class Insert extends MutationOperation {
 	}
 
 	@Override
-	public int[][] toMutationComputeTensor() {
-		
-		return null;
+	public int[][] toMutationComputeTensor(Map<TypedOperation, Integer> operation_id_map, Map<String, Integer> other_value_id_map) {
+		int length = inputVariables.size() + 2;
+		int[][] result = new int[2][length];
+		result[0][0] = index;
+		result[1][0] = 2;
+		Assert.isTrue(operation_id_map.containsKey(operation));
+		result[0][1] = operation_id_map.get(operation);
+		result[1][1] = 1;
+		Iterator<Variable> iitr = inputVariables.iterator();
+		int idx = 2;
+		while (iitr.hasNext()) {
+			Variable v = iitr.next();
+			result[0][idx] = v.getDeclIndex();
+			result[1][idx] = 0;
+			idx++;
+		}
+		return result;
 	}
 
 }
