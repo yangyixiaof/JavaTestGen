@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 
+import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
@@ -34,23 +35,30 @@ public class Insert extends MutationOperation {
 	}
 
 	@Override
-	public int[][] toMutationComputeTensor(Map<TypedOperation, Integer> operation_id_map, Map<String, Integer> other_value_id_map) {
+	public DenseObjectMatrix2D toComputeTensor(Map<TypedOperation, Integer> operation_id_map, Map<String, Integer> other_value_id_map) {
 		int length = inputVariables.size() + 2;
-		int[][] result = new int[2][length];
-		result[0][0] = index;
-		result[1][0] = 2;
+		DenseObjectMatrix2D dom2d = new DenseObjectMatrix2D(2, length);
+//		int[][] result = new int[2][length];
+		dom2d.set(0, 0, index);
+		dom2d.set(1, 0, 2);
+//		result[0][0] = index;
+//		result[1][0] = 2;
 		Assert.isTrue(operation_id_map.containsKey(operation));
-		result[0][1] = operation_id_map.get(operation);
-		result[1][1] = 1;
+		dom2d.set(0, 1, operation_id_map.get(operation));
+		dom2d.set(1, 1, 1);
+//		result[0][1] = operation_id_map.get(operation);
+//		result[1][1] = 1;
 		Iterator<Variable> iitr = inputVariables.iterator();
 		int idx = 2;
 		while (iitr.hasNext()) {
 			Variable v = iitr.next();
-			result[0][idx] = v.getDeclIndex();
-			result[1][idx] = 0;
+			dom2d.set(0, idx, v.getDeclIndex());
+			dom2d.set(1, idx, 0);
+//			result[0][idx] = v.getDeclIndex();
+//			result[1][idx] = 0;
 			idx++;
 		}
-		return result;
+		return dom2d;
 	}
 
 }

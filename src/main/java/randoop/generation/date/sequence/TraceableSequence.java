@@ -1,6 +1,10 @@
 package randoop.generation.date.sequence;
 
 import java.util.*;
+
+import cern.colt.matrix.ObjectFactory2D;
+import cern.colt.matrix.ObjectMatrix2D;
+import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.Globals;
 import randoop.generation.date.runtime.DateRuntime;
 import randoop.operation.TypedOperation;
@@ -727,9 +731,40 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 		}
 		return b.toString();
 	}
+	
+	public DenseObjectMatrix2D toComputeTensor(Map<TypedOperation, Integer> operation_id_map, Map<String, Integer> other_value_id_map) {
+		DenseObjectMatrix2D matrix = new DenseObjectMatrix2D(2,0);
+		int stmt_size = this.size();
+		for (int i=0;i<stmt_size;i++) {
+			Statement stmt = this.getStatement(i);
+			int id = operation_id_map.get(stmt.getOperation());
+			List<RelativeNegativeIndex> rnis = stmt.getInputs();
+			int one_statement_size = (rnis == null ? 0 : rnis.size()) + 1;
+			ObjectMatrix2D one_statement_matrix = new DenseObjectMatrix2D(2, one_statement_size);
+			one_statement_matrix.set(0, 0, id);
+			one_statement_matrix.set(1, 0, 3);
+			Iterator<RelativeNegativeIndex> rni_itr = rnis.iterator();
+			int j=1;
+			while (rni_itr.hasNext()) {
+				RelativeNegativeIndex rni = rni_itr.next();
+				int real_index = i+rni.index;
+				one_statement_matrix.set(0, j, real_index);
+				one_statement_matrix.set(1, j, 0);
+				j++;
+			}
+			matrix = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(matrix, one_statement_matrix);
+		}
+		return matrix;
+	}
 
 	@Override
 	public int compareTo(TraceableSequence o) {
 		return toLongFormString().compareTo(o.toLongFormString());
 	}
+	
+//	public static void main(String[] args) {
+//		DenseObjectMatrix2D matrix = new DenseObjectMatrix2D(2,0);
+//		System.out.println("matrix:" + matrix);
+//	}
+	
 }

@@ -2,6 +2,7 @@ package randoop.generation.date.mutation.operation;
 
 import java.util.Map;
 
+import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 
@@ -10,6 +11,7 @@ public class StringInsertModify extends MutationOperation {
 	int stmtIndex = -1;
 	int varIndex = -1;
 	int charIndex = -1;
+	int value = ' ';
 
 	public StringInsertModify(TraceableSequence sequence, int stmtIndex, int varIndex, int charIndex) {
 		super(sequence);
@@ -29,7 +31,7 @@ public class StringInsertModify extends MutationOperation {
 	}
 
 	@Override
-	public int[][] toMutationComputeTensor(Map<TypedOperation, Integer> operation_id_map,
+	public DenseObjectMatrix2D toComputeTensor(Map<TypedOperation, Integer> operation_id_map,
 			Map<String, Integer> other_value_id_map) {
 		
 		return null;
