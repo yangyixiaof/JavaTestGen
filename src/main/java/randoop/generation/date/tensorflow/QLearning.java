@@ -48,14 +48,17 @@ public class QLearning {
 
 	public void QLearn() {
 		// the following two statements should be approximately handled in randoop step procedure.
-//		s_t, a_t, r_t, s_t_1 = randoop_interact()
-//		d.store_transition(s_t, a_t, r_t, s_t_1)
+		// s_t, a_t, r_t, s_t_1 = randoop_interact()
+		// d.store_transition(s_t, a_t, r_t, s_t_1)
 		
-		// self.s_t_batch
-		// self.a_t_batch
-		// self.r_t_batch
-		// self.s_t_1_batch
-		// self.s_t_1_actions_batch
+		// self.s_t_batch = tf.placeholder(int_type, [2, None])
+		// self.s_t_segments_batch = tf.placeholder(int_type, [None])
+		// self.a_t_batch = tf.placeholder(int_type, [2, None])
+		// self.r_t_batch = tf.placeholder(float_type, [None])
+		// self.s_t_1_batch = tf.placeholder(int_type, [2, None])
+		// self.s_t_1_segments_batch = tf.placeholder(int_type, [None])
+		// self.s_t_1_actions_batch = tf.placeholder(int_type, [2, None])
+		// self.s_t_1_actions_segments_batch = tf.placeholder(int_type, [None])
 		
 		DenseObjectMatrix2D s_t_batch = new DenseObjectMatrix2D(2,0);
 		DenseObjectMatrix1D s_t_segments_batch = new DenseObjectMatrix1D(0);
