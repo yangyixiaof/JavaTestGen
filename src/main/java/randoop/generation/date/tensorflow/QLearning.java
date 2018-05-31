@@ -51,23 +51,25 @@ public class QLearning {
 		// s_t, a_t, r_t, s_t_1 = randoop_interact()
 		// d.store_transition(s_t, a_t, r_t, s_t_1)
 		
-		// self.s_t_batch = tf.placeholder(int_type, [2, None])
-		// self.s_t_segments_batch = tf.placeholder(int_type, [None])
-		// self.a_t_batch = tf.placeholder(int_type, [2, None])
-		// self.r_t_batch = tf.placeholder(float_type, [None])
-		// self.s_t_1_batch = tf.placeholder(int_type, [2, None])
-		// self.s_t_1_segments_batch = tf.placeholder(int_type, [None])
-		// self.s_t_1_actions_batch = tf.placeholder(int_type, [2, None])
-		// self.s_t_1_actions_segments_batch = tf.placeholder(int_type, [None])
+//		self.s_t_batch = tf.placeholder(int_type, [2, None])
+//	    self.s_t_segment_batch = tf.placeholder(int_type, [None])
+//	    self.a_t_batch = tf.placeholder(int_type, [2, None])
+//	    self.a_t_segment_batch = tf.placeholder(int_type, [2, None])
+//	    self.r_t_batch = tf.placeholder(float_type, [None])
+//	    self.s_t_1_batch = tf.placeholder(int_type, [2, None])
+//	    self.s_t_1_segment_batch = tf.placeholder(int_type, [None])
+//	    self.s_t_1_actions_batch = tf.placeholder(int_type, [2, None])
+//	    self.s_t_1_actions_segment_batch = tf.placeholder(int_type, [None])
 		
 		DenseObjectMatrix2D s_t_batch = new DenseObjectMatrix2D(2,0);
-		DenseObjectMatrix1D s_t_segments_batch = new DenseObjectMatrix1D(0);
+		DenseObjectMatrix1D s_t_segment_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix2D a_t_batch = new DenseObjectMatrix2D(2,0);
+		DenseObjectMatrix1D a_t_segment_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix1D r_t_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix2D s_t_1_batch = new DenseObjectMatrix2D(2,0);
-		DenseObjectMatrix1D s_t_1_segments_batch = new DenseObjectMatrix1D(0);
+		DenseObjectMatrix1D s_t_1_segment_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix2D s_t_1_actions_batch = new DenseObjectMatrix2D(2,0);
-		DenseObjectMatrix1D s_t_1_actions_segments_batch = new DenseObjectMatrix1D(0);
+		DenseObjectMatrix1D s_t_1_actions_segment_batch = new DenseObjectMatrix1D(0);
 		
 		// the following implements QLearn(sess)(d.sample_minibatch())
 		ArrayList<QTransition> transition_batch = d.SampleMiniBatch();
@@ -76,18 +78,19 @@ public class QLearning {
 			QTransition q_t = t_itr.next();
 			MutationOperation action = pool.GetAllActionsOfOneState(q_t.state).get(q_t.action);
 			s_t_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(s_t_batch, q_t.state.toComputeTensor(operation_id_map, other_value_id_map));
-			s_t_segments_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_segments_batch, ObjectFactory1D.dense.make(1, q_t.state.size()));
+			s_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_segment_batch, ObjectFactory1D.dense.make(1, s_t_batch.columns()));
 			a_t_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(a_t_batch, action.toComputeTensor(operation_id_map, other_value_id_map));
+			a_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(a_t_segment_batch, ObjectFactory1D.dense.make(1, a_t_batch.columns()));
 			r_t_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(r_t_batch, ObjectFactory1D.dense.make(1, q_t.reward));
 			s_t_1_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(s_t_1_batch, q_t.next_state.toComputeTensor(operation_id_map, other_value_id_map));
-			s_t_1_segments_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_segments_batch, ObjectFactory1D.dense.make(1, q_t.next_state.size()));
+			s_t_1_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_batch.columns()));
 			ArrayList<MutationOperation> next_state_all_actions = pool.GetAllActionsOfOneState(q_t.next_state);
 			Iterator<MutationOperation> nitr = next_state_all_actions.iterator();
 			while (nitr.hasNext()) {
 				MutationOperation mo = nitr.next();
 				s_t_1_actions_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(s_t_1_actions_batch, mo.toComputeTensor(operation_id_map, other_value_id_map));
 			}
-			s_t_1_actions_segments_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_actions_segments_batch, ObjectFactory1D.dense.make(1, next_state_all_actions.size()));
+			s_t_1_actions_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_actions_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_actions_batch.columns()));
 		}
 		
 		
