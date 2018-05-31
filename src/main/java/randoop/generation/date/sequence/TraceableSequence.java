@@ -1,11 +1,18 @@
 package randoop.generation.date.sequence;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import cern.colt.matrix.ObjectFactory2D;
 import cern.colt.matrix.ObjectMatrix2D;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.Globals;
+import randoop.generation.date.embed.StringIDAssigner;
+import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.runtime.DateRuntime;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
@@ -732,12 +739,12 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 		return b.toString();
 	}
 	
-	public DenseObjectMatrix2D toComputeTensor(Map<TypedOperation, Integer> operation_id_map, Map<String, Integer> other_value_id_map) {
+	public DenseObjectMatrix2D toComputeTensor(TypedOperationIDAssigner operation_id_assigner, StringIDAssigner string_id_assigner) {
 		DenseObjectMatrix2D matrix = new DenseObjectMatrix2D(2,0);
 		int stmt_size = this.size();
 		for (int i=0;i<stmt_size;i++) {
 			Statement stmt = this.getStatement(i);
-			int id = operation_id_map.get(stmt.getOperation());
+			int id = operation_id_assigner.AssignID(stmt.getOperation());
 			List<RelativeNegativeIndex> rnis = stmt.getInputs();
 			int one_statement_size = (rnis == null ? 0 : rnis.size()) + 1;
 			ObjectMatrix2D one_statement_matrix = new DenseObjectMatrix2D(2, one_statement_size);

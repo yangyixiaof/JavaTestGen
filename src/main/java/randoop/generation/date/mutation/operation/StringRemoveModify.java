@@ -1,10 +1,9 @@
 package randoop.generation.date.mutation.operation;
 
-import java.util.Map;
-
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
+import randoop.generation.date.embed.StringIDAssigner;
+import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.sequence.TraceableSequence;
-import randoop.operation.TypedOperation;
 
 public class StringRemoveModify extends MutationOperation {
 
@@ -30,8 +29,7 @@ public class StringRemoveModify extends MutationOperation {
 	}
 
 	@Override
-	public DenseObjectMatrix2D toComputeTensor(Map<TypedOperation, Integer> operation_id_map,
-			Map<String, Integer> other_value_id_map) {
+	public DenseObjectMatrix2D toComputeTensor(TypedOperationIDAssigner operation_id_assigner, StringIDAssigner string_id_assigner) {
 		return null;
 	}
 }

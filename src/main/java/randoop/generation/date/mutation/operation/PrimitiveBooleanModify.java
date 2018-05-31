@@ -1,11 +1,10 @@
 package randoop.generation.date.mutation.operation;
 
-import java.util.Map;
-
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
+import randoop.generation.date.embed.StringIDAssigner;
+import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.mutation.util.StatementInfoFetcher;
 import randoop.generation.date.sequence.TraceableSequence;
-import randoop.operation.TypedOperation;
 
 public class PrimitiveBooleanModify extends MutationOperation {
 
@@ -29,15 +28,14 @@ public class PrimitiveBooleanModify extends MutationOperation {
 	}
 
 	@Override
-	public DenseObjectMatrix2D toComputeTensor(Map<TypedOperation, Integer> operation_id_map,
-			Map<String, Integer> other_value_id_map) {
+	public DenseObjectMatrix2D toComputeTensor(TypedOperationIDAssigner operation_id_assigner, StringIDAssigner string_id_assigner) {
 		DenseObjectMatrix2D result = new DenseObjectMatrix2D(2, 3);
 //		int[][] result = new int[2][3];
 		result.set(0, 0, stmtIndex);
 		result.set(1, 0, 2);
 //		result[0][0] = stmtIndex;
 //		result[1][0] = 2;
-		int operation_index = operation_id_map.size() + other_value_id_map.get("PrimitiveBooleanModify");
+		int operation_index = string_id_assigner.AssignID("PrimitiveBooleanModify");
 		result.set(0, 1, operation_index);
 		result.set(1, 1, 1);
 //		result[0][1] = operation_index;

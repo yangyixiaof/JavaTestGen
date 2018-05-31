@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.core.runtime.Assert;
-
 import randoop.generation.date.DateWtfException;
 import randoop.generation.date.mutation.MutationAnalyzer;
 import randoop.generation.date.mutation.operation.MutationOperation;
@@ -26,10 +24,10 @@ public class StateActionPool {
 		this.candidates = candidates;
 	}
 
-	private void StoreAllActionsOfOneState(TraceableSequence state, ArrayList<MutationOperation> actions) {
-		Assert.isTrue(!state_actions.containsKey(state));
-		state_actions.put(state, actions);
-	}
+//	private void StoreAllActionsOfOneState(TraceableSequence state, ArrayList<MutationOperation> actions) {
+//		Assert.isTrue(!state_actions.containsKey(state));
+//		state_actions.put(state, actions);
+//	}
 
 	public ArrayList<MutationOperation> GetAllActionsOfOneState(TraceableSequence state) {
 		if (!state_actions.containsKey(state)) {
