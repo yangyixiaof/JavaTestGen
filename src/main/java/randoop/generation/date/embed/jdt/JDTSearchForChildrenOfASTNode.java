@@ -1,4 +1,4 @@
-package randoop.generation.date.embed;
+package randoop.generation.date.embed.jdt;
 
 import java.util.LinkedList;
 import java.util.List;
