@@ -2,11 +2,13 @@ package randoop.generation.date.tensorflow;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
+import org.tensorflow.Tensor;
 
 import com.google.common.io.ByteStreams;
 
@@ -20,10 +22,10 @@ import randoop.generation.date.mutation.operation.MutationOperation;
 
 public class QLearning {
 	
-	Graph graph = new Graph();
-	Session session = new Session(graph);
-	ReplayMemory d = null;
-	StateActionPool pool = null;
+	Graph graph;
+	Session session;
+	ReplayMemory d;
+	StateActionPool pool;
 	
 	TypedOperationIDAssigner operation_id_assigner = new TypedOperationIDAssigner();
 	StringIDAssigner string_id_assigner = new StringIDAssigner();
@@ -32,14 +34,16 @@ public class QLearning {
 //	Map<String, Integer> other_value_id_map = new HashMap<String, Integer>();
 	
 	public QLearning(ReplayMemory d, StateActionPool pool) {
-		this.d = d;
-		this.pool = pool;
 		// import model
+		this.graph = new Graph();
 		try {
-			graph.importGraphDef(LoadGraphDef());
+			this.graph.importGraphDef(LoadGraphDef());
 		} catch (IllegalArgumentException | IOException e) {
 			e.printStackTrace();
 		}
+		this.session = new Session(graph);
+		this.d = d;
+		this.pool = pool;
 	}
 
 	private byte[] LoadGraphDef() throws IOException {
@@ -94,8 +98,9 @@ public class QLearning {
 			}
 			s_t_1_actions_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_actions_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_actions_batch.columns()));
 		}
-		
-		
+		try (Tensor<Integer> ti_s_t_batch = Tensor.create(s_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_segment_batch = Tensor.create(s_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_batch = Tensor.create(a_t_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_segment_batch = Tensor.create(a_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_r_t_batch = Tensor.create(r_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_batch = Tensor.create(s_t_1_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_segment_batch = Tensor.create(s_t_1_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_batch = Tensor.create(s_t_1_actions_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_segment_batch = Tensor.create(s_t_1_actions_segment_batch.toArray(), Integer.class);) {
+			this.session.runner().feed("s_t_batch", ti_s_t_batch).feed("s_t_segment_batch", ti_s_t_segment_batch).feed("a_t_batch", ti_a_t_batch).feed("a_t_segment_batch", ti_a_t_segment_batch).feed("r_t_batch", ti_r_t_batch).feed("s_t_1_batch", ti_s_t_1_batch).feed("s_t_1_segment_batch", ti_s_t_1_segment_batch).feed("s_t_1_actions_batch", ti_s_t_1_actions_batch).feed("s_t_1_actions_segment_batch", ti_s_t_1_actions_segment_batch).fetch("q_learning_loss").fetch("q_learning_train").run();
+		}
 	}
 
 }
