@@ -1,0 +1,18 @@
+2018-05-07Mon-谜之编译错误及tail过滤法
+
+➜  TestCaseExecutionDirectory tail -n +1 */Test.java | grep "java.lang.Class<?> wildcardClass1 = char0.getClass()" --context=5
+
+} }
+==> 1525684147264#1940030785#9/Test.java <==
+import xyz.sonion.cut.AES;
+public class Test { public static void main(String[] args) {
+java.lang.Class<?> wildcardClass1 = char0.getClass();
+
+} }
+==> 1525684152950#1418385211#1/Test.java <==
+import xyz.sonion.cut.AES;
+public class Test { public static void main(String[] args) {
+➜  TestCaseExecutionDirectory pwd
+/Users/sonion/TestCaseExecutionDirectory
+
+https://stackoverflow.com/questions/5917413/cat-multiple-files-but-include-filename-as-headers

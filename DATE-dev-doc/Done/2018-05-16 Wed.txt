@@ -1,0 +1,19 @@
+重要：
+
+1. 传参正确否？
+
+java -Xbootclasspath/p:/Users/sonion/dev/Graduate/SBST/agent_instrumentor/test_agent/target/test_agent-0.0.1-SNAPSHOT.jar -javaagent:/Users/sonion/dev/Graduate/SBST/agent_instrumentor/test_agent/target/test_agent-0.0.1-SNAPSHOT.jar=/Users/sonion/dev/Graduate/SBST/agent_instrumentor/test_agent/TraceWorkingDirectory/   cn.yyx.research.testgen.AppMutant
+    it works！可能的有效成分：参数放前面；路径结尾/；绝对路径；在shell里直接
+    真有效成分：参数放前面。在 IDEA 里应放到 vm options 而非 program options。
+        done
+
+不重要：
+1. 为啥方法名大写字母开头？为啥下划线命名？
+    身份标记( ﾟ∀。)
+        done（readme）
+2. 我可以用google-java-format格式化它吗？
+    没问题
+        done
+3. agent_mode 是否无用了？（pom里配的是 test_agent）
+    没用但是留着吧
+        done

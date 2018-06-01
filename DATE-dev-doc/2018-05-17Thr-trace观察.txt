@@ -1,0 +1,54 @@
+测试 IfSimple
+输入 192939
+
+all 17349
+三种：
+@Method-Enter 6026
+@Method-Exit 6023
+@Branch-Operand 5300
+
+为啥 enter exit 不一样多啊
+
+
+不filter我们调用的包（List#contains 这种要依赖内部的简单 branch 去）
+也不filter调用我们的包（“发现没影响 几次之后就不会动了”）
+是着急赶进度还是真的有神意识？Learning是神？
+
+IfDNF
+191919
+集中出现三次
+@Branch-Operand:1:I$<=:#191919#1000#
+@Branch-Operand:3:I$>=:#191919#-1000#
+@Branch-Operand:4:I$>=:#-100#191919#
+
+all 17203
+@Method-Enter 5958
+@Method-Exit 5955
+@Branch-Operand 5290
+
+
+就用 IfDNF 试吧。
+java.util.EmptyStackException
+lastPop: equals#
+currentLineFrom1 1282
+	at java.util.Stack.peek(Stack.java:102)
+
+然后 1282 行是 5290 个 @Branch-Operand 中的第 74 个……
+@Branch-Operand:1:IZ$!=:#1#0#
+
+两个方案：
+1. systematically debug test_agent
+2. filter 去掉外层那些 sun.misc.xxxxxx ……
+（或者，动态调整 filter？在第一次见到我们的包名之后、再记录信息？不这应该不是动态调整 filter，是弄个开关…… agent 里存信息方便否？）
+    不太方便。……
+    yyx想法 2.1. ：
+        
+    yyx想法 2.2. ：找main函数？
+        trace里没有main……有premain……擦为什么？
+    谜之尝试：在stack插几个垫底的……
+
+
+trace加上offset信息
+    ASM框
+        visitLdcInsn之类的
+

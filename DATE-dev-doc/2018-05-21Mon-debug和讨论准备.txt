@@ -1,0 +1,219 @@
+总之，修改 test_agnet 之后、在 IDEA 里跑被测类之前，记得在 test_agnet/ mvn package 。
+    TODO 配到 run configuration 里，“before”
+
+----
+TODO
+确认 test_agent stdout 的 class
+与 trace.txt 的 method
+“是一个顺序的”
+
+
+---
+
+2018-05-21 15:17:39
+
+噫，static main{分支{static f{分支}}}，trace有f没有main！
+
+@Method-Enter:f#
+@Branch-Operand:1:I$<=:#292929#999999#
+@Method-Enter:println#
+@Method-Exit:println#
+@Method-Exit:f#
+
+有啥不一样啊？你甚至都能留下 <init> !!!
+
+BranchInStaticMethod.class
+// access flags 0x9
+public static f()V
+// access flags 0x9
+public static main([Ljava/lang/String;)V
+
+BranchInStaticBlock.class
+// access flags 0x9
+public static main([Ljava/lang/String;)V
+// access flags 0x8
+static <clinit>()V
+
+---
+
+嗯 保留插桩结果？……辅助观察，使观察直接。
+    agent模式tee-ly保留？（man 1 tee）
+
+“想办法。”闪耀时。
+
+
+项目 asm 5.2
+    26 March 2018: release of ASM 6.1.1 http://asm.ow2.io
+
+visitMethodInsn
+
+这个重载里 visitMethodInsn(int var1, String var2, String var3, String var4, boolean var5)
+提到 throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces require ASM 5");
+
+先*祈祷*这里接口没变？……
+    no，先 炼丹地 把pom.xml里
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>6.1.1</version>
+
+        还顺便学到了  会在import change时影响IDEA代码文件夹设置的：
+            <project><build>   <sourceDirectory>src/main/java</sourceDirectory>
+            （原为 <sourceDirectory>src</sourceDirectory>）
+
+2018-05-21 15:58:09
+不同版本的 asm库（5.2, 6.1.1），对同一个类以同一配置插桩，运行读出trace不一样长！
+    哇，同一6.1.1对同一个类以同一配置插桩，多次运行读出trace也不一样长！BranchInStaticMethod 在 8200~8400间
+        （感到了类名 immutable 能让资料少失效……）
+
+
+尝试了打 signature，为啥有的有有的没有
+    只有极少数有。正则 ~[^n]
+
+    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+    return mv == null ? null : new MethodAdapter(mv,signature);
+    // 这个先 visit 再返回，还是不太懂诶 问杨 TODO
+
+
+2018-05-21 16:13:46
+炼丹：
+super(Opcodes.ASM6, cw); // ASM6 会对 clinit 和 main 谜之支持吗！！come on！
+    没有药到病除。
+        一搜发现两处有配置 ASM 级别。都ASM6试试
+    //改回了 ASM5。
+
+
+去实验室充电前保存脑栈，
+    1. 尝试打印类名，像打 signature 那样
+        owner 就是类名！能快速查看的文档太重要了……
+            对不喜欢通读，喜欢现查的选手……一个让人顺着做下来+现查，而且查着学到的顺序还符合认知规律的example极品tutorial。
+                华枫“这都是啥”——永图馆名言
+        visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf)
+        
+        有的 signature 是 null 怎么回事？？？TODO
+        
+    2. 对一些类直接不插桩！！！！！
+        （naive：在被测类被插之前遇到的类都不插桩。这可能会导致问题：假如“JVM”（严格说法？）用到ArrayList，CUT也用到ArrayList，按设计应该插 ArrayList，按 naive 做法会不插 ArrayList。（=: issue 2018-05-21_1）
+            2.1. 试一个 if(list.contains(o)) 先！！！（=: issue 2018-05-21_2）
+            2.2. 比较大的动作：静态分析出现在 if 处的 api 调用。
+                想到一事儿。现在似乎有一个假设是，如果调用的库（e.g. ArrayList）的方法（e.g. contains）的（字节码意义上的）分支尽量多被覆盖，则有利于 contains(o) 返回 True or False 的取值。这个假设稳吗？（=: issue 2018-05-21_3）
+        现在：if (className.contains("yyx")) { // 超级临时！！！TODO 注意
+
+
+2018-05-21 16:54:59
+在 visitMethod 和 visitMethodInsn 打 log ing……
+为啥能 visit 到 main 和 <clinit> 却不能插桩？
+
+
+
+2018-05-21 17:25:49
+和箫同步
+也担心（issue 2018-05-21_1）。试试吧， sun.net.util.URLUtil  java/util/jar/JarFile  什么的 
+    需要先做：（issue 2018-05-21_2）TODO
+
+插不到 main，
+
+
+
+2018-05-21 傍晚讨论：
+1. Reward 输出一个 Map<分支标识，reward值>
+    1.1. reward 与历史无关
+2. 先只 extend 不 insert、remove、modify
+    箫：extend 符合 Q learning 先深搜，深度达到一个阈值后把reward返回来；
+
+
+-------------
+2018-05-22 10:19:25 TODO 需求+=
+
+替换ExecutionOutcome计划：
+测试用例拼起来的main函数，
+插桩记录局部变量的实际类型
+    鉴于randoop
+    基本类型可能记值
+
+
+Randoop TypeInstantiater 
+类型池子可能需要往里加
+    它是否已经往里加？
+
+-----------------
+
+DOING
+
+2018-05-22 10:23:25
+reader 往栈里垫入 main
+    还是有个蜜汁问题
+
+
+2018-05-22 10:45:03
+过滤后的 也有随机性！！！IfSimple
+而且在 IDEA 里第1次执行，@Branch-Operand 前有<init>；后几次执行没有
+    classloader 的顺序随机性？
+    
+
+汇报吧
+1. trace 格式问题
+2. trace 信息量不够问题：能打印
+3. 商量了 reward 的返回类型
+-----
+
+2018-05-22 11:58:14
+1. EUREKA
+我在 ClassAdapter#visitMethod 和 MethodAdapter#visitMethodInsn 里打 log，main 在前有后没有，让杨想到原因：
+现在插的是方法调用指令的前后
+    所以没有main和<clinit>！被测类的 main 没有被主动调用（“JDK 里”有的类的 main 被调用了）；没有人能调用 <clinit>
+改为插“方法定义指令块”的里面的最前和最后。
+
+2. 讲解
+插桩工程代码里常有继承 ClassVisitor 和 MethodVisitor
+实例分为 writer 和 reader
+这俩类，在外面见到时一定是 reader
+他俩又有自己类型的字段。这字段一定是 writer
+
+
+MethodVisitor#visitMethodInsn 返回 void，因为方法调用指令没有内部机构（用指令opcode、参数 就完全表示了）
+ClassVisitor#visitMethod 返回 MethodVisitor，因为“方法定义指令块”有内部结构。
+
+箫：ConFu 里插桩部分有用箫的代码 :D
+
+
+--------
+
+2018-05-23 17:xx Wed
+
+# 箫的授业强无敌！
+
+1. TestInstrumentOneClass 用来测 ClassAdapter 所指定的插桩配置的效果
+
+2. 琢磨怎么给方法定义的开头结尾插东西
+
+org.objectweb.asm.MethodVisitor 看接口猜功能 ( ﾟ∀。)
+
+开头：visitCode()
+结尾：几经尝试（e.g. 观察几种返回值的函数结尾）找到 visitInsn() 的
+IRETURN, LRETURN, FRETURN, DRETURN, ARETURN, RETURN
+
+大成功！
+
+副产品：学到 
+visitMaxs：方法定义的末尾常是 maxStack maxLocals
+visitEnd 似乎只能起到通知作用
+
+# 商量 trace 需求：记录 sequence 这一层的每个局部变量的运行时类型和值
+
+必要性：__
+
+可行性：名字不会冲突
+
+这得说清楚：虽然是必要的，但是在汇报时得指出是事实上的新需求，当然我会 justify 它的必要性。而且我进度上也优先做没它的版本。
+
+
+# TODO：
+0. relative_offset 确认
+1. 开头结尾插东西，完成 clinit 的
+2. 记录局部变量的运行时类型和值，要 load（dump？）对象的指令
+3. 
+//    IRETURN, LRETURN, FRETURN, DRETURN, ARETURN, RETURN
+// TODO 风险：这些还没见全。
+2. 3. 看 JVM 指令 wiki！（箫说那个不错）
+
+

@@ -1,0 +1,78 @@
+2018-05-17Thr
+
+为何 AppMutant 产生的 trace 是这样？
+从字节码如何对应到 trace？
+
+为何有不在 method 里的 branch？（如何保证都在？）
+    xy problem：是否总要在？
+
+------
+
+trace 前面一大坨是怎么来的？
+    filter 掉？ 
+
+
+2018-05-17 14:34:56
+手抄了一下 stdout 用于理解
+发现大问题：
+0. 我们生活在浩瀚的函式栈里……
+    （开始）
+    java.net.URLClassLauncher$1
+    ...
+    class_name:java/net/URI
+    class_name:cn/yyx/research/testgen/SimpleIfBranch ---- 终于到我们写的类
+    class_name:sun/launcher/LauncherHelper$FXHelper
+    ...
+    class_name:sun/net/spi/DefaultProxySelector$3
+    class_name:java/util/Scanner ----- 我 new 了 Scanner
+    class_name:java/util/regex/Pattern
+    ...
+    class_name:java/util/regex/Pattern$Prolog
+    192939（标准输入）
+    high（标准输出）
+    class_name:java/util/IdentityHashMap$KeySet
+    ...
+    class_name:java/io/FileOutputStream$1
+    （结束）
+
+
+1. 问题定义之：我们关心到哪一层的覆盖率？
+    应该是比较显然的：“我们写的那一层”。可以按报名 filter out 吧。
+        擦。List.contains 要依赖里面的分支去靠近。所以要关心里面。
+
+------
+
+看 jvm 指令：
+    IDEA 插件
+        还行吧。现在主要矛盾也不在这儿……
+    javap（不同参数……）
+
+
+reward 要考虑：
+    一个分支已经被覆盖，则标记为不感兴趣
+        在静态意义上标记。
+
+定义循环的分支覆盖？？？
+    反正字节码里也是 cmp。就用cmp的真假两种！
+
+重大利好：randoop 用例里没有分支和循环
+cmp 都在 CUT 里
+
+
+
+
+
+
+
+
+---
+
+还有不少没搞定的：
+泛型没修完：type 成为 insert mutation 的参数的一部分
+embed 有要做
+
+
+
+
+当务之急是给孙展示。早说要整点儿效果。哎也别说了搞一个展示就是了
+    好吧，当务之急是运行起来。我同意。

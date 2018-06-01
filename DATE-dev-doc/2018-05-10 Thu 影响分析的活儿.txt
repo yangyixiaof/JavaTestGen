@@ -1,0 +1,17 @@
+2018-05-10 Thu 影响分析的活儿
+
+https://github.com/yangyixiaof/agent_instrumentor/tree/master/test_agent_trace_reader
+↑里面有读入trace，但是没有比较trace
+需要：比较两trace，输出reward（double，暂时不限范围）
+trace是map，key是↓
+标识一条指令的方式：函数调用栈里的调用序列+指令的在方法内的偏移行数
+value是cmp两个东西的值……
+
+
+这里可以写过滤器，filter out 一些不关心的包
+https://github.com/yangyixiaof/agent_instrumentor/blob/master/test_agent/src/main/java/cn/yyx/research/agent_mode/CmpTransformer.java
+
+
+
+用 agent_cmd 那种方式去测试哦。
+

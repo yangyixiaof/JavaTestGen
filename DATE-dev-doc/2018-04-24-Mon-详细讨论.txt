@@ -1,0 +1,23 @@
+1. 不知怎么就产生了第一句就 java.lang.Class<?> wildcardClass1 = str0.getClass(); 的不可编译的代码
+
+2. (n,m) > (1,1) 的有些时候，计时到了有 java 进程停不下来
+这时候用 ps aux | grep java 加 kill <pid> 还杀不掉，
+需要 htop 、F4 筛选 java、F9 给发 sigkill 才能杀掉
+
+插桩部分应该没有插入死循环……
+
+优化点：有效的选取多个
+
+
+写法询问：
+Iterator<String> tc_itr
+while (tc_itr.hasNext())
+tc_itr.next()
+这跟 foreach 一个意思？
+
+
+
+python写的模型集成到randoop框架里
+参与bugfix
+build html5validator，python，java环境，cygwin
+

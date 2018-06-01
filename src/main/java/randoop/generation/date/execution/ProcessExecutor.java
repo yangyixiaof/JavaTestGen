@@ -13,6 +13,10 @@ public class ProcessExecutor {
   public static final String instrument_agent =
       System.getProperty("user.home") + "/" + "TestGen_Library" + "/" + "test_agent.jar";
 
+  public static final String jar_path_to_test =
+      System.getProperty("user.home") + "/" + "TestGen_Library" + "/" + "ToTest.jar";
+  public String importStr = "import xyz.sonion.cut.AES;";
+
   static {
     File dir = new File(over_all_working_directory);
     if (dir.exists()) {
@@ -65,13 +69,31 @@ public class ProcessExecutor {
     String directory = over_all_working_directory + "/" + test_case_id;
     File dir = FileUtil.EnsureDirectoryExist(directory);
     File test_case_file = new File(directory + "/" + test_case_name + ".java");
-    String test_case_string =
-        "public class Test { public static void main(String[] args) {" + test_case + "} }";
+    StringBuilder testCaseSb = new StringBuilder();
+    // 还可以来个 packageStr 吧…… TODO
+    testCaseSb.append(importStr);
+    testCaseSb.append(System.lineSeparator());
+    testCaseSb.append("public class Test { public static void main(String[] args) {");
+    testCaseSb.append(System.lineSeparator());
+    testCaseSb.append(test_case);
+    testCaseSb.append(System.lineSeparator());
+    testCaseSb.append("} }");
+    String test_case_string = testCaseSb.toString();
     FileUtil.WriteToFile(test_case_file, test_case_string);
     String[] javac_cmds =
         new String[] {
-          "javac", "-cp", System.getProperty("java.class.path"), test_case_name + ".java"
+          "javac",
+          "-cp",
+          System.getProperty("java.class.path")
+              + System.getProperty("path.separator")
+              + jar_path_to_test,
+          test_case_name + ".java"
         };
+    System.out.println("!!!!!javac_cmds:");
+    for (String s : javac_cmds) {
+      System.out.print(s + " ");
+    }
+    System.out.println("");
     System.out.println("before 执行 javac_cmds 于 " + dir);
     ExecuteOneCmdForTestCase(javac_cmds, dir);
     String[] java_agent_cmds =
@@ -80,9 +102,18 @@ public class ProcessExecutor {
           "-Xbootclasspath/p:" + instrument_agent,
           "-javaagent:" + instrument_agent + "=" + directory,
           "-cp",
-          "." + System.getProperty("path.separator") + System.getProperty("java.class.path"),
+          "."
+              + System.getProperty("path.separator")
+              + System.getProperty("java.class.path")
+              + System.getProperty("path.separator")
+              + jar_path_to_test,
           test_case_name
         };
+    System.out.println("!!!!!java_agent_cmds:");
+    for (String s : java_agent_cmds) {
+      System.out.print(s + " ");
+    }
+    System.out.println("");
     System.out.println("before 执行 java_agent_cmds 于 " + dir);
     ExecuteOneCmdForTestCase(java_agent_cmds, dir);
   }

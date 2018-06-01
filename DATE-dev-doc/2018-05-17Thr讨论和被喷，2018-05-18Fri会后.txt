@@ -1,0 +1,38 @@
+if(list.contains(o)){
+    list.add(o);
+}
+
+List#add() 也有返回值……
+
+if(list.add(o)){
+
+}
+
+
+boolean contains(){
+    for(){
+        return
+    }
+    return
+}
+
+
+所有类分成三块
+1. 调用CUT的类，包括 agent ×
+2. CUT √
+3. CUT调用的类（√）
+    我：不插 void 方法？
+    姜：只插出现在branch处的method调用
+
+上面的“插”实为“记录trace”的意思
+
+------
+
+2018-05-18Fri 会后：
+
+我在yyx和wcp光环下恍然大悟：
+是没处理static吧！！！TODO
+    public static main([Ljava/lang/String;)V 没有，
+    static <clinit>()V 也没有。
+
+杨志强在学asm specification 和 classloader！

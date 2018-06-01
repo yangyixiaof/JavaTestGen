@@ -55,6 +55,8 @@ import randoop.util.ProgressDisplay;
  */
 public class ExecutableSequence {
 
+  public String mutationInfo;
+
   /** The underlying sequence. */
   public Sequence sequence;
 
