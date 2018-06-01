@@ -1,16 +1,28 @@
 package randoop.generation.date;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import randoop.DummyVisitor;
 import randoop.NormalExecution;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
-import randoop.generation.IStopper;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.ProcessExecutor;
 import randoop.generation.date.mutation.MutationAnalyzer;
 import randoop.generation.date.mutation.operation.MutationOperation;
 import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.tensorflow.QLearning;
+import randoop.generation.date.tensorflow.QTransition;
+import randoop.generation.date.tensorflow.ReplayMemory;
+import randoop.generation.date.tensorflow.StateActionPool;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;
@@ -79,28 +91,34 @@ public class DateGenerator extends AbstractGenerator {
   //
   // this.allSequences = new LinkedHashSet<>();
   // }
+  
+  ReplayMemory d;
+  StateActionPool state_action_pool;
+  QLearning q_learn;
+
+//  public DateGenerator(
+//      List<TypedOperation> operations,
+//      Set<TypedOperation> observers,
+//      GenInputsAbstract.Limits limits,
+//      ComponentManager componentManager,
+//      RandoopListenerManager listenerManager) {
+//    this(operations, observers, limits, componentManager, null, listenerManager);
+//  }
 
   public DateGenerator(
       List<TypedOperation> operations,
       Set<TypedOperation> observers,
       GenInputsAbstract.Limits limits,
       ComponentManager componentManager,
+//      IStopper stopper,
       RandoopListenerManager listenerManager) {
-    this(operations, observers, limits, componentManager, null, listenerManager);
-  }
-
-  public DateGenerator(
-      List<TypedOperation> operations,
-      Set<TypedOperation> observers,
-      GenInputsAbstract.Limits limits,
-      ComponentManager componentManager,
-      IStopper stopper,
-      RandoopListenerManager listenerManager) {
-    super(operations, limits, componentManager, stopper, listenerManager);
+    super(operations, limits, componentManager, null, listenerManager);// stopper
 
     // this.observers = observers;
     this.instantiator = componentManager.getTypeInstantiator();
-
+    this.d = new ReplayMemory();
+    this.state_action_pool = new StateActionPool(this.instantiator, observers);
+    this.q_learn = new QLearning(this.d, this.state_action_pool);
     initializeRuntimePrimitivesSeen();
   }
 
@@ -126,7 +144,7 @@ public class DateGenerator extends AbstractGenerator {
     }
 
     //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
-    List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
+    List<QTransition> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
     System.out.println("after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
     for (ExecutableSequence eSeq : eSeqs) {
       if (eSeq == null) {
@@ -175,8 +193,8 @@ public class DateGenerator extends AbstractGenerator {
 
     //    return eSeq;
 
-    // TODO FFFFFFML?
-    return eSeqs.get(0);
+    // TODO FFFFFFML? eSeqs.get(0)
+    return null;
   }
 
   private void process_execute(List<ExecutableSequence> eSeqs) {
@@ -208,7 +226,7 @@ public class DateGenerator extends AbstractGenerator {
     return sequence_set;
   }
 
-  private List<ExecutableSequence> createNewUniqueSequences(
+  private List<QTransition> createNewUniqueSequences(
       int numOfSeqSelected, int numOfMutSelected) {
 
     List<Sequence> sourceSequences = new ArrayList<>();
