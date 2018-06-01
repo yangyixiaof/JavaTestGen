@@ -136,7 +136,7 @@ public class DateGenerator extends AbstractGenerator {
       //      }
     }
 
-    long startTime = System.nanoTime();
+//    long startTime = System.nanoTime();
 
     // 浠ョ幇鍦ㄧ殑瑙勬ā锛屾棤瀹�
     if (componentManager.numGeneratedSequences() % GenInputsAbstract.clear == 0) {
@@ -144,25 +144,26 @@ public class DateGenerator extends AbstractGenerator {
     }
 
     //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
-    List<QTransition> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
+    List<QTransition> transitions = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
     System.out.println("after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
-    for (ExecutableSequence eSeq : eSeqs) {
-      if (eSeq == null) {
-        return null;
-      }
+    
+//    for (ExecutableSequence eSeq : eSeqs) {
+//      if (eSeq == null) {
+//        return null;
+//      }
+//
+//      // 璇曡瘯 dontexecute 鐨勯�夐」
+//      if (GenInputsAbstract.dontexecute) {
+//        this.componentManager.addGeneratedSequence(eSeq.sequence);
+//        return null;
+//      }
+//
+//      // 鍞� 鏈夌偣璁� currSeq 澶卞幓鎰忎箟浜嗏�︹�ODO
+//      //    setCurrentSequence(eSeq.sequence);
+//      setCurrentSequence(eSeq.sequence);
+//    }
 
-      // TODO 璇曡瘯 dontexecute 鐨勯�夐」
-      if (GenInputsAbstract.dontexecute) {
-        this.componentManager.addGeneratedSequence(eSeq.sequence);
-        return null;
-      }
-
-      // 鍞� 鏈夌偣璁� currSeq 澶卞幓鎰忎箟浜嗏�︹�ODO
-      //    setCurrentSequence(eSeq.sequence);
-      setCurrentSequence(eSeq.sequence);
-    }
-
-    long gentime1 = System.nanoTime() - startTime; // rename it
+//    long gentime1 = System.nanoTime() - startTime; // rename it
 
     //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
@@ -170,10 +171,10 @@ public class DateGenerator extends AbstractGenerator {
     //    eSeq.execute(executionVisitor, checkGenerator);
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
-    // TODO 寮勬竻 execute 浣滅敤鈥︹��
-    process_execute(eSeqs); // 骞惰鍖栦箣鍓嶆尯鎱㈢殑 TODO 瀹氶噺娴嬩竴娴�
+    // 寮勬竻 execute 浣滅敤鈥︹��
+//    process_execute(eSeqs); // 骞惰鍖栦箣鍓嶆尯鎱㈢殑 TODO 瀹氶噺娴嬩竴娴�
 
-    startTime = System.nanoTime(); // reset start time.
+//    startTime = System.nanoTime(); // reset start time.
 
     // 鍙ｆ�曪紝鍏堜笉绠″畠 锛氾級
     // determineActiveIndices(eSeq);
@@ -187,13 +188,13 @@ public class DateGenerator extends AbstractGenerator {
     // componentManager.addGeneratedSequence(eSeq.sequence);
     // }
 
-    long gentime2 = System.nanoTime() - startTime; // rename it
+//    long gentime2 = System.nanoTime() - startTime; // rename it
 
     //    eSeq.gentime = gentime1 + gentime2;
 
     //    return eSeq;
 
-    // TODO FFFFFFML? eSeqs.get(0)
+    // FFFFFFML? eSeqs.get(0)
     return null;
   }
 
