@@ -146,7 +146,8 @@ public class DateGenerator extends AbstractGenerator {
     //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
     List<QTransition> transitions = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
     System.out.println("after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
-    
+    d.StoreTransitions(transitions);
+    q_learn.QLearn();
 //    for (ExecutableSequence eSeq : eSeqs) {
 //      if (eSeq == null) {
 //        return null;
