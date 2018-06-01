@@ -12,35 +12,48 @@ import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;
 
+/**
+ * A singleton class, memoizing available mutations of sequences.
+ *
+ * <p>this.state_actions stores...
+ *
+ * <p>If not stored, use MutationAnalyzer to analyze and to store.
+ */
 public class StateActionPool {
 
-	TypeInstantiator ti = null;
-	Set<TypedOperation> candidates = null;
-	
-	Map<TraceableSequence, ArrayList<MutationOperation>> state_actions = new TreeMap<TraceableSequence, ArrayList<MutationOperation>>();
+  TypeInstantiator ti = null;
+  Set<TypedOperation> candidates = null;
 
-	public StateActionPool(TypeInstantiator ti, Set<TypedOperation> candidates) {
-		this.ti = ti;
-		this.candidates = candidates;
-	}
+  Map<TraceableSequence, ArrayList<MutationOperation>> state_actions = new TreeMap<>();
 
-//	private void StoreAllActionsOfOneState(TraceableSequence state, ArrayList<MutationOperation> actions) {
-//		Assert.isTrue(!state_actions.containsKey(state));
-//		state_actions.put(state, actions);
-//	}
+  public StateActionPool(TypeInstantiator ti, Set<TypedOperation> candidates) {
+    this.ti = ti;
+    this.candidates = candidates;
+  }
 
-	public ArrayList<MutationOperation> GetAllActionsOfOneState(TraceableSequence state) {
-		if (!state_actions.containsKey(state)) {
-			MutationAnalyzer analyzer = new MutationAnalyzer(state, ti);
-			ArrayList<MutationOperation> candidateMutations = new ArrayList<MutationOperation>();
-			try {
-				analyzer.GenerateMutationOperations(candidates, candidateMutations);
-			} catch (DateWtfException e) {
-				e.printStackTrace();
-			}
-			state_actions.put(state, candidateMutations);
-		}
-		return state_actions.get(state);
-	}
+  //	private void StoreAllActionsOfOneState(TraceableSequence state, ArrayList<MutationOperation>
+  // actions) {
+  //		Assert.isTrue(!state_actions.containsKey(state));
+  //		state_actions.put(state, actions);
+  //	}
 
+  /**
+   * "Memoizationalized" and wrapped version of MutationAnalyzer#GenerateMutationOperations
+   *
+   * @param state
+   * @return
+   */
+  public ArrayList<MutationOperation> GetAllActionsOfOneState(TraceableSequence state) {
+    if (!state_actions.containsKey(state)) {
+      MutationAnalyzer analyzer = new MutationAnalyzer(state, ti);
+      ArrayList<MutationOperation> candidateMutations = new ArrayList<>();
+      try {
+        analyzer.GenerateMutationOperations(candidates, candidateMutations);
+      } catch (DateWtfException e) {
+        e.printStackTrace();
+      }
+      state_actions.put(state, candidateMutations);
+    }
+    return state_actions.get(state);
+  }
 }

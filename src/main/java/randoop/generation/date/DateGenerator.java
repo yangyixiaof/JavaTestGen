@@ -236,54 +236,59 @@ public class DateGenerator extends AbstractGenerator {
     return sequence_set;
   }
 
+  /**
+   * ...
+   *
+   * <p>1. Uniformly select m distinct sequences from previously generated sequence pool
+   *
+   * <p>2. For each selected sequence s, uniformly select n distinct mutations applicable to s;
+   * apply the mutations, producing m*n sequences - some are new and others not; add the new ones to
+   * this.allSequences
+   *
+   * <p>3. Execute the new sequences!
+   *
+   * <p>4. Construct at most m*n QTransition-s
+   *
+   * @param numOfSeqSelected m
+   * @param numOfMutSelected n
+   * @return
+   */
   private List<QTransition> createNewUniqueSequences(int numOfSeqSelected, int numOfMutSelected) {
-
-    List<Sequence> sourceSequences = new ArrayList<>();
+    // m 个
+    ArrayList<TraceableSequence> sourceSequences = new ArrayList<>();
     for (int i = 0; i < numOfSeqSelected; i++) {
-      sourceSequences.add(
-          Randomness.randomSetMember(this.allSequences.values())); // TODO 去重、或直接高效不选重复
+      sourceSequences.add(Randomness.randomSetMember(this.allSequences.values()));
+      // TODO remove duplicate, to realize m *distinct* sequences
+      // TODO better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
     }
-    //    Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
 
-    List<ExecutableSequence> newSequences = new ArrayList<>();
-    for (Sequence sourceSequence : sourceSequences) {
-      MutationAnalyzer analyzer =
-          new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
-      // TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
-      List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
-      try {
-        analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
-      } catch (DateWtfException e) {
-        e.printStackTrace();
-      }
+    // <= m*n 个
+    ArrayList<QTransition> transitions = new ArrayList<>();
+    for (TraceableSequence sourceSequence : sourceSequences) {
+      ArrayList<MutationOperation> candidateMutations =
+          state_action_pool.GetAllActionsOfOneState(sourceSequence);
       for (int i = 0; i < numOfMutSelected; i++) {
         MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
+        int actionIndex = candidateMutations.indexOf(selectedMutation);
+        // TODO remove duplicate, to realize n *distinct* mutations
+        // TODO better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
+
         TraceableSequence newSequence = selectedMutation.ApplyMutation();
-        // 竟然用 LongFormString 当 key 吗…… 来防止重复 // TODO 用它 HashCode 防？
+        // 竟然用 LongFormString 当 key 吗…… 是防止重复用的 // TODO 用它 HashCode 防更好？
         if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-          // TODO 要沿用日志格式的话，就得从 MutationOperation 里拿 TypedOperation
-          // operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
           Log.logLine("Sequence discarded because the same sequence was previously created.");
-          //          return null;
-          // 不加这个而已，别返回 null
+        } else {
+          transitions.add(new QTransition(sourceSequence, newSequence, actionIndex));
+          this.allSequences.put(newSequence.toLongFormString(), newSequence);
         }
-        this.allSequences.put(newSequence.toLongFormString(), newSequence);
-        ExecutableSequence newESeq = new ExecutableSequence(newSequence);
-        StringBuilder mutationInfo = new StringBuilder();
-        mutationInfo.append("[Original] ");
-        mutationInfo.append(selectedMutation.sequence);
-        mutationInfo.append("[Mutation] ");
-        mutationInfo.append(selectedMutation);
-        newESeq.mutationInfo = mutationInfo.toString();
-        System.out.println("变异历程: " + mutationInfo); // 单线程时直接打无妨！
-        System.out.println("newESeq.toCodeString() # " + newESeq.toCodeString());
-        newESeq.sequence.disableShortForm(); // 回不来的！注意别影响之后
-        System.out.println("newESeq.sequence.toCodeString() # " + newESeq.sequence.toCodeString());
-        newSequences.add(newESeq);
       }
     }
 
-    return null; // TODO implement it 2018-06-01
+    //    process_execute(transitions); // TODO how to pass reward
+    for (QTransition tran : transitions) {
+      // TODO fill in the reward
+    }
+    return transitions;
   }
 
   /**
