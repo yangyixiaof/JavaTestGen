@@ -1,16 +1,28 @@
 package randoop.generation.date;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import randoop.DummyVisitor;
 import randoop.NormalExecution;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
-import randoop.generation.IStopper;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.ProcessExecutor;
 import randoop.generation.date.mutation.MutationAnalyzer;
 import randoop.generation.date.mutation.operation.MutationOperation;
 import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.tensorflow.QLearning;
+import randoop.generation.date.tensorflow.QTransition;
+import randoop.generation.date.tensorflow.ReplayMemory;
+import randoop.generation.date.tensorflow.StateActionPool;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;
@@ -80,27 +92,33 @@ public class DateGenerator extends AbstractGenerator {
   // this.allSequences = new LinkedHashSet<>();
   // }
 
-  public DateGenerator(
-      List<TypedOperation> operations,
-      Set<TypedOperation> observers,
-      GenInputsAbstract.Limits limits,
-      ComponentManager componentManager,
-      RandoopListenerManager listenerManager) {
-    this(operations, observers, limits, componentManager, null, listenerManager);
-  }
+  ReplayMemory d;
+  StateActionPool state_action_pool;
+  QLearning q_learn;
+
+  //  public DateGenerator(
+  //      List<TypedOperation> operations,
+  //      Set<TypedOperation> observers,
+  //      GenInputsAbstract.Limits limits,
+  //      ComponentManager componentManager,
+  //      RandoopListenerManager listenerManager) {
+  //    this(operations, observers, limits, componentManager, null, listenerManager);
+  //  }
 
   public DateGenerator(
       List<TypedOperation> operations,
       Set<TypedOperation> observers,
       GenInputsAbstract.Limits limits,
       ComponentManager componentManager,
-      IStopper stopper,
+      //      IStopper stopper,
       RandoopListenerManager listenerManager) {
-    super(operations, limits, componentManager, stopper, listenerManager);
+    super(operations, limits, componentManager, null, listenerManager); // stopper
 
     // this.observers = observers;
     this.instantiator = componentManager.getTypeInstantiator();
-
+    this.d = new ReplayMemory();
+    this.state_action_pool = new StateActionPool(this.instantiator, observers);
+    this.q_learn = new QLearning(this.d, this.state_action_pool);
     initializeRuntimePrimitivesSeen();
   }
 
@@ -118,7 +136,7 @@ public class DateGenerator extends AbstractGenerator {
       //      }
     }
 
-    long startTime = System.nanoTime();
+    //    long startTime = System.nanoTime();
 
     // 以现在的规模，无害
     if (componentManager.numGeneratedSequences() % GenInputsAbstract.clear == 0) {
@@ -127,26 +145,28 @@ public class DateGenerator extends AbstractGenerator {
 
     // TODO 有一些产生了的没放进最终结果？
     //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
-    List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
+    List<QTransition> transitions = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
     System.out.println(
         "after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
-    for (ExecutableSequence eSeq : eSeqs) {
-      if (eSeq == null) {
-        return null;
-      }
+    d.StoreTransitions(transitions);
+    q_learn.QLearn();
+    //    for (ExecutableSequence eSeq : eSeqs) {
+    //      if (eSeq == null) {
+    //        return null;
+    //      }
+    //
+    //      // 璇曡瘯 dontexecute 鐨勯�夐」
+    //      if (GenInputsAbstract.dontexecute) {
+    //        this.componentManager.addGeneratedSequence(eSeq.sequence);
+    //        return null;
+    //      }
+    //
+    //      // 鍞� 鏈夌偣璁� currSeq 澶卞幓鎰忎箟浜嗏�︹�ODO
+    //      //    setCurrentSequence(eSeq.sequence);
+    //      setCurrentSequence(eSeq.sequence);
+    //    }
 
-      // TODO 试试 dontexecute 的未公开选项
-      if (GenInputsAbstract.dontexecute) {
-        this.componentManager.addGeneratedSequence(eSeq.sequence);
-        return null;
-      }
-
-      // 唔 有点让 currSeq 失去意义了……TODO
-      //    setCurrentSequence(eSeq.sequence);
-      setCurrentSequence(eSeq.sequence);
-    }
-
-    long gentime1 = System.nanoTime() - startTime; // rename it
+    //    long gentime1 = System.nanoTime() - startTime; // rename it
 
     //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
@@ -154,14 +174,16 @@ public class DateGenerator extends AbstractGenerator {
     //        eSeq.execute(executionVisitor, checkGenerator);
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
+    // 寮勬竻 execute 浣滅敤鈥︹��
+    //    process_execute(eSeqs); // 骞惰鍖栦箣鍓嶆尯鎱㈢殑 TODO 瀹氶噺娴嬩竴娴�
     // TODO 弄清 execute 作用……
-    process_execute(eSeqs); // 并行化之前挺慢的
+    // process_execute(eSeqs); // 并行化之前挺慢的
 
     //    for(ExecutableSequence eSeq:eSeqs){
     //      eSeq.execute(executionVisitor, checkGenerator);
     //    }
 
-    startTime = System.nanoTime(); // reset start time.
+    //    startTime = System.nanoTime(); // reset start time.
 
     // 口怕，先不管它 ：）
     // determineActiveIndices(eSeq);
@@ -175,14 +197,14 @@ public class DateGenerator extends AbstractGenerator {
     // componentManager.addGeneratedSequence(eSeq.sequence);
     // }
 
-    long gentime2 = System.nanoTime() - startTime; // rename it
+    //    long gentime2 = System.nanoTime() - startTime; // rename it
 
     //    eSeq.gentime = gentime1 + gentime2;
 
     //    return eSeq;
 
-    // TODO FFFFFFML?
-    return eSeqs.get(0);
+    // FFFFFFML? eSeqs.get(0)
+    return null;
   }
 
   private void process_execute(List<ExecutableSequence> eSeqs) {
@@ -214,8 +236,7 @@ public class DateGenerator extends AbstractGenerator {
     return sequence_set;
   }
 
-  private List<ExecutableSequence> createNewUniqueSequences(
-      int numOfSeqSelected, int numOfMutSelected) {
+  private List<QTransition> createNewUniqueSequences(int numOfSeqSelected, int numOfMutSelected) {
 
     List<Sequence> sourceSequences = new ArrayList<>();
     for (int i = 0; i < numOfSeqSelected; i++) {
@@ -254,15 +275,15 @@ public class DateGenerator extends AbstractGenerator {
         mutationInfo.append("[Mutation] ");
         mutationInfo.append(selectedMutation);
         newESeq.mutationInfo = mutationInfo.toString();
-        System.out.println("变异历程: "+ mutationInfo); // 单线程时直接打无妨！
-        System.out.println("newESeq.toCodeString() # "+ newESeq.toCodeString());
+        System.out.println("变异历程: " + mutationInfo); // 单线程时直接打无妨！
+        System.out.println("newESeq.toCodeString() # " + newESeq.toCodeString());
         newESeq.sequence.disableShortForm(); // 回不来的！注意别影响之后
-        System.out.println("newESeq.sequence.toCodeString() # "+newESeq.sequence.toCodeString());
+        System.out.println("newESeq.sequence.toCodeString() # " + newESeq.sequence.toCodeString());
         newSequences.add(newESeq);
       }
     }
 
-    return newSequences;
+    return null; // TODO implement it 2018-06-01
   }
 
   /**
