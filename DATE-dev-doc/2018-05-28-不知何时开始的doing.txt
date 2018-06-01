@@ -1,0 +1,28 @@
+simple
+loop
+    数量不同
+static block
+Object
+
+
+完全没有历史是不行的
+肯定要记这次的目标是满足哪些分支嘛……
+
+
+分支之间的逻辑关系？？！！
+
+
+嘛，reward很核心的吧。
+
+
+
+
+相同 branch 结点 keyset 的
+
+动态意义上的分支结点：实际执行
+静态意义上的分支结点：由所在字节码 的 method，和在 method 中的编号，唯一决定
+
+
+
+
+class name 吹完全解决……

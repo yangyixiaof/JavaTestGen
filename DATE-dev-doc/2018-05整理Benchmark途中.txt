@@ -1,0 +1,16 @@
+有的程序需要stdin
+
+
+gsed -i '1i\package xyz.sonion.cut;' src/*.java && mkdir -p src/xyz/sonion/cut && mv src/* src/xyz/sonion/cut/ ; tree src
+
+
+
+批量编译：
+mkdir bin; javac src/*.java -d bin/ && cd bin && jar cvf ToTest.jar ./* && cp ToTest.jar .. && cd .. 
+
+写在 randoop-original 项目里的 Extract.java，提取 jar 里的类名列表。
+
+/Users/sonion/dev/Graduate/SBST/randoop-saikou-expr
+
+/Users/sonion/Downloads/qcloudapi-sdk-java-2.0.6/target
+

@@ -1,0 +1,56 @@
++ 方便看数据
++ 几个例子
++ 修多线程
+    用 jar 不用 IDEA？……
++ 返回多个testcase…… 或者反正是塞进RegressionTest0.java
+    额，通过编译的确实塞进 RegressionTest0.java了。
+    1. 参数 3,3，输出：
+    Regression test count: 72 = RegressionTest0.java 里用例数
+    72 + Uncompilable sequences generated (count: 35). =  TestCaseExecutionDirectory 里的文件夹数 `ls -l|wc -l` - 1 = 107
+    2. 输出 76,29,105
++ 写周报 
+
++ 在体外执行时没引ToTest.jar包嘤嘤
+    AES,Wind, 3,3, 输出 24,59,83
+    还有 import 那些串串。原型竞赛时怎么弄的？……
+        艹，用默认包的被测程序就不管了。
+        放到 xyz.sonion.cut 包里罢。
+    + 加 import 和 cp 后：
+        46,7,477
++ m,n 弄在运行参数里（或者临时外挂个文件……）
+
++ 杨说过的那个“用管道”…… pipe 进 javac 里？
+
+
+
+Randoop ships with specifications for parts of the JDK, and these specifications are used by default, unless you disable command-line option --use-jdk-specifications.
+    所以用 jar 或正确设置 classpath 应该就可以用上 randoop 带的 JDK spec……
+
+java -Xmx3000m -classpath .:$($RANDOOP_JAR_PATH) randoop.main.Main gentests --testclass=java.util.TreeSet --time-limit=60 --use-jdk-specifications=false --junit-output-dir src/main/java --junit-package-name xyz.sonion.randoop.treeset --flaky-test-behavior=OUTPUT
+
+java -Xmx3000m -classpath .:$($RANDOOP_JAR_PATH) randoop.main.Main gentests --testclass=java.util.TreeSet --time-limit=60
+
+
+
+java -Xmx3000m -classpath ./:$JAVA_HOME/lib/dt.jar:$RANDOOP_JAR_PATH randoop.main.Main gentests --testclass=java.util.TreeSet --time-limit=60 --use-jdk-specifications=false --junit-output-dir src/main/java --junit-package-name xyz.sonion.randoop.treeset --flaky-test-behavior=OUTPUT
+
+java -Xmx3000m -classpath ./:$JAVA_HOME/lib/dt.jar:$RANDOOP_JAR_PATH randoop.main.Main gentests --testclass=java.util.TreeSet --time-limit=60  --junit-output-dir src/main/java --junit-package-name xyz.sonion.randoop.treeset --flaky-test-behavior=OUTPUT
+
+
+
+MacBook+idea跟Ubuntu服务器+jar比，数量真的差很多= =、
+mac+idea 和 mac+jar 也差很多！
+    啊no…… mac+jar 60s 3,3 产生 135 文件夹，似乎来不及执行，输出（10,5,135）
+    重要的是 mac+jar 没出过执行不停的幺蛾子！！！
+
+---COOKBOOK---
+随手临时 alias 是好文明？
+
+java -Xmx3000m -classpath $RANDOOP_JAR_PATH randoop.main.Main gentests --testclass=java.util.TreeSet --time-limit=60 --junit-output-dir src/main/java --junit-package-name xyz.sonion.randoop.treeset --flaky-test-behavior=OUTPUT
+
+tail src/main/java/xyz/sonion/randoop/treeset/RegressionTest0.java
+
+
+
+
+java -Xmx3000m -classpath $HOME/TestGen_Library/ToTest.jar:$RANDOOP_JAR_PATH randoop.main.Main gentests --testclass=xyz.sonion.cut.AES --time-limit=60 --junit-output-dir src/main/java --junit-package-name xyz.sonion.aes --flaky-test-behavior=OUTPUT

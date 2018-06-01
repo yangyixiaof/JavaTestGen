@@ -1,0 +1,6 @@
+2018-05-14 Mon 讨论
+trace生成格式（有不在method里的branch？？？），
+trace比对产生reward算法（理解trace先）
+
+误 shortForm https://github.com/randoop/randoop/issues/360
+primitive 误 method call

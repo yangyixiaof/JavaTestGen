@@ -1,0 +1,65 @@
+2018-05-08 Tue 是Randoop缩错了
+
+向单句的 Sequence
+short short0 = (short)10;
+的1插入
+#operation:java.lang.Object.getClass : (java.lang.Object) -> java.lang.Class<?>#inputs:[short0]
+即插入
+java.lang.Class<?> wildcardClass1 = short0.getClass();
+会导致这个sequence只剩这一句
+（至少 ExecutableSequence#toCodeString 后，会只剩这一句）
+
+
+
+oh！还真是缩错了！！！
+
+变异历程: [Original] float float0 = 10.0f;
+[Mutation] Insert at:1#operation:java.lang.Object.getClass : (java.lang.Object) -> java.lang.Class<?>#inputs:[float0]
+newESeq.toCodeString() # java.lang.Class<?> wildcardClass1 = float0.getClass();
+
+newESeq.sequence.toCodeString() # float float0 = 10.0f;
+java.lang.Class<?> wildcardClass1 = float0.getClass();
+
+after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
+
+before 执行 javac_cmds 于 /Users/sonion/TestCaseExecutionDirectory/1525770523332#156545103#1
+Test.java:4: ??: ??????float
+java.lang.Class<?> wildcardClass1 = float0.getClass();
+                                          ^
+Test.java:4: ??: ??????: <any>?????Class<?>
+java.lang.Class<?> wildcardClass1 = float0.getClass();
+                                                   ^
+2 ???
+
+
+
+1. 报bug
+2. 自己修（然后PR，Randoop史留名）
+
+
+
+---------
+
+0. 构造minimal case
+
+
+commit 8a26ba98814376a29080350d450d063e09d757bb (HEAD -> master, origin/master, origin/HEAD)
+Author: Michael Ernst <mernst@cs.washington.edu>
+Date:   Wed May 9 11:08:39 2018 -0700
+
+    Add documentation
+
+export RRR=/Users/sonion/dev/Graduate/SBST/randoop-newest/build/libs/randoop-all-4.0.3.jar
+
+
+
+支线任务：文档bug
+https://randoop.github.io/randoop/manual/dev.html
+ConcreteTypes -> JavaTypes
+一会儿再说。记得开 branch。
+TODO
+
+
+CNM，Test 里不能运行的太多了？管理烂掉了？
+老子不在 test/ 里写了
+在 src/ 写还遇到 Test 碰瓷？删了 test/。
