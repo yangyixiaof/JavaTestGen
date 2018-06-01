@@ -24,8 +24,8 @@ import randoop.util.Randomness;
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
 
-  public int numOfSeqSelected = 3;
-  public int numOfMutSelected = 3;
+  public int numOfSeqSelected = 1;
+  public int numOfMutSelected = 1;
 
   /**
    * 这个字段简直…… 没有它就难以实现 numGeneratedSequences() 和 getAllSequences() 呢。
@@ -128,7 +128,8 @@ public class DateGenerator extends AbstractGenerator {
     // TODO 有一些产生了的没放进最终结果？
     //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
     List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
-    System.out.println("after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
+    System.out.println(
+        "after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
     for (ExecutableSequence eSeq : eSeqs) {
       if (eSeq == null) {
         return null;
@@ -150,11 +151,15 @@ public class DateGenerator extends AbstractGenerator {
     //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // 插入的 TypedOperation 是否完全没有类型参数的信息？
-    //    eSeq.execute(executionVisitor, checkGenerator);
+    //        eSeq.execute(executionVisitor, checkGenerator);
     //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
     //    System.out.println(eSeq);
     // TODO 弄清 execute 作用……
-    process_execute(eSeqs); // 并行化之前挺慢的 TODO 定量测一测
+    process_execute(eSeqs); // 并行化之前挺慢的
+
+    //    for(ExecutableSequence eSeq:eSeqs){
+    //      eSeq.execute(executionVisitor, checkGenerator);
+    //    }
 
     startTime = System.nanoTime(); // reset start time.
 
@@ -242,7 +247,18 @@ public class DateGenerator extends AbstractGenerator {
           // 不加这个而已，别返回 null
         }
         this.allSequences.put(newSequence.toLongFormString(), newSequence);
-        newSequences.add(new ExecutableSequence(newSequence));
+        ExecutableSequence newESeq = new ExecutableSequence(newSequence);
+        StringBuilder mutationInfo = new StringBuilder();
+        mutationInfo.append("[Original] ");
+        mutationInfo.append(selectedMutation.sequence);
+        mutationInfo.append("[Mutation] ");
+        mutationInfo.append(selectedMutation);
+        newESeq.mutationInfo = mutationInfo.toString();
+        System.out.println("变异历程: "+ mutationInfo); // 单线程时直接打无妨！
+        System.out.println("newESeq.toCodeString() # "+ newESeq.toCodeString());
+        newESeq.sequence.disableShortForm(); // 回不来的！注意别影响之后
+        System.out.println("newESeq.sequence.toCodeString() # "+newESeq.sequence.toCodeString());
+        newSequences.add(newESeq);
       }
     }
 
