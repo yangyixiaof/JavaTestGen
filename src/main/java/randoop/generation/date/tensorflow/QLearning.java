@@ -2,9 +2,9 @@ package randoop.generation.date.tensorflow;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
@@ -99,7 +99,9 @@ public class QLearning {
 			s_t_1_actions_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_actions_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_actions_batch.columns()));
 		}
 		try (Tensor<Integer> ti_s_t_batch = Tensor.create(s_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_segment_batch = Tensor.create(s_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_batch = Tensor.create(a_t_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_segment_batch = Tensor.create(a_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_r_t_batch = Tensor.create(r_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_batch = Tensor.create(s_t_1_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_segment_batch = Tensor.create(s_t_1_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_batch = Tensor.create(s_t_1_actions_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_segment_batch = Tensor.create(s_t_1_actions_segment_batch.toArray(), Integer.class);) {
-			this.session.runner().feed("s_t_batch", ti_s_t_batch).feed("s_t_segment_batch", ti_s_t_segment_batch).feed("a_t_batch", ti_a_t_batch).feed("a_t_segment_batch", ti_a_t_segment_batch).feed("r_t_batch", ti_r_t_batch).feed("s_t_1_batch", ti_s_t_1_batch).feed("s_t_1_segment_batch", ti_s_t_1_segment_batch).feed("s_t_1_actions_batch", ti_s_t_1_actions_batch).feed("s_t_1_actions_segment_batch", ti_s_t_1_actions_segment_batch).fetch("q_learning_loss").fetch("q_learning_train").run();
+			List<Tensor<?>> tensors = this.session.runner().feed("s_t_batch", ti_s_t_batch).feed("s_t_segment_batch", ti_s_t_segment_batch).feed("a_t_batch", ti_a_t_batch).feed("a_t_segment_batch", ti_a_t_segment_batch).feed("r_t_batch", ti_r_t_batch).feed("s_t_1_batch", ti_s_t_1_batch).feed("s_t_1_segment_batch", ti_s_t_1_segment_batch).feed("s_t_1_actions_batch", ti_s_t_1_actions_batch).feed("s_t_1_actions_segment_batch", ti_s_t_1_actions_segment_batch).fetch("q_learning_loss").fetch("q_learning_train").run();
+			Tensor<?> loss_value = tensors.get(0).expect(Float.class);
+			System.out.println("loss_value:" + loss_value.floatValue() + "#loss_value_shape:" + loss_value);
 		}
 	}
 
