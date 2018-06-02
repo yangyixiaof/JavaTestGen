@@ -352,7 +352,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
    * {@link #specifications} for details on classification using specifications.
    */
   @Option("Use specifications for JDK classes to classify behaviors for methods/constructors")
-  public static boolean use_jdk_specifications = true;
+  public static boolean use_jdk_specifications = false;
 
   /**
    * Make Randoop proceed, instead of failing, if the Java condition text of a specification cannot

@@ -10,8 +10,10 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -192,7 +194,7 @@ public class GenTests extends GenInputsAbstract {
     // }
 
     // If some properties were specified, set them
-    for (String prop : GenInputsAbstract.system_props) { // 似乎能在启动时用 -D 设置?
+    for (String prop : GenInputsAbstract.system_props) { // 浼间箮鑳藉湪鍚姩鏃剁敤 -D 璁剧疆?
       String[] pa = prop.split("=", 2);
       if (pa.length != 2) {
         usage("invalid property definition: %s%n", prop);
@@ -212,8 +214,8 @@ public class GenTests extends GenInputsAbstract {
      */
     // Get names of classes under test
     Set<String> classnames = GenInputsAbstract.getClassnamesFromArgs();
-    // 反正这里能拿到被测类名列表吧
-    // 如果需要方法名列表，在这里反射获取
+    // 鍙嶆杩欓噷鑳芥嬁鍒拌娴嬬被鍚嶅垪琛ㄥ惂
+    // 濡傛灉闇�瑕佹柟娉曞悕鍒楄〃锛屽湪杩欓噷鍙嶅皠鑾峰彇
 
     // Get names of classes that must be covered by output tests
     Set<String> coveredClassnames =
@@ -272,7 +274,7 @@ public class GenTests extends GenInputsAbstract {
       System.exit(1);
     }
 
-    // 解析的运行参数汇总起来，搞出 OperationModel
+    // 瑙ｆ瀽鐨勮繍琛屽弬鏁版眹鎬昏捣鏉ワ紝鎼炲嚭 OperationModel
     OperationModel operationModel = null;
     try {
       operationModel =
@@ -401,7 +403,7 @@ public class GenTests extends GenInputsAbstract {
     /*
      * Setup for test predicate
      */
-    // 咦，必然排除"幺元"？
+    // 鍜︼紝蹇呯劧鎺掗櫎"骞哄厓"锛�
     // Always exclude a singleton sequence with just new Object()
     TypedOperation objectConstructor;
     try {
@@ -975,8 +977,37 @@ public class GenTests extends GenInputsAbstract {
   private Collection<? extends File> getJDKSpecificationFiles() {
     List<File> fileList = new ArrayList<>();
     final String specificationDirectory = "/conditions/jdk/";
+    
+    URI directoryURI = null;
+	try {
+		directoryURI = GenTests.class.getResource(specificationDirectory).toURI();
+	} catch (URISyntaxException e1) {
+		e1.printStackTrace();
+	}
+	String directoryURIString = null;
+	try {
+		directoryURIString = URLDecoder.decode(directoryURI.toString(), "UTF-8");
+	} catch (UnsupportedEncodingException e1) {
+		e1.printStackTrace();
+	}
+    System.out.println("directoryURI:" + directoryURIString);
+    String os = System.getProperty("os.name");
+    System.out.println(os);
+    if(os.toLowerCase().startsWith("win")){
+    	String dir_str = directoryURIString;
+    	if (dir_str.startsWith("jar:file:/")) {
+    		dir_str = dir_str.substring("jar:file:/".length());
+    	}
+    	if (dir_str.startsWith("file:/")) {
+    		dir_str = dir_str.substring("file:/".length());
+    	}
+    	File dir = new File(dir_str);
+    	if (dir.exists() && dir.isDirectory()) {
+    		return Arrays.asList(dir.listFiles());
+    	}
+    }
+    
     Path directoryPath = getResourceDirectoryPath(specificationDirectory);
-
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath, "json")) {
       for (Path entry : stream) {
         fileList.add(entry.toFile());
