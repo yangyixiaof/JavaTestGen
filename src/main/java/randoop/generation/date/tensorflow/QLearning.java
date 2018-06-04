@@ -47,7 +47,7 @@ public class QLearning {
 	}
 
 	private byte[] LoadGraphDef() throws IOException {
-		try (InputStream is = QLearning.class.getClassLoader().getResourceAsStream("refined_deep_q.pb")) {
+		try (InputStream is = getClass().getResourceAsStream("refined_deep_q.pb")) {
 			return ByteStreams.toByteArray(is);
 		}
 	}
