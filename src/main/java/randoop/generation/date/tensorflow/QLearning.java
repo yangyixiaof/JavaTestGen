@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 
 import com.google.common.io.ByteStreams;
 
@@ -29,6 +29,8 @@ public class QLearning {
 	
 	TypedOperationIDAssigner operation_id_assigner = new TypedOperationIDAssigner();
 	StringIDAssigner string_id_assigner = new StringIDAssigner();
+	
+	JavaPythonCommunicator communicator = new JavaPythonCommunicator();
 	
 //	Map<TypedOperation, Integer> operation_id_map = new HashMap<TypedOperation, Integer>();
 //	Map<String, Integer> other_value_id_map = new HashMap<String, Integer>();
@@ -98,11 +100,23 @@ public class QLearning {
 			}
 			s_t_1_actions_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_actions_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_actions_batch.columns()));
 		}
-		try (Tensor<Integer> ti_s_t_batch = Tensor.create(s_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_segment_batch = Tensor.create(s_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_batch = Tensor.create(a_t_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_segment_batch = Tensor.create(a_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_r_t_batch = Tensor.create(r_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_batch = Tensor.create(s_t_1_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_segment_batch = Tensor.create(s_t_1_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_batch = Tensor.create(s_t_1_actions_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_segment_batch = Tensor.create(s_t_1_actions_segment_batch.toArray(), Integer.class);) {
-			List<Tensor<?>> tensors = this.session.runner().feed("s_t_batch", ti_s_t_batch).feed("s_t_segment_batch", ti_s_t_segment_batch).feed("a_t_batch", ti_a_t_batch).feed("a_t_segment_batch", ti_a_t_segment_batch).feed("r_t_batch", ti_r_t_batch).feed("s_t_1_batch", ti_s_t_1_batch).feed("s_t_1_segment_batch", ti_s_t_1_segment_batch).feed("s_t_1_actions_batch", ti_s_t_1_actions_batch).feed("s_t_1_actions_segment_batch", ti_s_t_1_actions_segment_batch).fetch("q_learning_loss").fetch("q_learning_train").run();
-			Tensor<?> loss_value = tensors.get(0).expect(Float.class);
-			System.out.println("loss_value:" + loss_value.floatValue() + "#loss_value_shape:" + loss_value);
-		}
+		Map<String, Object> feed_dict = new TreeMap<String, Object>();
+		feed_dict.put("s_t_batch", s_t_batch.toArray());
+		feed_dict.put("s_t_segment_batch", s_t_segment_batch.toArray());
+		feed_dict.put("a_t_batch", a_t_batch.toArray());
+		feed_dict.put("a_t_segment_batch", a_t_segment_batch.toArray());
+		feed_dict.put("r_t_batch", r_t_batch.toArray());
+		feed_dict.put("s_t_1_batch", s_t_1_batch.toArray());
+		feed_dict.put("s_t_1_segment_batch", s_t_1_segment_batch.toArray());
+		feed_dict.put("s_t_1_actions_batch", s_t_1_actions_batch.toArray());
+		feed_dict.put("s_t_1_actions_segment_batch", s_t_1_actions_segment_batch.toArray());
+		JavaPythonRemoteInvoke result = communicator.RemoteCallPython(feed_dict, "learning");
+		System.out.println("one learning step loss:" + result);
+//		try (Tensor<Integer> ti_s_t_batch = Tensor.create(s_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_segment_batch = Tensor.create(s_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_batch = Tensor.create(a_t_batch.toArray(), Integer.class);Tensor<Integer> ti_a_t_segment_batch = Tensor.create(a_t_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_r_t_batch = Tensor.create(r_t_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_batch = Tensor.create(s_t_1_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_segment_batch = Tensor.create(s_t_1_segment_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_batch = Tensor.create(s_t_1_actions_batch.toArray(), Integer.class);Tensor<Integer> ti_s_t_1_actions_segment_batch = Tensor.create(s_t_1_actions_segment_batch.toArray(), Integer.class);) {
+//			List<Tensor<?>> tensors = this.session.runner().feed("s_t_batch", ti_s_t_batch).feed("s_t_segment_batch", ti_s_t_segment_batch).feed("a_t_batch", ti_a_t_batch).feed("a_t_segment_batch", ti_a_t_segment_batch).feed("r_t_batch", ti_r_t_batch).feed("s_t_1_batch", ti_s_t_1_batch).feed("s_t_1_segment_batch", ti_s_t_1_segment_batch).feed("s_t_1_actions_batch", ti_s_t_1_actions_batch).feed("s_t_1_actions_segment_batch", ti_s_t_1_actions_segment_batch).fetch("q_learning_loss").fetch("q_learning_train").run();
+//			Tensor<?> loss_value = tensors.get(0).expect(Float.class);
+//			System.out.println("loss_value:" + loss_value.floatValue() + "#loss_value_shape:" + loss_value);
+//		}
 	}
 
 }
