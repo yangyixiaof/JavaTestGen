@@ -1,16 +1,9 @@
 package randoop.generation.date.tensorflow;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.tensorflow.Graph;
-import org.tensorflow.Session;
-
-import com.google.common.io.ByteStreams;
 
 import cern.colt.matrix.ObjectFactory1D;
 import cern.colt.matrix.ObjectFactory2D;
@@ -22,8 +15,8 @@ import randoop.generation.date.mutation.operation.MutationOperation;
 
 public class QLearning {
 	
-	Graph graph;
-	Session session;
+//	Graph graph;
+//	Session session;
 	ReplayMemory d;
 	StateActionPool pool;
 	
@@ -37,22 +30,22 @@ public class QLearning {
 	
 	public QLearning(ReplayMemory d, StateActionPool pool) {
 		// import model
-		this.graph = new Graph();
-		try {
-			this.graph.importGraphDef(LoadGraphDef());
-		} catch (IllegalArgumentException | IOException e) {
-			e.printStackTrace();
-		}
-		this.session = new Session(graph);
+//		this.graph = new Graph();
+//		try {
+//			this.graph.importGraphDef(LoadGraphDef());
+//		} catch (IllegalArgumentException | IOException e) {
+//			e.printStackTrace();
+//		}
+//		this.session = new Session(graph);
 		this.d = d;
 		this.pool = pool;
 	}
 
-	private byte[] LoadGraphDef() throws IOException {
-		try (InputStream is = getClass().getResourceAsStream("refined_deep_q.pb")) {
-			return ByteStreams.toByteArray(is);
-		}
-	}
+//	private byte[] LoadGraphDef() throws IOException {
+//		try (InputStream is = getClass().getResourceAsStream("refined_deep_q.pb")) {
+//			return ByteStreams.toByteArray(is);
+//		}
+//	}
 
 	public void QLearn() {
 		// the following two statements should be approximately handled in randoop step procedure.
