@@ -118,6 +118,9 @@ public class DateGenerator extends AbstractGenerator {
 //			IStopper stopper, 
 			RandoopListenerManager listenerManager) {
 		super(operations, limits, componentManager, null, listenerManager); // stopper
+		for (TypedOperation to : operations) {
+			System.out.println("TypedOperation:" + to);
+		}
 		System.out.println("operations_size:" + operations.size());
 		System.out.println("observers_size:" + observers.size());
 		// this.observers = observers;
@@ -298,6 +301,8 @@ public class DateGenerator extends AbstractGenerator {
 				}
 			}
 		}
+		// TODO
+		System.out.println("transitions_size:" + transitions.size());
 
 		// process_execute(transitions); // TODO how to pass reward
 		for (QTransition tran : transitions) {

@@ -74,6 +74,8 @@ public class QLearning {
 		
 		// the following implements QLearn(sess)(d.sample_minibatch())
 		ArrayList<QTransition> transition_batch = d.SampleMiniBatch();
+		// TODO
+		System.out.println("sampled_transition_size:" + transition_batch.size());
 		Iterator<QTransition> t_itr = transition_batch.iterator();
 		while (t_itr.hasNext()) {
 			QTransition q_t = t_itr.next();
