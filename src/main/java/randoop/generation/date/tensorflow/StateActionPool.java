@@ -1,6 +1,7 @@
 package randoop.generation.date.tensorflow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -22,11 +23,11 @@ import randoop.reflection.TypeInstantiator;
 public class StateActionPool {
 
   TypeInstantiator ti = null;
-  Set<TypedOperation> candidates = null;
+  Collection<TypedOperation> candidates = null;
 
   Map<TraceableSequence, ArrayList<MutationOperation>> state_actions = new TreeMap<>();
 
-  public StateActionPool(TypeInstantiator ti, Set<TypedOperation> candidates) {
+  public StateActionPool(TypeInstantiator ti, Collection<TypedOperation> candidates) {
     this.ti = ti;
     this.candidates = candidates;
   }
@@ -49,6 +50,7 @@ public class StateActionPool {
       ArrayList<MutationOperation> candidateMutations = new ArrayList<>();
       try {
         analyzer.GenerateMutationOperations(candidates, candidateMutations);
+//        System.out.println("candidateMutations_size:" + candidateMutations.size());
       } catch (DateWtfException e) {
         e.printStackTrace();
       }

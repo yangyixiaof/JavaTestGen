@@ -36,317 +36,331 @@ import randoop.util.Randomness;
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
 
-  public int numOfSeqSelected = 1;
-  public int numOfMutSelected = 1;
+	public int numOfSeqSelected = 1;
+	public int numOfMutSelected = 1;
 
-  /**
-   * 这个字段简直…… 没有它就难以实现 numGeneratedSequences() 和 getAllSequences() 呢。
-   *
-   * <p>有字段就得维护字段，哼咕。TODO check TODO 学 ForwardGenerator
-   *
-   * <p>The set of ALL sequences ever generated, including sequences that were executed and then
-   * discarded.
-   *
-   * <p>This must be ordered by insertion to allow for flaky test history collection in {@link
-   * randoop.main.GenTests#printSequenceExceptionError(AbstractGenerator, SequenceExceptionError)}.
-   */
-  // private final LinkedHashSet<TraceableSequence> allSequences;
+	/**
+	 * 这个字段简直…… 没有它就难以实现 numGeneratedSequences() 和 getAllSequences() 呢。
+	 *
+	 * <p>
+	 * 有字段就得维护字段，哼咕。TODO check TODO 学 ForwardGenerator
+	 *
+	 * <p>
+	 * The set of ALL sequences ever generated, including sequences that were
+	 * executed and then discarded.
+	 *
+	 * <p>
+	 * This must be ordered by insertion to allow for flaky test history collection
+	 * in
+	 * {@link randoop.main.GenTests#printSequenceExceptionError(AbstractGenerator, SequenceExceptionError)}.
+	 */
+	// private final LinkedHashSet<TraceableSequence> allSequences;
 
-  private final Map<String, TraceableSequence> allSequences =
-      new TreeMap<String, TraceableSequence>();
+	private final Map<String, TraceableSequence> allSequences = new TreeMap<String, TraceableSequence>();
 
-  // The set of all primitive values seen during generation and execution
-  // of sequences. This set is used to tell if a new primitive value has
-  // been generated, to add the value to the components.
-  private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
+	// The set of all primitive values seen during generation and execution
+	// of sequences. This set is used to tell if a new primitive value has
+	// been generated, to add the value to the components.
+	private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
-  // private final Set<TypedOperation> observers;
-  private final TypeInstantiator instantiator;
+	// private final Set<TypedOperation> observers;
+	private final TypeInstantiator instantiator;
 
-  // /**
-  // * Constructs a generator with the given parameters.
-  // *
-  // * <p>IDEA 自动从基类 copy 的 doc…… 这是个 good practice 么？
-  // *
-  // * @param operations statements (e.g. methods and constructors) used to create sequences.
-  // Cannot
-  // * be null.
-  // * @param limits maximum time and number of sequences to generate/output
-  // * @param componentManager the component manager to use to store sequences during
-  // component-based
-  // * generation. Can be null, in which case the generator's component manager is initialized
-  // as
-  // * {@code new ComponentManager()}.
-  // * @param stopper optional, additional stopping criterion for the generator. Can be null.
-  // * @param listenerManager manager that stores and calls any listeners to use during
-  // generation.
-  // */
-  // public DateGenerator(
-  // List<TypedOperation> operations,
-  // GenInputsAbstract.Limits limits,
-  // ComponentManager componentManager,
-  // IStopper stopper,
-  // RandoopListenerManager listenerManager) {
-  // super(operations, limits, componentManager, stopper, listenerManager);
-  //
-  // this.allSequences = new LinkedHashSet<>();
-  // }
+	// /**
+	// * Constructs a generator with the given parameters.
+	// *
+	// * <p>IDEA 自动从基类 copy 的 doc…… 这是个 good practice 么？
+	// *
+	// * @param operations statements (e.g. methods and constructors) used to create
+	// sequences.
+	// Cannot
+	// * be null.
+	// * @param limits maximum time and number of sequences to generate/output
+	// * @param componentManager the component manager to use to store sequences
+	// during
+	// component-based
+	// * generation. Can be null, in which case the generator's component manager is
+	// initialized
+	// as
+	// * {@code new ComponentManager()}.
+	// * @param stopper optional, additional stopping criterion for the generator.
+	// Can be null.
+	// * @param listenerManager manager that stores and calls any listeners to use
+	// during
+	// generation.
+	// */
+	// public DateGenerator(
+	// List<TypedOperation> operations,
+	// GenInputsAbstract.Limits limits,
+	// ComponentManager componentManager,
+	// IStopper stopper,
+	// RandoopListenerManager listenerManager) {
+	// super(operations, limits, componentManager, stopper, listenerManager);
+	//
+	// this.allSequences = new LinkedHashSet<>();
+	// }
 
-  ReplayMemory d;
-  StateActionPool state_action_pool;
-  QLearning q_learn;
+	ReplayMemory d;
+	StateActionPool state_action_pool;
+	QLearning q_learn;
 
-  //  public DateGenerator(
-  //      List<TypedOperation> operations,
-  //      Set<TypedOperation> observers,
-  //      GenInputsAbstract.Limits limits,
-  //      ComponentManager componentManager,
-  //      RandoopListenerManager listenerManager) {
-  //    this(operations, observers, limits, componentManager, null, listenerManager);
-  //  }
+	// public DateGenerator(
+	// List<TypedOperation> operations,
+	// Set<TypedOperation> observers,
+	// GenInputsAbstract.Limits limits,
+	// ComponentManager componentManager,
+	// RandoopListenerManager listenerManager) {
+	// this(operations, observers, limits, componentManager, null, listenerManager);
+	// }
 
-  public DateGenerator(
-      List<TypedOperation> operations,
-      Set<TypedOperation> observers,
-      GenInputsAbstract.Limits limits,
-      ComponentManager componentManager,
-      //      IStopper stopper,
-      RandoopListenerManager listenerManager) {
-    super(operations, limits, componentManager, null, listenerManager); // stopper
+	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers, 
+			GenInputsAbstract.Limits limits, ComponentManager componentManager, 
+//			IStopper stopper, 
+			RandoopListenerManager listenerManager) {
+		super(operations, limits, componentManager, null, listenerManager); // stopper
+		System.out.println("operations_size:" + operations.size());
+		System.out.println("observers_size:" + observers.size());
+		// this.observers = observers;
+		this.instantiator = componentManager.getTypeInstantiator();
+		this.d = new ReplayMemory();
+		this.state_action_pool = new StateActionPool(this.instantiator, operations);
+		this.q_learn = new QLearning(this.d, this.state_action_pool);
+		initializeRuntimePrimitivesSeen();
+	}
 
-    // this.observers = observers;
-    this.instantiator = componentManager.getTypeInstantiator();
-    this.d = new ReplayMemory();
-    this.state_action_pool = new StateActionPool(this.instantiator, observers);
-    this.q_learn = new QLearning(this.d, this.state_action_pool);
-    initializeRuntimePrimitivesSeen();
-  }
+	@Override
+	public ExecutableSequence step() {
+		// FML TODO
+		if (allSequences.isEmpty()) {
+			Collection<Sequence> seed_sequences = componentManager.gralSeeds;
+			for (Sequence seq : seed_sequences) {
+				TraceableSequence new_seq = new TraceableSequence(seq);
+				allSequences.put(new_seq.toLongFormString(), new_seq);
+			}
+			// for (Sequence s : componentManager.gralSeeds) {
+			// System.out.println(s);
+			// }
+		}
 
-  @Override
-  public ExecutableSequence step() {
-    // FML TODO
-    if (allSequences.isEmpty()) {
-      Collection<Sequence> seed_sequences = componentManager.gralSeeds;
-      for (Sequence seq : seed_sequences) {
-        TraceableSequence new_seq = new TraceableSequence(seq);
-        allSequences.put(new_seq.toLongFormString(), new_seq);
-      }
-      //      for (Sequence s : componentManager.gralSeeds) {
-      //        System.out.println(s);
-      //      }
-    }
+		// long startTime = System.nanoTime();
 
-    //    long startTime = System.nanoTime();
+		// 以现在的规模，无害
+		if (componentManager.numGeneratedSequences() % GenInputsAbstract.clear == 0) {
+			componentManager.clearGeneratedSequences();
+		}
 
-    // 以现在的规模，无害
-    if (componentManager.numGeneratedSequences() % GenInputsAbstract.clear == 0) {
-      componentManager.clearGeneratedSequences();
-    }
+		// TODO 有一些产生了的没放进最终结果？
+		// ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
+		List<QTransition> transitions = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
+		System.out.println(
+				"after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
+		d.StoreTransitions(transitions);
+		q_learn.QLearn();
+		// for (ExecutableSequence eSeq : eSeqs) {
+		// if (eSeq == null) {
+		// return null;
+		// }
+		//
+		// // 璇曡瘯 dontexecute 鐨勯�夐」
+		// if (GenInputsAbstract.dontexecute) {
+		// this.componentManager.addGeneratedSequence(eSeq.sequence);
+		// return null;
+		// }
+		//
+		// // 鍞� 鏈夌偣璁� currSeq 澶卞幓鎰忎箟浜嗏�︹�ODO
+		// // setCurrentSequence(eSeq.sequence);
+		// setCurrentSequence(eSeq.sequence);
+		// }
 
-    // TODO 有一些产生了的没放进最终结果？
-    //    ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
-    List<QTransition> transitions = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);
-    System.out.println(
-        "after ============ List<ExecutableSequence> eSeqs = createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
-    d.StoreTransitions(transitions);
-    q_learn.QLearn();
-    //    for (ExecutableSequence eSeq : eSeqs) {
-    //      if (eSeq == null) {
-    //        return null;
-    //      }
-    //
-    //      // 璇曡瘯 dontexecute 鐨勯�夐」
-    //      if (GenInputsAbstract.dontexecute) {
-    //        this.componentManager.addGeneratedSequence(eSeq.sequence);
-    //        return null;
-    //      }
-    //
-    //      // 鍞� 鏈夌偣璁� currSeq 澶卞幓鎰忎箟浜嗏�︹�ODO
-    //      //    setCurrentSequence(eSeq.sequence);
-    //      setCurrentSequence(eSeq.sequence);
-    //    }
+		// long gentime1 = System.nanoTime() - startTime; // rename it
 
-    //    long gentime1 = System.nanoTime() - startTime; // rename it
+		// System.out.println("Before ------eSeq.execute(executionVisitor,
+		// checkGenerator);");
+		// System.out.println(eSeq);
+		// 插入的 TypedOperation 是否完全没有类型参数的信息？
+		// eSeq.execute(executionVisitor, checkGenerator);
+		// System.out.println("After ------eSeq.execute(executionVisitor,
+		// checkGenerator);");
+		// System.out.println(eSeq);
+		// 寮勬竻 execute 浣滅敤鈥︹��
+		// process_execute(eSeqs); // 骞惰鍖栦箣鍓嶆尯鎱㈢殑 TODO 瀹氶噺娴嬩竴娴�
+		// TODO 弄清 execute 作用……
+		// process_execute(eSeqs); // 并行化之前挺慢的
 
-    //    System.out.println("Before ------eSeq.execute(executionVisitor, checkGenerator);");
-    //    System.out.println(eSeq);
-    // 插入的 TypedOperation 是否完全没有类型参数的信息？
-    //        eSeq.execute(executionVisitor, checkGenerator);
-    //    System.out.println("After ------eSeq.execute(executionVisitor, checkGenerator);");
-    //    System.out.println(eSeq);
-    // 寮勬竻 execute 浣滅敤鈥︹��
-    //    process_execute(eSeqs); // 骞惰鍖栦箣鍓嶆尯鎱㈢殑 TODO 瀹氶噺娴嬩竴娴�
-    // TODO 弄清 execute 作用……
-    // process_execute(eSeqs); // 并行化之前挺慢的
+		// for(ExecutableSequence eSeq:eSeqs){
+		// eSeq.execute(executionVisitor, checkGenerator);
+		// }
 
-    //    for(ExecutableSequence eSeq:eSeqs){
-    //      eSeq.execute(executionVisitor, checkGenerator);
-    //    }
+		// startTime = System.nanoTime(); // reset start time.
 
-    //    startTime = System.nanoTime(); // reset start time.
+		// 口怕，先不管它 ：）
+		// determineActiveIndices(eSeq);
 
-    // 口怕，先不管它 ：）
-    // determineActiveIndices(eSeq);
+		// determineActiveIndices(ExecutableSequence seq) 作用：
+		// 如果执行有任何问题（4种）就把全部 statement 设为不 active；
+		// 如果哪个 Statement 没返回值、是方法调用但方法在observer集里（貌似是在调用randoop时通过参数传入？）、返回值是
+		// primitive，皆设为不 active。
+		// 杨：总之就是，对一个 ExecutableSequence，分析出它产出了哪些能当作输入的值。
 
-    //    determineActiveIndices(ExecutableSequence seq) 作用：
-    //    如果执行有任何问题（4种）就把全部 statement 设为不 active；
-    //    如果哪个 Statement 没返回值、是方法调用但方法在observer集里（貌似是在调用randoop时通过参数传入？）、返回值是 primitive，皆设为不 active。
-    //    杨：总之就是，对一个 ExecutableSequence，分析出它产出了哪些能当作输入的值。
+		// if (eSeq.sequence.hasActiveFlags()) {
+		// componentManager.addGeneratedSequence(eSeq.sequence);
+		// }
 
-    // if (eSeq.sequence.hasActiveFlags()) {
-    // componentManager.addGeneratedSequence(eSeq.sequence);
-    // }
+		// long gentime2 = System.nanoTime() - startTime; // rename it
 
-    //    long gentime2 = System.nanoTime() - startTime; // rename it
+		// eSeq.gentime = gentime1 + gentime2;
 
-    //    eSeq.gentime = gentime1 + gentime2;
+		// return eSeq;
 
-    //    return eSeq;
+		// FFFFFFML? eSeqs.get(0)
+		return null;
+	}
 
-    // FFFFFFML? eSeqs.get(0)
-    return null;
-  }
+	private void process_execute(List<ExecutableSequence> eSeqs) {
+		List<String> test_cases = new LinkedList<String>();
+		// test_cases.add(currSeq.toString());
+		for (ExecutableSequence eSeq : eSeqs) {
+			test_cases.add(eSeq.toCodeString());
+		}
+		ProcessExecutor exe_ctor = new ProcessExecutor(test_cases);
+		exe_ctor.ExecuteTestCases();
+	}
 
-  private void process_execute(List<ExecutableSequence> eSeqs) {
-    List<String> test_cases = new LinkedList<String>();
-    //    test_cases.add(currSeq.toString());
-    for (ExecutableSequence eSeq : eSeqs) {
-      test_cases.add(eSeq.toCodeString());
-    }
-    ProcessExecutor exe_ctor = new ProcessExecutor(test_cases);
-    exe_ctor.ExecuteTestCases();
-  }
+	/**
+	 * 仅用于判定停止。@see
+	 *
+	 * @return
+	 */
+	@Override
+	public int numGeneratedSequences() {
+		return allSequences.size();
+	}
 
-  /**
-   * 仅用于判定停止。@see
-   *
-   * @return
-   */
-  @Override
-  public int numGeneratedSequences() {
-    return allSequences.size();
-  }
+	@Override
+	public LinkedHashSet<Sequence> getAllSequences() {
+		LinkedHashSet<Sequence> sequence_set = new LinkedHashSet<Sequence>();
+		for (Sequence sequence : allSequences.values()) {
+			sequence_set.add(sequence);
+		}
+		return sequence_set;
+	}
 
-  @Override
-  public LinkedHashSet<Sequence> getAllSequences() {
-    LinkedHashSet<Sequence> sequence_set = new LinkedHashSet<Sequence>();
-    for (Sequence sequence : allSequences.values()) {
-      sequence_set.add(sequence);
-    }
-    return sequence_set;
-  }
+	/**
+	 * ...
+	 *
+	 * <p>
+	 * 1. Uniformly select m distinct sequences from previously generated sequence
+	 * pool
+	 *
+	 * <p>
+	 * 2. For each selected sequence s, uniformly select n distinct mutations
+	 * applicable to s; apply the mutations, producing m*n sequences - some are new
+	 * and others not; add the new ones to this.allSequences
+	 *
+	 * <p>
+	 * 3. Execute the new sequences!
+	 *
+	 * <p>
+	 * 4. Construct at most m*n QTransition-s
+	 *
+	 * @param numOfSeqSelected
+	 *            m
+	 * @param numOfMutSelected
+	 *            n
+	 * @return
+	 */
+	private List<QTransition> createNewUniqueSequences(int numOfSeqSelected, int numOfMutSelected) {
+		// m 个
+		ArrayList<TraceableSequence> sourceSequences = new ArrayList<>();
+		for (int i = 0; i < numOfSeqSelected; i++) {
+			sourceSequences.add(Randomness.randomSetMember(this.allSequences.values()));
+			// TODO remove duplicate, to realize m *distinct* sequences
+			// TODO better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
+		}
 
-  /**
-   * ...
-   *
-   * <p>1. Uniformly select m distinct sequences from previously generated sequence pool
-   *
-   * <p>2. For each selected sequence s, uniformly select n distinct mutations applicable to s;
-   * apply the mutations, producing m*n sequences - some are new and others not; add the new ones to
-   * this.allSequences
-   *
-   * <p>3. Execute the new sequences!
-   *
-   * <p>4. Construct at most m*n QTransition-s
-   *
-   * @param numOfSeqSelected m
-   * @param numOfMutSelected n
-   * @return
-   */
-  private List<QTransition> createNewUniqueSequences(int numOfSeqSelected, int numOfMutSelected) {
-    // m 个
-    ArrayList<TraceableSequence> sourceSequences = new ArrayList<>();
-    for (int i = 0; i < numOfSeqSelected; i++) {
-      sourceSequences.add(Randomness.randomSetMember(this.allSequences.values()));
-      // TODO remove duplicate, to realize m *distinct* sequences
-      // TODO better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
-    }
+		// <= m*n 个
+		ArrayList<QTransition> transitions = new ArrayList<>();
+		for (TraceableSequence sourceSequence : sourceSequences) {
+			ArrayList<MutationOperation> candidateMutations = state_action_pool.GetAllActionsOfOneState(sourceSequence);
+			for (int i = 0; i < numOfMutSelected; i++) {
+				MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
+				int actionIndex = candidateMutations.indexOf(selectedMutation);
+				// TODO remove duplicate, to realize n *distinct* mutations
+				// TODO better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
 
-    // <= m*n 个
-    ArrayList<QTransition> transitions = new ArrayList<>();
-    for (TraceableSequence sourceSequence : sourceSequences) {
-      ArrayList<MutationOperation> candidateMutations =
-          state_action_pool.GetAllActionsOfOneState(sourceSequence);
-      for (int i = 0; i < numOfMutSelected; i++) {
-        MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
-        int actionIndex = candidateMutations.indexOf(selectedMutation);
-        // TODO remove duplicate, to realize n *distinct* mutations
-        // TODO better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
+				TraceableSequence newSequence = selectedMutation.ApplyMutation();
+				// 竟然用 LongFormString 当 key 吗…… 是防止重复用的 // TODO 用它 HashCode 防更好？
+				if (this.allSequences.containsKey(newSequence.toLongFormString())) {
+					Log.logLine("Sequence discarded because the same sequence was previously created.");
+				} else {
+					transitions.add(new QTransition(sourceSequence, newSequence, actionIndex));
+					this.allSequences.put(newSequence.toLongFormString(), newSequence);
+				}
+			}
+		}
 
-        TraceableSequence newSequence = selectedMutation.ApplyMutation();
-        // 竟然用 LongFormString 当 key 吗…… 是防止重复用的 // TODO 用它 HashCode 防更好？
-        if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-          Log.logLine("Sequence discarded because the same sequence was previously created.");
-        } else {
-          transitions.add(new QTransition(sourceSequence, newSequence, actionIndex));
-          this.allSequences.put(newSequence.toLongFormString(), newSequence);
-        }
-      }
-    }
+		// process_execute(transitions); // TODO how to pass reward
+		for (QTransition tran : transitions) {
+			// TODO fill in the reward
+		}
+		return transitions;
+	}
 
-    //    process_execute(transitions); // TODO how to pass reward
-    for (QTransition tran : transitions) {
-      // TODO fill in the reward
-    }
-    return transitions;
-  }
+	/**
+	 * Tries to create and execute a new sequence. If the sequence is new (not
+	 * already in the specified component manager), then it is executed and added to
+	 * the manager's sequences. If the sequence created is already in the manager's
+	 * sequences, this method has no effect, and returns null.
+	 *
+	 * @return a new sequence, or null
+	 */
+	private ExecutableSequence createNewUniqueSequence() { // TODO是否 instantiated? 1. operation 2. 初始allSequences
+		Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
+		MutationAnalyzer analyzer = new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
+		// TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
+		List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
+		try {
+			analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
+		} catch (DateWtfException e) {
+			e.printStackTrace();
+		}
+		MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
+		TraceableSequence newSequence = selectedMutation.ApplyMutation();
 
-  /**
-   * Tries to create and execute a new sequence. If the sequence is new (not already in the
-   * specified component manager), then it is executed and added to the manager's sequences. If the
-   * sequence created is already in the manager's sequences, this method has no effect, and returns
-   * null.
-   *
-   * @return a new sequence, or null
-   */
-  private ExecutableSequence
-      createNewUniqueSequence() { // TODO是否 instantiated? 1. operation 2. 初始allSequences
-    Sequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
-    MutationAnalyzer analyzer =
-        new MutationAnalyzer((TraceableSequence) sourceSequence, instantiator);
-    // TODO 请 GenerateMutationOperations 支持广一点的数据结构吧w
-    List<MutationOperation> candidateMutations = new LinkedList<MutationOperation>();
-    try {
-      analyzer.GenerateMutationOperations(new HashSet<>(this.operations), candidateMutations);
-    } catch (DateWtfException e) {
-      e.printStackTrace();
-    }
-    MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
-    TraceableSequence newSequence = selectedMutation.ApplyMutation();
+		// 竟然用 LongFormString 当 key 吗…… 来防止重复 // TODO 用它 HashCode 防？
+		if (this.allSequences.containsKey(newSequence.toLongFormString())) {
+			// TODO 要沿用日志格式的话，就得从 MutationOperation 里拿 TypedOperation
+			// operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+			Log.logLine("Sequence discarded because the same sequence was previously created.");
+			return null;
+		}
+		this.allSequences.put(newSequence.toLongFormString(), newSequence);
+		return new ExecutableSequence(newSequence);
+	}
 
-    // 竟然用 LongFormString 当 key 吗…… 来防止重复 // TODO 用它 HashCode 防？
-    if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-      // TODO 要沿用日志格式的话，就得从 MutationOperation 里拿 TypedOperation
-      // operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
-      Log.logLine("Sequence discarded because the same sequence was previously created.");
-      return null;
-    }
-    this.allSequences.put(newSequence.toLongFormString(), newSequence);
-    return new ExecutableSequence(newSequence);
-  }
+	/**
+	 * The runtimePrimitivesSeen set contains primitive values seen during
+	 * generation/execution and is used to determine new values that should be added
+	 * to the component set. The component set initially contains a set of primitive
+	 * sequences; this method puts those primitives in this set.
+	 */
+	// XXX this is goofy - these values are available in other ways
+	private void initializeRuntimePrimitivesSeen() {
+		for (Sequence s : componentManager.getAllPrimitiveSequences()) {
+			ExecutableSequence es = new ExecutableSequence(s);
+			es.execute(new DummyVisitor(), new DummyCheckGenerator());
+			NormalExecution e = (NormalExecution) es.getResult(0);
+			Object runtimeValue = e.getRuntimeValue();
+			runtimePrimitivesSeen.add(runtimeValue);
+		}
+	}
 
-  /**
-   * The runtimePrimitivesSeen set contains primitive values seen during generation/execution and is
-   * used to determine new values that should be added to the component set. The component set
-   * initially contains a set of primitive sequences; this method puts those primitives in this set.
-   */
-  // XXX this is goofy - these values are available in other ways
-  private void initializeRuntimePrimitivesSeen() {
-    for (Sequence s : componentManager.getAllPrimitiveSequences()) {
-      ExecutableSequence es = new ExecutableSequence(s);
-      es.execute(new DummyVisitor(), new DummyCheckGenerator());
-      NormalExecution e = (NormalExecution) es.getResult(0);
-      Object runtimeValue = e.getRuntimeValue();
-      runtimePrimitivesSeen.add(runtimeValue);
-    }
-  }
-
-  /**
-   * Returns the set of sequences that are included in other sequences to generate inputs (and, so,
-   * are subsumed by another sequence).
-   */
-  @Override
-  public Set<Sequence> getSubsumedSequences() {
-    return new HashSet<Sequence>();
-  }
+	/**
+	 * Returns the set of sequences that are included in other sequences to generate
+	 * inputs (and, so, are subsumed by another sequence).
+	 */
+	@Override
+	public Set<Sequence> getSubsumedSequences() {
+		return new HashSet<Sequence>();
+	}
 }
