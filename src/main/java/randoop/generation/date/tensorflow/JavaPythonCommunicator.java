@@ -67,10 +67,11 @@ public class JavaPythonCommunicator {
 	
 	public JavaPythonRemoteInvoke RemoteCallPython(Map<String, Object> feed_dict, String remote_command) {
 		Gson gson_feed_dict = new Gson();
-		System.out.println("feed_dict:" + gson_feed_dict.toJson(feed_dict));
-		System.exit(1);
+		String feed_dict_json = gson_feed_dict.toJson(feed_dict);
+		System.out.println("feed_dict:" + feed_dict_json);
+//		System.exit(1);
 		Map<String, Object> final_feed = new TreeMap<>();
-		final_feed.put(remote_command, final_feed);
+		final_feed.put(remote_command, feed_dict);
 		Gson gson = new Gson();
 		String json_data = gson.toJson(final_feed);
 		JavaPythonRemoteInvoke rpi = new JavaPythonRemoteInvoke();

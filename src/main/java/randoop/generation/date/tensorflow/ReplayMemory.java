@@ -12,7 +12,7 @@ public class ReplayMemory {
 	ArrayList<QTransition> all_transition_list = new ArrayList<QTransition>();
 	
 	final int batch_size = 10;
-	final double retain_threshold = 0.25;
+	final double retain_threshold = 0.0;
 	
 	public ReplayMemory() {
 	}
