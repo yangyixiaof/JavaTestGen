@@ -749,7 +749,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 			int one_statement_size = (rnis == null ? 0 : rnis.size()) + 1;
 			ObjectMatrix2D one_statement_matrix = new DenseObjectMatrix2D(2, one_statement_size);
 			one_statement_matrix.set(0, 0, id);
-			one_statement_matrix.set(1, 0, 3);
+			one_statement_matrix.set(1, 0, 2);
 			Iterator<RelativeNegativeIndex> rni_itr = rnis.iterator();
 			int j=1;
 			while (rni_itr.hasNext()) {
