@@ -45,7 +45,7 @@ public class JavaPythonCommunicator {
 			            }
 						JavaPythonRemoteInvoke rpi = rpis.remove(0);
 						rpi.SetResult(json_data);
-						rpi.notify();
+//						rpi.notify();
 						Thread.sleep(50);
 					} catch (InterruptedException | IOException e) {
 						e.printStackTrace();
@@ -82,8 +82,8 @@ public class JavaPythonCommunicator {
 			writer.write(json_data);
 			writer.close();
 			socket.close();
-			rpi.wait();
-		} catch (IOException | InterruptedException e) {
+			rpi.Wait();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return rpi;

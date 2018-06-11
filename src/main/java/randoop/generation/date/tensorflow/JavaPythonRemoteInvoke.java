@@ -16,4 +16,19 @@ public class JavaPythonRemoteInvoke {
 		return result.toString();
 	}
 	
+	public void Wait() {
+		while (result == null) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
