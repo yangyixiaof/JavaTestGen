@@ -10,6 +10,7 @@ import java.util.Map;
 import cern.colt.matrix.ObjectFactory2D;
 import cern.colt.matrix.ObjectMatrix2D;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
+import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
 import randoop.Globals;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
@@ -27,7 +28,9 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 
 	final TraceableSequence last_sequence;
 	final Map<Statement, Integer> curr_statement_in_last_sequence_index_map = new HashMap<>();
-
+	
+	TraceInfo trace_info = null;
+	
 	// public TraceableSequence(Sequence curr_sequence, Sequence last_sequence) {
 	// this.curr_sequence = curr_sequence;
 	// this.last_sequence = last_sequence;
@@ -767,6 +770,14 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	@Override
 	public int compareTo(TraceableSequence o) {
 		return toLongFormString().compareTo(o.toLongFormString());
+	}
+
+	public void SetExecutionTrace(TraceInfo ti) {
+		this.trace_info = ti;
+	}
+
+	public TraceInfo GetTraceInfo() {
+		return this.trace_info;
 	}
 	
 //	public static void main(String[] args) {

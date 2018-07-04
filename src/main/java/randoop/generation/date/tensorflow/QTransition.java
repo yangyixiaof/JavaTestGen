@@ -31,5 +31,13 @@ public class QTransition {
 	public ExecutableSequence GetExecutableSequence() {
 		return new ExecutableSequence(next_state);
 	}
+
+	public TraceableSequence GetSourceSequence() {
+		return state;
+	}
+	
+	public TraceableSequence GetTargetSequence() {
+		return next_state;
+	}
 	
 }

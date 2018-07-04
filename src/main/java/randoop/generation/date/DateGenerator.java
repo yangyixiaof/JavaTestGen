@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
+import cn.yyx.labtask.test_agent_trace_reader.TracePairComparator;
+import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
@@ -189,6 +192,26 @@ public class DateGenerator extends AbstractGenerator {
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		String trace = "";
+		try {
+			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
+			Field f = c.getDeclaredField("buffer");
+			StringBuffer buffer = (StringBuffer)f.get(null);
+			trace = buffer.toString();
+			buffer.delete(0, buffer.length());
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		TraceableSequence e_sequence = transition.GetTargetSequence();
+		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
+		TraceableSequence s_sequence = transition.GetSourceSequence();
+		TraceInfo s_t_i = s_sequence.GetTraceInfo();
+		TraceInfo e_t_i = e_sequence.GetTraceInfo();
+		
+		Map<String, Double> all_branches_influences = TracePairComparator.BuildGuidedModel(s_t_i.GetValuesOfBranches(), e_t_i.GetValuesOfBranches());
+		
+		
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
