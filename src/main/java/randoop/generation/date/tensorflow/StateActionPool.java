@@ -3,7 +3,6 @@ package randoop.generation.date.tensorflow;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import randoop.generation.date.DateWtfException;
