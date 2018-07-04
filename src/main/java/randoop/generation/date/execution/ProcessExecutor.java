@@ -7,7 +7,7 @@ import randoop.generation.date.util.FileUtil;
 
 public class ProcessExecutor {
 
-  public static final String test_case_name = "Test";
+  public static final String test_case_name = "YYX_RDQ_Test";
   public static final String over_all_working_directory =
       System.getProperty("user.home") + "/" + "TestCaseExecutionDirectory";
   public static final String instrument_agent =
@@ -70,10 +70,9 @@ public class ProcessExecutor {
     File dir = FileUtil.EnsureDirectoryExist(directory);
     File test_case_file = new File(directory + "/" + test_case_name + ".java");
     StringBuilder testCaseSb = new StringBuilder();
-    // 还可以来个 packageStr 吧…… TODO
     testCaseSb.append(importStr);
     testCaseSb.append(System.lineSeparator());
-    testCaseSb.append("public class Test { public static void main(String[] args) {");
+    testCaseSb.append("public class " + test_case_name + " { public static void main(String[] args) {");
     testCaseSb.append(System.lineSeparator());
     testCaseSb.append(test_case);
     testCaseSb.append(System.lineSeparator());
@@ -94,7 +93,7 @@ public class ProcessExecutor {
       System.out.print(s + " ");
     }
     System.out.println("");
-    System.out.println("before 执行 javac_cmds 于 " + dir);
+    System.out.println("before 鎵ц javac_cmds 浜� " + dir);
     ExecuteOneCmdForTestCase(javac_cmds, dir);
     String[] java_agent_cmds =
         new String[] {
@@ -114,7 +113,7 @@ public class ProcessExecutor {
       System.out.print(s + " ");
     }
     System.out.println("");
-    System.out.println("before 执行 java_agent_cmds 于 " + dir);
+    System.out.println("before 鎵ц java_agent_cmds 浜� " + dir);
     ExecuteOneCmdForTestCase(java_agent_cmds, dir);
   }
 
