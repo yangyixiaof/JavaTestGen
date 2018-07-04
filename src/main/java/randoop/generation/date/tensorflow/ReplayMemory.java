@@ -19,11 +19,15 @@ public class ReplayMemory {
 	
 	public void StoreTransitions(List<QTransition> transitions) {
 		for (QTransition qt : transitions) {
-			String q_tran_representation = qt.toString();
-			Assert.isTrue(!all_transition_map.containsKey(q_tran_representation));
-			all_transition_map.put(q_tran_representation, qt);
-			all_transition_list.add(qt);
+			StoreTransition(qt);
 		}
+	}
+	
+	public void StoreTransition(QTransition transition) {
+		String q_tran_representation = transition.toString();
+		Assert.isTrue(!all_transition_map.containsKey(q_tran_representation));
+		all_transition_map.put(q_tran_representation, transition);
+		all_transition_list.add(transition);
 	}
 	
 	public ArrayList<QTransition> SampleMiniBatch() {
