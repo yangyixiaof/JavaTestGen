@@ -1,5 +1,6 @@
 package randoop.generation.date;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -171,7 +172,23 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println("Before ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
+		try {
+			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
+			Field f = c.getDeclaredField("now_record");
+//			Boolean f_v1 = (Boolean)f.get(null);
+			f.set(null, Boolean.TRUE);
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 		eSeq.execute(executionVisitor, checkGenerator);
+		try {
+			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
+			Field f = c.getDeclaredField("now_record");
+//			Boolean f_v2 = (Boolean)f.get(null);
+			f.set(null, Boolean.FALSE);
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
