@@ -2,7 +2,6 @@ package randoop.generation.date;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,6 +21,7 @@ import randoop.generation.date.tensorflow.QLearning;
 import randoop.generation.date.tensorflow.QTransition;
 import randoop.generation.date.tensorflow.ReplayMemory;
 import randoop.generation.date.tensorflow.StateActionPool;
+import randoop.generation.date.test.SequenceGenerator;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;
@@ -111,32 +111,24 @@ public class DateGenerator extends AbstractGenerator {
 			// IStopper stopper,
 			RandoopListenerManager listenerManager) {
 		super(operations, limits, componentManager, null, listenerManager); // stopper
-		for (TypedOperation to : operations) {
-			System.out.println("TypedOperation:" + to);
-		}
-		System.out.println("operations_size:" + operations.size());
-		System.out.println("observers_size:" + observers.size());
+//		for (TypedOperation to : operations) {
+//			System.out.println("TypedOperation:" + to);
+//		}
+//		System.out.println("operations_size:" + operations.size());
+//		System.out.println("observers_size:" + observers.size());
 		// this.observers = observers;
+		// initialize allSequences
+		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
+		allSequences.put(new_seq.toLongFormString(), new_seq);
+		// initialize generation used data
 		this.instantiator = componentManager.getTypeInstantiator();
 		this.d = new ReplayMemory();
 		this.state_action_pool = new StateActionPool(this.instantiator, operations);
 		this.q_learn = new QLearning(this.d, this.state_action_pool);
-//		initializeRuntimePrimitivesSeen();
 	}
 
 	@Override
 	public ExecutableSequence step() {
-		if (allSequences.isEmpty()) {
-			Collection<Sequence> seed_sequences = componentManager.gralSeeds;
-			for (Sequence seq : seed_sequences) {
-				TraceableSequence new_seq = new TraceableSequence(seq);
-				allSequences.put(new_seq.toLongFormString(), new_seq);
-			}
-			// for (Sequence s : componentManager.gralSeeds) {
-			// System.out.println(s);
-			// }
-		}
-
 		long startTime = System.nanoTime();
 
 		// harmless for current scale
@@ -202,6 +194,8 @@ public class DateGenerator extends AbstractGenerator {
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		System.out.println("trace:" + trace);
+		System.exit(1);
 		
 		TraceableSequence e_sequence = transition.GetTargetSequence();
 		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
