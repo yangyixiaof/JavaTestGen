@@ -147,8 +147,6 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println(
 		// "after ============ List<ExecutableSequence> eSeqs =
 		// createNewUniqueSequences(numOfSeqSelected, numOfMutSelected);");
-		d.StoreTransition(transition);
-		q_learn.QLearn();
 		// for (ExecutableSequence eSeq : eSeqs) {
 		// if (eSeq == null) {
 		// return null;
@@ -216,11 +214,14 @@ public class DateGenerator extends AbstractGenerator {
 
 		startTime = System.nanoTime(); // reset start time.
 
+		d.StoreTransition(transition);
+		q_learn.QLearn();
+		
 //		determineActiveIndices(eSeq);
-
-		if (eSeq.sequence.hasActiveFlags()) {
-			componentManager.addGeneratedSequence(eSeq.sequence);
-		}
+//
+//		if (eSeq.sequence.hasActiveFlags()) {
+//			componentManager.addGeneratedSequence(eSeq.sequence);
+//		}
 
 		long gentime2 = System.nanoTime() - startTime; // rename it
 
