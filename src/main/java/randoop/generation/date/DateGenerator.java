@@ -210,8 +210,7 @@ public class DateGenerator extends AbstractGenerator {
 		TraceInfo e_t_i = e_sequence.GetTraceInfo();
 		
 		Map<String, Double> all_branches_influences = TracePairComparator.BuildGuidedModel(s_t_i.GetValuesOfBranches(), e_t_i.GetValuesOfBranches());
-		
-		
+		transition.SetUpInfluences(all_branches_influences);
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
@@ -350,7 +349,7 @@ public class DateGenerator extends AbstractGenerator {
 		}
 		this.allSequences.put(newSequence.toLongFormString(), newSequence);
 		
-		QTransition qt = new QTransition(sourceSequence, newSequence, actionIndex);
+		QTransition qt = new QTransition(sourceSequence, actionIndex, newSequence);
 		return qt;
 	}
 
