@@ -84,7 +84,7 @@ public class QLearning {
 			s_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_segment_batch, ObjectFactory1D.dense.make(1, s_t_batch.columns()));
 			a_t_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(a_t_batch, action.toComputeTensor(operation_id_assigner, string_id_assigner));
 			a_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(a_t_segment_batch, ObjectFactory1D.dense.make(1, a_t_batch.columns()));
-			r_t_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(r_t_batch, ObjectFactory1D.dense.make(1, q_t.reward));
+//			r_t_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(r_t_batch, ObjectFactory1D.dense.make(1, q_t.reward));
 			s_t_1_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(s_t_1_batch, q_t.next_state.toComputeTensor(operation_id_assigner, string_id_assigner));
 			s_t_1_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_batch.columns()));
 			ArrayList<MutationOperation> next_state_all_actions = pool.GetAllActionsOfOneState(q_t.next_state);
