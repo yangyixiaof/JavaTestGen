@@ -1,6 +1,5 @@
 package randoop.generation.date;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -15,6 +14,7 @@ import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
+import randoop.generation.date.execution.TracePrintController;
 import randoop.generation.date.mutation.operation.MutationOperation;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.tensorflow.QLearning;
@@ -165,33 +165,10 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println("Before ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
-		try {
-			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
-			Field f = c.getDeclaredField("now_record");
-//			Boolean f_v1 = (Boolean)f.get(null);
-			f.set(null, Boolean.TRUE);
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		
 		eSeq.execute(executionVisitor, checkGenerator);
-		try {
-			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
-			Field f = c.getDeclaredField("now_record");
-//			Boolean f_v2 = (Boolean)f.get(null);
-			f.set(null, Boolean.FALSE);
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		String trace = "";
-		try {
-			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
-			Field f = c.getDeclaredField("buffer");
-			StringBuffer buffer = (StringBuffer)f.get(null);
-			trace = buffer.toString();
-			buffer.delete(0, buffer.length());
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		
+		String trace = TracePrintController.GetPrintedTrace();
 		System.out.println("trace:" + trace);
 		System.exit(1);
 		

@@ -2,6 +2,7 @@ package randoop.util;
 
 import java.util.Arrays;
 import randoop.contract.ObjectContract;
+import randoop.generation.date.execution.TracePrintController;
 
 public final class ObjectContractReflectionCode extends ReflectionCode {
 
@@ -16,7 +17,9 @@ public final class ObjectContractReflectionCode extends ReflectionCode {
   @Override
   protected void runReflectionCodeRaw() {
     try {
+      TracePrintController.OpenPrintFlag();
       retval = c.evaluate(objs);
+      TracePrintController.ClosePrintFlag();
     } catch (Throwable e) {
       exceptionThrown = e;
     }

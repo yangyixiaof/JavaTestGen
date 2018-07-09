@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+import randoop.generation.date.execution.TracePrintController;
+
 /** Wraps a constructor together with its arguments, ready for execution. Can be run only once. */
 public final class ConstructorReflectionCode extends ReflectionCode {
   private final Constructor<?> constructor;
@@ -35,7 +37,9 @@ public final class ConstructorReflectionCode extends ReflectionCode {
   @Override
   public void runReflectionCodeRaw() {
     try {
+      TracePrintController.OpenPrintFlag();
       this.retval = this.constructor.newInstance(this.inputs);
+      TracePrintController.ClosePrintFlag();
     } catch (InvocationTargetException e) {
       // The underlying constructor threw an exception
       this.exceptionThrown = e.getCause();

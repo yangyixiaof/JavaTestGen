@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+import randoop.generation.date.execution.TracePrintController;
+
 /** Wraps a method together with its arguments, ready for execution. Can be run only once. */
 public final class MethodReflectionCode extends ReflectionCode {
 
@@ -41,7 +43,9 @@ public final class MethodReflectionCode extends ReflectionCode {
   public void runReflectionCodeRaw() {
     Log.logLine("runReflectionCodeRaw: " + method);
     try {
+      TracePrintController.OpenPrintFlag();
       this.retval = this.method.invoke(this.receiver, this.inputs);
+      TracePrintController.ClosePrintFlag();
       try {
         Log.logLine("runReflectionCodeRaw(" + method + ") => " + retval);
       } catch (OutOfMemoryError e) {
