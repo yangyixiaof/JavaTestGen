@@ -5,7 +5,7 @@ public class StaticSimpleBranchFile {
 	public static void TestStaticSimpleBranch() {
 		long l = 1L;
 		if (l < 100) {
-			System.gc();
+			System.out.println("hahahahahaahha!");
 		}
 	}
 	
