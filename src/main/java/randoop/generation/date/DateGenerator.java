@@ -169,7 +169,7 @@ public class DateGenerator extends AbstractGenerator {
 		eSeq.execute(executionVisitor, checkGenerator);
 		
 		String trace = TracePrintController.GetPrintedTrace();
-		System.out.println("trace:" + trace);
+		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		System.exit(1);
 		
 		TraceableSequence e_sequence = transition.GetTargetSequence();
