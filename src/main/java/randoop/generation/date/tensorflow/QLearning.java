@@ -9,6 +9,7 @@ import cern.colt.matrix.ObjectFactory1D;
 import cern.colt.matrix.ObjectFactory2D;
 import cern.colt.matrix.impl.DenseObjectMatrix1D;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
+import randoop.generation.date.embed.BranchIDAssigner;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.mutation.operation.MutationOperation;
@@ -22,6 +23,7 @@ public class QLearning {
 	
 	TypedOperationIDAssigner operation_id_assigner = new TypedOperationIDAssigner();
 	StringIDAssigner string_id_assigner = new StringIDAssigner();
+	BranchIDAssigner branch_id_assigner = new BranchIDAssigner();
 	
 	JavaPythonCommunicator communicator = new JavaPythonCommunicator();
 	
@@ -66,7 +68,8 @@ public class QLearning {
 		DenseObjectMatrix1D s_t_segment_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix2D a_t_batch = new DenseObjectMatrix2D(2,0);
 		DenseObjectMatrix1D a_t_segment_batch = new DenseObjectMatrix1D(0);
-		DenseObjectMatrix1D r_t_batch = new DenseObjectMatrix1D(0);
+		DenseObjectMatrix2D r_t_batch = new DenseObjectMatrix2D(2,0);
+		DenseObjectMatrix1D r_t_segment_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix2D s_t_1_batch = new DenseObjectMatrix2D(2,0);
 		DenseObjectMatrix1D s_t_1_segment_batch = new DenseObjectMatrix1D(0);
 		DenseObjectMatrix2D s_t_1_actions_batch = new DenseObjectMatrix2D(2,0);
@@ -84,7 +87,8 @@ public class QLearning {
 			s_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_segment_batch, ObjectFactory1D.dense.make(1, s_t_batch.columns()));
 			a_t_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(a_t_batch, action.toComputeTensor(operation_id_assigner, string_id_assigner));
 			a_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(a_t_segment_batch, ObjectFactory1D.dense.make(1, a_t_batch.columns()));
-//			r_t_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(r_t_batch, ObjectFactory1D.dense.make(1, q_t.reward));
+			r_t_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(r_t_batch, q_t.toInfluenceTensor(branch_id_assigner));
+			r_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(r_t_segment_batch, ObjectFactory1D.dense.make(1, r_t_batch.columns()));
 			s_t_1_batch = (DenseObjectMatrix2D) ObjectFactory2D.dense.appendColumns(s_t_1_batch, q_t.next_state.toComputeTensor(operation_id_assigner, string_id_assigner));
 			s_t_1_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(s_t_1_segment_batch, ObjectFactory1D.dense.make(1, s_t_1_batch.columns()));
 			ArrayList<MutationOperation> next_state_all_actions = pool.GetAllActionsOfOneState(q_t.next_state);
@@ -101,6 +105,7 @@ public class QLearning {
 		feed_dict.put("a_t_batch", a_t_batch.toArray());
 		feed_dict.put("a_t_segment_batch", a_t_segment_batch.toArray());
 		feed_dict.put("r_t_batch", r_t_batch.toArray());
+		feed_dict.put("r_t_segment_batch", r_t_segment_batch.toArray());
 		feed_dict.put("s_t_1_batch", s_t_1_batch.toArray());
 		feed_dict.put("s_t_1_segment_batch", s_t_1_segment_batch.toArray());
 		feed_dict.put("s_t_1_actions_batch", s_t_1_actions_batch.toArray());

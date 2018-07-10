@@ -22,7 +22,7 @@ public class TracePairComparator {
 	 */
 	public static Map<String, Double> BuildGuidedModel(Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature,
 			Map<String, LinkedList<ValuesOfBranch>> current_branch_signature) {
-		Map<String, Double> influence = new TreeMap<>();
+		Map<String, Double> influence = new TreeMap<String, Double>();
 		Set<String> pset = previous_branch_signature.keySet();
 		for (String sig : pset) {
 			if (branch_state.BranchHasBeenIteratedOver(sig)) {
@@ -85,7 +85,8 @@ public class TracePairComparator {
 					sig_influence = min;
 				}
 			}
-			influence.put(sig, sig_influence);
+			// here, the state of a signature should be concatenated with the string of signature.
+			influence.put(sig+state, sig_influence);
 		} // for (String sig : pset)
 		return influence;
 	}
