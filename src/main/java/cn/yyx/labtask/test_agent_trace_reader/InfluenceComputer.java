@@ -11,16 +11,20 @@ import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
 /**
  * compare two traces, generating rewards.
  */
-public class TracePairComparator {
-
-	private static BranchNodesState branch_state = new BranchNodesState();
-
+public class InfluenceComputer {
+	
+	BranchNodesState branch_state = new BranchNodesState();
+	
+	public InfluenceComputer(BranchNodesState branch_state) {
+		this.branch_state = branch_state;
+	}
+	
 	/**
 	 * @param previous_branch_signature
 	 * @param current_branch_signature
 	 * @return
 	 */
-	public static Map<String, Double> BuildGuidedModel(Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature,
+	public Map<String, Double> BuildGuidedModel(Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature,
 			Map<String, LinkedList<ValuesOfBranch>> current_branch_signature) {
 		Map<String, Double> influence = new TreeMap<String, Double>();
 		Set<String> pset = previous_branch_signature.keySet();
@@ -91,7 +95,7 @@ public class TracePairComparator {
 		return influence;
 	}
 
-	private static Integer IdentifyBranchState(LinkedList<ValuesOfBranch> vobs) {
+	private Integer IdentifyBranchState(LinkedList<ValuesOfBranch> vobs) {
 		Integer state = null;
 		Iterator<ValuesOfBranch> vob_itr = vobs.iterator();
 		while (vob_itr.hasNext()) {
@@ -197,7 +201,7 @@ public class TracePairComparator {
 		return state;
 	}
 
-	private static double ComputeInfluenceForBranch(String sig, int state, ValuesOfBranch previous_vob,
+	private double ComputeInfluenceForBranch(String sig, int state, ValuesOfBranch previous_vob,
 			ValuesOfBranch current_vob) {
 		double influence = 0.0;
 		double prev_v1 = previous_vob.GetBranchValue1();

@@ -9,7 +9,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
-import cn.yyx.labtask.test_agent_trace_reader.TracePairComparator;
+import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
+import cn.yyx.labtask.test_agent_trace_reader.InfluenceComputer;
 import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
@@ -28,7 +29,6 @@ import randoop.reflection.TypeInstantiator;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
 import randoop.sequence.SequenceExceptionError;
-import randoop.util.Log;
 import randoop.util.Randomness;
 
 /** Randoop-DATE's "Sequence-based" generator. */
@@ -92,6 +92,9 @@ public class DateGenerator extends AbstractGenerator {
 	//
 	// this.allSequences = new LinkedHashSet<>();
 	// }
+	
+	BranchNodesState branch_state = new BranchNodesState();
+	InfluenceComputer influence_computer = new InfluenceComputer(branch_state);
 
 	ReplayMemory d;
 	StateActionPool state_action_pool;
@@ -178,7 +181,7 @@ public class DateGenerator extends AbstractGenerator {
 		TraceInfo s_t_i = s_sequence.GetTraceInfo();
 		TraceInfo e_t_i = e_sequence.GetTraceInfo();
 		
-		Map<String, Double> all_branches_influences = TracePairComparator.BuildGuidedModel(s_t_i.GetValuesOfBranches(), e_t_i.GetValuesOfBranches());
+		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i.GetValuesOfBranches(), e_t_i.GetValuesOfBranches());
 		transition.SetUpInfluences(all_branches_influences);
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
@@ -311,12 +314,16 @@ public class DateGenerator extends AbstractGenerator {
 	private QTransition createNewUniqueSequence() { // TODO whether instantiated? 1. operation 2. initial allSequences
 		TraceableSequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
 		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetAllActionsOfOneState(sourceSequence);
+		
+		Map<String, Integer> uncovered_branched = branch_state.GetUnCoveredBranches();
+		
 		MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
+		
 		int actionIndex = candidateMutations.indexOf(selectedMutation);
 		TraceableSequence newSequence = selectedMutation.ApplyMutation();
 		
 		if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-			Log.logLine("Sequence discarded because the same sequence was previously created.");
+//			Log.logLine("Sequence discarded because the same sequence was previously created.");
 			return null;
 		}
 		this.allSequences.put(newSequence.toLongFormString(), newSequence);
