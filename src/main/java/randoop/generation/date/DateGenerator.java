@@ -3,15 +3,19 @@ package randoop.generation.date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
-import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
+import org.eclipse.core.runtime.Assert;
+
 import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
 import cn.yyx.labtask.test_agent_trace_reader.InfluenceComputer;
+import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
 import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
@@ -30,14 +34,14 @@ import randoop.reflection.TypeInstantiator;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
 import randoop.sequence.SequenceExceptionError;
-import randoop.util.Randomness;
 
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
 
-//	public int numOfSeqSelected = 1;
-//	public int numOfMutSelected = 1;
+	// public int numOfSeqSelected = 1;
+	// public int numOfMutSelected = 1;
 
+	Random random = new Random();
 	/**
 	 * <p>
 	 * The set of ALL sequences ever generated, including sequences that were
@@ -56,7 +60,7 @@ public class DateGenerator extends AbstractGenerator {
 	// The set of all primitive values seen during generation and execution
 	// of sequences. This set is used to tell if a new primitive value has
 	// been generated, to add the value to the components.
-//	private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
+	// private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
 	// private final Set<TypedOperation> observers;
 	private final TypeInstantiator instantiator;
@@ -94,7 +98,7 @@ public class DateGenerator extends AbstractGenerator {
 	//
 	// this.allSequences = new LinkedHashSet<>();
 	// }
-	
+
 	BranchNodesState branch_state = new BranchNodesState();
 	InfluenceComputer influence_computer = new InfluenceComputer(branch_state);
 
@@ -116,11 +120,11 @@ public class DateGenerator extends AbstractGenerator {
 			// IStopper stopper,
 			RandoopListenerManager listenerManager) {
 		super(operations, limits, componentManager, null, listenerManager); // stopper
-//		for (TypedOperation to : operations) {
-//			System.out.println("TypedOperation:" + to);
-//		}
-//		System.out.println("operations_size:" + operations.size());
-//		System.out.println("observers_size:" + observers.size());
+		// for (TypedOperation to : operations) {
+		// System.out.println("TypedOperation:" + to);
+		// }
+		// System.out.println("operations_size:" + operations.size());
+		// System.out.println("observers_size:" + observers.size());
 		// this.observers = observers;
 		// initialize allSequences
 		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
@@ -171,19 +175,19 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println("Before ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
-		
+
 		eSeq.execute(executionVisitor, checkGenerator);
-		
+
 		String trace = TracePrintController.GetPrintedTrace();
 		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		System.exit(1);
-		
+
 		TraceableSequence e_sequence = transition.GetTargetSequence();
 		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
 		TraceableSequence s_sequence = transition.GetSourceSequence();
 		TraceInfo s_t_i = s_sequence.GetTraceInfo();
 		TraceInfo e_t_i = e_sequence.GetTraceInfo();
-		
+
 		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i, e_t_i);
 		transition.SetUpInfluences(all_branches_influences);
 		// System.out.println("After ------eSeq.execute(executionVisitor,
@@ -199,12 +203,12 @@ public class DateGenerator extends AbstractGenerator {
 
 		d.StoreTransition(transition);
 		q_learn.QLearn();
-		
-//		determineActiveIndices(eSeq);
-//
-//		if (eSeq.sequence.hasActiveFlags()) {
-//			componentManager.addGeneratedSequence(eSeq.sequence);
-//		}
+
+		// determineActiveIndices(eSeq);
+		//
+		// if (eSeq.sequence.hasActiveFlags()) {
+		// componentManager.addGeneratedSequence(eSeq.sequence);
+		// }
 
 		long gentime2 = System.nanoTime() - startTime; // rename it
 
@@ -216,15 +220,15 @@ public class DateGenerator extends AbstractGenerator {
 		// return null;
 	}
 
-//	private void process_execute(List<ExecutableSequence> eSeqs) {
-//		List<String> test_cases = new LinkedList<String>();
-//		// test_cases.add(currSeq.toString());
-//		for (ExecutableSequence eSeq : eSeqs) {
-//			test_cases.add(eSeq.toCodeString());
-//		}
-//		ProcessExecutor exe_ctor = new ProcessExecutor(test_cases);
-//		exe_ctor.ExecuteTestCases();
-//	}
+	// private void process_execute(List<ExecutableSequence> eSeqs) {
+	// List<String> test_cases = new LinkedList<String>();
+	// // test_cases.add(currSeq.toString());
+	// for (ExecutableSequence eSeq : eSeqs) {
+	// test_cases.add(eSeq.toCodeString());
+	// }
+	// ProcessExecutor exe_ctor = new ProcessExecutor(test_cases);
+	// exe_ctor.ExecuteTestCases();
+	// }
 
 	/**
 	 * only used to judge whether to stop if generated sequences are too many @see
@@ -245,66 +249,73 @@ public class DateGenerator extends AbstractGenerator {
 		return sequence_set;
 	}
 
-//	/**
-//	 * ...
-//	 *
-//	 * <p>
-//	 * 1. Uniformly select m distinct sequences from previously generated sequence
-//	 * pool
-//	 *
-//	 * <p>
-//	 * 2. For each selected sequence s, uniformly select n distinct mutations
-//	 * applicable to s; apply the mutations, producing m*n sequences - some are new
-//	 * and others not; add the new ones to this.allSequences
-//	 *
-//	 * <p>
-//	 * 3. Execute the new sequences!
-//	 *
-//	 * <p>
-//	 * 4. Construct at most m*n QTransition-s
-//	 *
-//	 * @param numOfSeqSelected
-//	 *            m
-//	 * @param numOfMutSelected
-//	 *            n
-//	 * @return
-//	 */
-//	private List<QTransition> createNewUniqueSequences(int numOfSeqSelected, int numOfMutSelected) {
-//		// m 
-//		ArrayList<TraceableSequence> sourceSequences = new ArrayList<>();
-//		for (int i = 0; i < numOfSeqSelected; i++) {
-//			sourceSequences.add(Randomness.randomSetMember(this.allSequences.values()));
-//			// TODO_ remove duplicate, to realize m *distinct* sequences
-//			// TODO_ better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
-//		}
-//
-//		// <= m*n 
-//		ArrayList<QTransition> transitions = new ArrayList<>();
-//		for (TraceableSequence sourceSequence : sourceSequences) {
-//			ArrayList<MutationOperation> candidateMutations = state_action_pool.GetAllActionsOfOneState(sourceSequence);
-//			for (int i = 0; i < numOfMutSelected; i++) {
-//				MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
-//				int actionIndex = candidateMutations.indexOf(selectedMutation);
-//				// TODO_ remove duplicate, to realize n *distinct* mutations
-//				// TODO_ better: implement Randomness.randomSetMemberN(Collection<T> set, int n)
-//
-//				TraceableSequence newSequence = selectedMutation.ApplyMutation();
-//				if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-//					Log.logLine("Sequence discarded because the same sequence was previously created.");
-//				} else {
-//					transitions.add(new QTransition(sourceSequence, newSequence, actionIndex));
-//					this.allSequences.put(newSequence.toLongFormString(), newSequence);
-//				}
-//			}
-//		}
-//		System.out.println("transitions_size:" + transitions.size());
-//
-//		// process_execute(transitions); // TODO_ how to pass reward
-//		for (QTransition tran : transitions) {
-//			// fill in the reward
-//		}
-//		return transitions;
-//	}
+	// /**
+	// * ...
+	// *
+	// * <p>
+	// * 1. Uniformly select m distinct sequences from previously generated sequence
+	// * pool
+	// *
+	// * <p>
+	// * 2. For each selected sequence s, uniformly select n distinct mutations
+	// * applicable to s; apply the mutations, producing m*n sequences - some are
+	// new
+	// * and others not; add the new ones to this.allSequences
+	// *
+	// * <p>
+	// * 3. Execute the new sequences!
+	// *
+	// * <p>
+	// * 4. Construct at most m*n QTransition-s
+	// *
+	// * @param numOfSeqSelected
+	// * m
+	// * @param numOfMutSelected
+	// * n
+	// * @return
+	// */
+	// private List<QTransition> createNewUniqueSequences(int numOfSeqSelected, int
+	// numOfMutSelected) {
+	// // m
+	// ArrayList<TraceableSequence> sourceSequences = new ArrayList<>();
+	// for (int i = 0; i < numOfSeqSelected; i++) {
+	// sourceSequences.add(Randomness.randomSetMember(this.allSequences.values()));
+	// // TODO_ remove duplicate, to realize m *distinct* sequences
+	// // TODO_ better: implement Randomness.randomSetMemberN(Collection<T> set, int
+	// n)
+	// }
+	//
+	// // <= m*n
+	// ArrayList<QTransition> transitions = new ArrayList<>();
+	// for (TraceableSequence sourceSequence : sourceSequences) {
+	// ArrayList<MutationOperation> candidateMutations =
+	// state_action_pool.GetAllActionsOfOneState(sourceSequence);
+	// for (int i = 0; i < numOfMutSelected; i++) {
+	// MutationOperation selectedMutation =
+	// Randomness.randomMember(candidateMutations);
+	// int actionIndex = candidateMutations.indexOf(selectedMutation);
+	// // TODO_ remove duplicate, to realize n *distinct* mutations
+	// // TODO_ better: implement Randomness.randomSetMemberN(Collection<T> set, int
+	// n)
+	//
+	// TraceableSequence newSequence = selectedMutation.ApplyMutation();
+	// if (this.allSequences.containsKey(newSequence.toLongFormString())) {
+	// Log.logLine("Sequence discarded because the same sequence was previously
+	// created.");
+	// } else {
+	// transitions.add(new QTransition(sourceSequence, newSequence, actionIndex));
+	// this.allSequences.put(newSequence.toLongFormString(), newSequence);
+	// }
+	// }
+	// }
+	// System.out.println("transitions_size:" + transitions.size());
+	//
+	// // process_execute(transitions); // TODO_ how to pass reward
+	// for (QTransition tran : transitions) {
+	// // fill in the reward
+	// }
+	// return transitions;
+	// }
 
 	/**
 	 * Tries to create and execute a new sequence. If the sequence is new (not
@@ -315,44 +326,91 @@ public class DateGenerator extends AbstractGenerator {
 	 * @return a new sequence, or null
 	 */
 	private QTransition createNewUniqueSequence() { // TODO whether instantiated? 1. operation 2. initial allSequences
-		TraceableSequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
-		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetAllActionsOfOneState(sourceSequence);
-		
 		Map<String, Double> sorted_uncovered_branches = branch_state.GetSortedUnCoveredBranches();
-		
+		Map<String, Integer> uncovered_branch_states = branch_state.GetUnCoveredBranchesStates();
+		double fitness_upper = 0.0;
 		Collection<TraceableSequence> trace_seqs = needExploreSequences.values();
+		ArrayList<TraceableSequence> o_seqs = new ArrayList<TraceableSequence>();
+		ArrayList<Double> o_seq_up_bounds = new ArrayList<Double>();
+		Iterator<TraceableSequence> ts_itr = trace_seqs.iterator();
+		while (ts_itr.hasNext()) {
+			TraceableSequence ts = ts_itr.next();
+			o_seqs.add(ts);
+			double fitness = ts.GetTraceInfo().Fitness(sorted_uncovered_branches, uncovered_branch_states);
+			fitness_upper = fitness_upper + fitness;
+			o_seq_up_bounds.add(fitness_upper);
+		}
+		// sample state
+		double fall_position = random.nextDouble() * fitness_upper;
+		int ps = 0;
+		int pmax = o_seqs.size();
+		for (; ps < pmax; ps++) {
+			if (fall_position <= o_seq_up_bounds.get(ps)) {
+				break;
+			}
+		}
+		Assert.isTrue(ps < pmax);
+		TraceableSequence sourceSequence = o_seqs.get(ps); // Randomness.randomSetMember(this.allSequences.values());
+		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetUntakenActionsOfOneState(sourceSequence);
+		Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence, candidateMutations, uncovered_branch_states);
+		Map<String, List<Double>> action_branches = sig_action_branches.entrySet().iterator().next().getValue();
+		Set<String> ab_keys = action_branches.keySet();
+		Iterator<String> ab_itr = ab_keys.iterator();
+		double max_all_q_val = Double.MIN_VALUE;
+		int arg_max_ab_index = -1;
+		while (ab_itr.hasNext()) {
+			double a_q_val = 0.0;
+			String ab = ab_itr.next();
+			int ab_index = Integer.parseInt(ab);
+			List<Double> branches = action_branches.get(ab);
+			Iterator<Double> b_itr = branches.iterator();
+			Set<String> ubs_keys = uncovered_branch_states.keySet();
+			Iterator<String> ubs_itr = ubs_keys.iterator();
+			while (ubs_itr.hasNext()) {
+				Double q_val = b_itr.next();
+				String ubs_sig = ubs_itr.next();
+				Double branch_weight = sorted_uncovered_branches.get(ubs_sig);
+				a_q_val += branch_weight * q_val;
+			}
+			if (max_all_q_val < a_q_val) {
+				max_all_q_val = a_q_val;
+				arg_max_ab_index = ab_index;
+			}
+		}
+		MutationOperation selectedMutation = candidateMutations.get(arg_max_ab_index); // Randomness.randomMember(candidateMutations);
 		
-		
-		MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
-		
-		int actionIndex = candidateMutations.indexOf(selectedMutation);
+		int action_index = candidateMutations.indexOf(selectedMutation);
+		state_action_pool.ActionOfOneStateBeTaken(sourceSequence, action_index);
 		TraceableSequence newSequence = selectedMutation.ApplyMutation();
-		
+
 		if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-//			Log.logLine("Sequence discarded because the same sequence was previously created.");
+			// Log.logLine("Sequence discarded because the same sequence was previously
+			// created.");
 			return null;
 		}
 		this.allSequences.put(newSequence.toLongFormString(), newSequence);
-		
-		QTransition qt = new QTransition(sourceSequence, actionIndex, newSequence);
+
+		QTransition qt = new QTransition(sourceSequence, action_index, newSequence);
 		return qt;
 	}
 
-//	/**
-//	 * The runtimePrimitivesSeen set contains primitive values seen during
-//	 * generation/execution and is used to determine new values that should be added
-//	 * to the component set. The component set initially contains a set of primitive
-//	 * sequences; this method puts those primitives in this set.
-//	 */
-//	private void initializeRuntimePrimitivesSeen() {
-//		for (Sequence s : componentManager.getAllPrimitiveSequences()) {
-//			ExecutableSequence es = new ExecutableSequence(s);
-//			es.execute(new DummyVisitor(), new DummyCheckGenerator());
-//			NormalExecution e = (NormalExecution) es.getResult(0);
-//			Object runtimeValue = e.getRuntimeValue();
-//			runtimePrimitivesSeen.add(runtimeValue);
-//		}
-//	}
+	// /**
+	// * The runtimePrimitivesSeen set contains primitive values seen during
+	// * generation/execution and is used to determine new values that should be
+	// added
+	// * to the component set. The component set initially contains a set of
+	// primitive
+	// * sequences; this method puts those primitives in this set.
+	// */
+	// private void initializeRuntimePrimitivesSeen() {
+	// for (Sequence s : componentManager.getAllPrimitiveSequences()) {
+	// ExecutableSequence es = new ExecutableSequence(s);
+	// es.execute(new DummyVisitor(), new DummyCheckGenerator());
+	// NormalExecution e = (NormalExecution) es.getResult(0);
+	// Object runtimeValue = e.getRuntimeValue();
+	// runtimePrimitivesSeen.add(runtimeValue);
+	// }
+	// }
 
 	/**
 	 * Returns the set of sequences that are included in other sequences to generate
@@ -362,5 +420,5 @@ public class DateGenerator extends AbstractGenerator {
 	public Set<Sequence> getSubsumedSequences() {
 		return new HashSet<Sequence>();
 	}
-	
+
 }

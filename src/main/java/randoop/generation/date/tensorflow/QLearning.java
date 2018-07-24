@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.reflect.TypeToken;
@@ -162,7 +163,7 @@ public class QLearning {
 	}
 
 	public Map<String, Map<String, List<Double>>> QPredict(TraceableSequence state, Collection<MutationOperation> un_tried_actions,
-			Collection<Integer> un_covered_branches) {
+			Map<String, Integer> un_covered_branches) {
 
 		DenseObjectMatrix2D s_t_batch = new DenseObjectMatrix2D(2, 0);
 		DenseObjectMatrix1D s_t_segment_batch = new DenseObjectMatrix1D(0);
@@ -184,8 +185,18 @@ public class QLearning {
 		}
 		a_t_segment_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(a_t_segment_batch,
 				ObjectFactory1D.dense.make(1, a_t_batch.columns()));
-
-		Iterator<Integer> uitr = un_covered_branches.iterator();
+		
+		ArrayList<Integer> un_covered_branch_ids = new ArrayList<Integer>();
+		Set<String> ucb_keys = un_covered_branches.keySet();
+		Iterator<String> ucb_itr = ucb_keys.iterator();
+		while (ucb_itr.hasNext()) {
+			String ucb_sig = ucb_itr.next();
+			Integer ucb_sig_state = un_covered_branches.get(ucb_sig);
+			String bk = ucb_sig + ucb_sig_state;
+			int b_id = branch_id_assigner.AssignID(bk);
+			un_covered_branch_ids.add(b_id);
+		}
+		Iterator<Integer> uitr = un_covered_branch_ids.iterator();
 		while (uitr.hasNext()) {
 			Integer u = uitr.next();
 			r_t_branch_batch = (DenseObjectMatrix1D) ObjectFactory1D.dense.append(r_t_branch_batch,

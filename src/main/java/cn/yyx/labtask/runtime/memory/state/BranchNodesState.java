@@ -87,7 +87,7 @@ public class BranchNodesState {
 		return SortUtil.SortMapByValue(wait_sort_map);
 	}
 	
-	public Map<String, Integer> GetBranchesStates() {
+	public Map<String, Integer> GetUnCoveredBranchesStates() {
 		return branch_state;
 	}
 	
