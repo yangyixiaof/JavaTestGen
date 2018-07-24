@@ -24,8 +24,9 @@ public class InfluenceComputer {
 	 * @param current_branch_signature
 	 * @return
 	 */
-	public Map<String, Double> BuildGuidedModel(Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature,
-			Map<String, LinkedList<ValuesOfBranch>> current_branch_signature) {
+	public Map<String, Double> BuildGuidedModel(TraceInfo previous_trace_info, TraceInfo current_trace_info) {
+		Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature = previous_trace_info.GetValuesOfBranches();
+		Map<String, LinkedList<ValuesOfBranch>> current_branch_signature = current_trace_info.GetValuesOfBranches();
 		Map<String, Double> influence = new TreeMap<String, Double>();
 		Set<String> pset = previous_branch_signature.keySet();
 		for (String sig : pset) {
@@ -42,7 +43,8 @@ public class InfluenceComputer {
 				current_vobs = new LinkedList<ValuesOfBranch>();
 			} // if (current_vob != null)
 			Integer state = branch_state.GetBranchState(sig);
-			Integer previous_state = IdentifyBranchState(previous_vobs);
+			Integer previous_state = previous_trace_info.GetBranchState(sig);
+			// IdentifyBranchState(previous_vobs);
 			if (previous_state != null) {
 				if (state == null) {
 					state = previous_state;
@@ -50,7 +52,8 @@ public class InfluenceComputer {
 					state &= previous_state;
 				}
 			}
-			Integer current_state = IdentifyBranchState(current_vobs);
+			Integer current_state = current_trace_info.GetBranchState(sig);
+			// IdentifyBranchState(current_vobs);
 			if (current_state != null) {
 				if (state == null) {
 					state = current_state;
@@ -58,7 +61,6 @@ public class InfluenceComputer {
 					state &= current_state;
 				}
 			}
-			branch_state.PutBranchState(sig, state);
 			if (previous_vobs.size() == 0) {
 				if (current_vobs.size() > 0) {
 					sig_influence = 1.0;
@@ -89,115 +91,121 @@ public class InfluenceComputer {
 					sig_influence = min;
 				}
 			}
+			branch_state.PutBranchState(sig, state, sig_influence != 0, sig_influence > 0);
 			// here, the state of a signature should be concatenated with the string of signature.
 			influence.put(sig+state, sig_influence);
 		} // for (String sig : pset)
 		return influence;
 	}
 
-	private Integer IdentifyBranchState(LinkedList<ValuesOfBranch> vobs) {
+	public static Integer IdentifyBranchState(LinkedList<ValuesOfBranch> vobs) {
 		Integer state = null;
 		Iterator<ValuesOfBranch> vob_itr = vobs.iterator();
 		while (vob_itr.hasNext()) {
 			ValuesOfBranch vob = vob_itr.next();
-			double v1 = vob.GetBranchValue1();
-			double v2 = vob.GetBranchValue2();
-			switch (vob.GetCmpOptr()) {
-			// ``compare then store'' series
-			case "D$CMPG":
-			case "D$CMPL":
-			case "F$CMPG":
-			case "F$CMPL":
-			case "L$CMP": {
-				if (state == null) {
-					state = 0b111;
-				}
-				if (v1 == v2) {
-					state &= 0b101;
-				} else {
-					if (v1 > v2) {
-						state &= 0b110;
-					} else {
-						state &= 0b011;
-					}
-				}
-			} // // ``compare then store'' series BLOCK
-				break;
-			// eq neq series... *8
-			case "I$==":
-			case "I$!=":
-			case "A$==":
-			case "A$!=":
-			case "IZ$==":
-			case "IZ$!=":
-			case "N$!=":
-			case "N$==": {
-				if (state == null) {
-					state = 0b11;
-				}
-				if (v1 == v2) {
-					state &= 0b01;
-				} else {
-					state &= 0b10;
-				}
-			}
-				break;
-			// ge, ge 0 *2
-			case "I$>=":
-			case "IZ$>=": {
-				if (state == null) {
-					state = 0b11;
-				}
-				if (v1 >= v2) {
-					state &= 0b10;
-				} else {
-					state &= 0b01;
-				}
-			}
-				break;
-			// le, le 0
-			case "I$<=":
-			case "IZ$<=": {
-				{
-					if (state == null) {
-						state = 0b11;
-					}
-					if (v1 <= v2) {
-						state &= 0b01;
-					} else {
-						state &= 0b10;
-					}
-				}
-			}
-				break;
-			// gt, gt 0
-			case "I$>":
-			case "IZ$>": {
-				if (state == null) {
-					state = 0b11;
-				}
-				if (v1 > v2) {
-					state &= 0b10;
-				} else {
-					state &= 0b01;
-				}
-			}
-				break;
-			// lt, lt 0
-			case "I$<":
-			case "IZ$<": {
-				if (state == null) {
-					state = 0b11;
-				}
-				if (v1 < v2) {
-					state &= 0b01;
-				} else {
-					state &= 0b10;
-				}
-			}
-				break;
-			} // switch (current_vob.GetCmpOptr())
+			state = IndentifyBranchState(vob, state);
 		}
+		return state;
+	}
+	
+	public static Integer IndentifyBranchState(ValuesOfBranch vob, Integer state) {
+		double v1 = vob.GetBranchValue1();
+		double v2 = vob.GetBranchValue2();
+		switch (vob.GetCmpOptr()) {
+		// ``compare then store'' series
+		case "D$CMPG":
+		case "D$CMPL":
+		case "F$CMPG":
+		case "F$CMPL":
+		case "L$CMP": {
+			if (state == null) {
+				state = 0b111;
+			}
+			if (v1 == v2) {
+				state &= 0b101;
+			} else {
+				if (v1 > v2) {
+					state &= 0b110;
+				} else {
+					state &= 0b011;
+				}
+			}
+		} // // ``compare then store'' series BLOCK
+			break;
+		// eq neq series... *8
+		case "I$==":
+		case "I$!=":
+		case "A$==":
+		case "A$!=":
+		case "IZ$==":
+		case "IZ$!=":
+		case "N$!=":
+		case "N$==": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 == v2) {
+				state &= 0b01;
+			} else {
+				state &= 0b10;
+			}
+		}
+			break;
+		// ge, ge 0 *2
+		case "I$>=":
+		case "IZ$>=": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 >= v2) {
+				state &= 0b10;
+			} else {
+				state &= 0b01;
+			}
+		}
+			break;
+		// le, le 0
+		case "I$<=":
+		case "IZ$<=": {
+			{
+				if (state == null) {
+					state = 0b11;
+				}
+				if (v1 <= v2) {
+					state &= 0b01;
+				} else {
+					state &= 0b10;
+				}
+			}
+		}
+			break;
+		// gt, gt 0
+		case "I$>":
+		case "IZ$>": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 > v2) {
+				state &= 0b10;
+			} else {
+				state &= 0b01;
+			}
+		}
+			break;
+		// lt, lt 0
+		case "I$<":
+		case "IZ$<": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 < v2) {
+				state &= 0b01;
+			} else {
+				state &= 0b10;
+			}
+		}
+			break;
+		} // switch (current_vob.GetCmpOptr())
 		return state;
 	}
 

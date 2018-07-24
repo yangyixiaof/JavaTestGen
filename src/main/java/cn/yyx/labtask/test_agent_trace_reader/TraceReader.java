@@ -96,6 +96,7 @@ public class TraceReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		ti.IdentifyStatesOfBranches();
 		return ti;
 	}
 

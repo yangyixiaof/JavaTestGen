@@ -1,6 +1,7 @@
 package randoop.generation.date;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ public class DateGenerator extends AbstractGenerator {
 	// private final LinkedHashSet<TraceableSequence> allSequences;
 
 	private final Map<String, TraceableSequence> allSequences = new TreeMap<String, TraceableSequence>();
+	private final Map<String, TraceableSequence> needExploreSequences = new TreeMap<String, TraceableSequence>();
 
 	// The set of all primitive values seen during generation and execution
 	// of sequences. This set is used to tell if a new primitive value has
@@ -123,6 +125,7 @@ public class DateGenerator extends AbstractGenerator {
 		// initialize allSequences
 		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
 		allSequences.put(new_seq.toLongFormString(), new_seq);
+		needExploreSequences.put(new_seq.toLongFormString(), new_seq);
 		// initialize generation used data
 		this.instantiator = componentManager.getTypeInstantiator();
 		this.d = new ReplayMemory();
@@ -181,7 +184,7 @@ public class DateGenerator extends AbstractGenerator {
 		TraceInfo s_t_i = s_sequence.GetTraceInfo();
 		TraceInfo e_t_i = e_sequence.GetTraceInfo();
 		
-		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i.GetValuesOfBranches(), e_t_i.GetValuesOfBranches());
+		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i, e_t_i);
 		transition.SetUpInfluences(all_branches_influences);
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
@@ -315,7 +318,10 @@ public class DateGenerator extends AbstractGenerator {
 		TraceableSequence sourceSequence = Randomness.randomSetMember(this.allSequences.values());
 		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetAllActionsOfOneState(sourceSequence);
 		
-		Map<String, Integer> uncovered_branched = branch_state.GetUnCoveredBranches();
+		Map<String, Double> sorted_uncovered_branches = branch_state.GetSortedUnCoveredBranches();
+		
+		Collection<TraceableSequence> trace_seqs = needExploreSequences.values();
+		
 		
 		MutationOperation selectedMutation = Randomness.randomMember(candidateMutations);
 		
