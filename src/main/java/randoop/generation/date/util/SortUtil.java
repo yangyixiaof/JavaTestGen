@@ -12,9 +12,9 @@ import java.util.Map.Entry;
 public class SortUtil {
 
 	public static Map<String, Double> SortMapByValue(Map<String, Double> oriMap) {
-		if (oriMap == null || oriMap.isEmpty()) {
-			return null;
-		}
+//		if (oriMap == null || oriMap.isEmpty()) {
+//			return null;
+//		}
 		Map<String, Double> sortedMap = new LinkedHashMap<String, Double>();
 		List<Map.Entry<String, Double>> entryList = new ArrayList<Map.Entry<String, Double>>(oriMap.entrySet());
 		Collections.sort(entryList, new MapValueComparator());
