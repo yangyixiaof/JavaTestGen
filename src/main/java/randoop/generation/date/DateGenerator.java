@@ -179,8 +179,8 @@ public class DateGenerator extends AbstractGenerator {
 		eSeq.execute(executionVisitor, checkGenerator);
 
 		String trace = TracePrintController.GetPrintedTrace();
-		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
-		System.exit(1);
+//		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
+//		System.exit(1);
 
 		TraceableSequence e_sequence = transition.GetTargetSequence();
 		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
@@ -396,6 +396,7 @@ public class DateGenerator extends AbstractGenerator {
 			// created.");
 			return null;
 		}
+		
 		this.allSequences.put(newSequence.toLongFormString(), newSequence);
 
 		QTransition qt = new QTransition(sourceSequence, action_index, newSequence);
