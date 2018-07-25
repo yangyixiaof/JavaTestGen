@@ -28,7 +28,7 @@ public class StateActionPool {
 	Collection<TypedOperation> candidates = null;
 
 	Map<TraceableSequence, ArrayList<MutationOperation>> state_actions = new TreeMap<>();
-	Map<TraceableSequence, ArrayList<Integer>> state_action_states = new TreeMap<>();// 1 means taken, 0 means untaken
+	Map<TraceableSequence, ArrayList<Integer>> state_action_states = new TreeMap<>();// 1 means taken, 0 means un_taken
 	Map<TraceableSequence, Integer> state_untaken_actions = new TreeMap<>();
 
 	public StateActionPool(TypeInstantiator ti, Collection<TypedOperation> candidates) {
@@ -82,7 +82,8 @@ public class StateActionPool {
 	}
 	
 	public ArrayList<MutationOperation> GetUntakenActionsOfOneState(TraceableSequence state) {
-		if (state_untaken_actions.get(state).equals(0)) {
+		Integer untakens_of_this_state = state_untaken_actions.get(state);
+		if (untakens_of_this_state != null && untakens_of_this_state.equals(0)) {
 			try {
 				throw new Exception("state does not have untaken actions!");
 			} catch (Exception e) {
