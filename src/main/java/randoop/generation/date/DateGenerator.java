@@ -328,6 +328,7 @@ public class DateGenerator extends AbstractGenerator {
 	private QTransition createNewUniqueSequence() { // TODO whether instantiated? 1. operation 2. initial allSequences
 		Map<String, Double> sorted_uncovered_branches = branch_state.GetSortedUnCoveredBranches();
 		Map<String, Integer> uncovered_branch_states = branch_state.GetUnCoveredBranchesStates();
+//		System.out.println("uncovered_branch_states.size():" + uncovered_branch_states.size());
 		double fitness_upper = 0.0;
 		Collection<TraceableSequence> trace_seqs = needExploreSequences.values();
 		ArrayList<TraceableSequence> o_seqs = new ArrayList<TraceableSequence>();
@@ -352,35 +353,42 @@ public class DateGenerator extends AbstractGenerator {
 		Assert.isTrue(ps < pmax);
 		TraceableSequence sourceSequence = o_seqs.get(ps); // Randomness.randomSetMember(this.allSequences.values());
 		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetUntakenActionsOfOneState(sourceSequence);
-		Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence, candidateMutations, uncovered_branch_states);
-		Map<String, List<Double>> action_branches = sig_action_branches.entrySet().iterator().next().getValue();
-		Set<String> ab_keys = action_branches.keySet();
-		Iterator<String> ab_itr = ab_keys.iterator();
-		double max_all_q_val = Double.MIN_VALUE;
-		int arg_max_ab_index = -1;
-		while (ab_itr.hasNext()) {
-			double a_q_val = 0.0;
-			String ab = ab_itr.next();
-			int ab_index = Integer.parseInt(ab);
-			List<Double> branches = action_branches.get(ab);
-			Iterator<Double> b_itr = branches.iterator();
-			Set<String> ubs_keys = uncovered_branch_states.keySet();
-			Iterator<String> ubs_itr = ubs_keys.iterator();
-			while (ubs_itr.hasNext()) {
-				Double q_val = b_itr.next();
-				String ubs_sig = ubs_itr.next();
-				Double branch_weight = sorted_uncovered_branches.get(ubs_sig);
-				a_q_val += branch_weight * q_val;
-			}
-			if (max_all_q_val < a_q_val) {
-				max_all_q_val = a_q_val;
-				arg_max_ab_index = ab_index;
+		int arg_max_ab_index = random.nextInt(candidateMutations.size());
+//		System.out.println("candidateMutations.size():" + candidateMutations.size());
+		if (uncovered_branch_states.size() > 0) {
+			Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence, candidateMutations, uncovered_branch_states);
+			Map<String, List<Double>> action_branches = sig_action_branches.entrySet().iterator().next().getValue();
+			Set<String> ab_keys = action_branches.keySet();
+//			System.out.println("ab_keys.size():" + ab_keys.size());
+			Iterator<String> ab_itr = ab_keys.iterator();
+			double max_all_q_val = Double.MIN_VALUE;
+			while (ab_itr.hasNext()) {
+				double a_q_val = 0.0;
+				String ab = ab_itr.next();
+				int ab_index = Integer.parseInt(ab);
+				List<Double> branches = action_branches.get(ab);
+				Iterator<Double> b_itr = branches.iterator();
+				Set<String> ubs_keys = uncovered_branch_states.keySet();
+				Iterator<String> ubs_itr = ubs_keys.iterator();
+				while (ubs_itr.hasNext()) {
+					Double q_val = b_itr.next();
+					String ubs_sig = ubs_itr.next();
+					Double branch_weight = sorted_uncovered_branches.get(ubs_sig);
+					a_q_val += branch_weight * q_val;
+				}
+				if (max_all_q_val < a_q_val) {
+					max_all_q_val = a_q_val;
+					arg_max_ab_index = ab_index;
+				}
 			}
 		}
 		MutationOperation selectedMutation = candidateMutations.get(arg_max_ab_index); // Randomness.randomMember(candidateMutations);
 		
 		int action_index = candidateMutations.indexOf(selectedMutation);
 		state_action_pool.ActionOfOneStateBeTaken(sourceSequence, action_index);
+		if (state_action_pool.DoNotHaveUntakenActionsOfOneState(sourceSequence)) {
+			needExploreSequences.remove(sourceSequence.toLongFormString());
+		}
 		TraceableSequence newSequence = selectedMutation.ApplyMutation();
 
 		if (this.allSequences.containsKey(newSequence.toLongFormString())) {

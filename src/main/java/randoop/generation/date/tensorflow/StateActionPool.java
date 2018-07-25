@@ -77,8 +77,8 @@ public class StateActionPool {
 		state_untaken_actions.put(state, state_untaken_actions.get(state)-1);
 	}
 	
-	public boolean HasUntakenActionsOfOneState(TraceableSequence state) {
-		return state_untaken_actions.get(state) > 0;
+	public boolean DoNotHaveUntakenActionsOfOneState(TraceableSequence state) {
+		return state_untaken_actions.get(state) <= 0;
 	}
 	
 	public ArrayList<MutationOperation> GetUntakenActionsOfOneState(TraceableSequence state) {
