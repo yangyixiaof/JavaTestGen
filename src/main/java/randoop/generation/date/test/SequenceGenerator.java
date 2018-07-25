@@ -1,6 +1,8 @@
 package randoop.generation.date.test;
 
 import java.util.*;
+
+import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
@@ -141,6 +143,8 @@ public class SequenceGenerator {
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+		TraceInfo ti = new TraceInfo();
+		ts.SetExecutionTrace(ti);
 		return ts;
 	}
 	
