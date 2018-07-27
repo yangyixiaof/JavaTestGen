@@ -350,7 +350,7 @@ public class DateGenerator extends AbstractGenerator {
 				break;
 			}
 		}
-		Assert.isTrue(ps < pmax);
+		Assert.isTrue(ps < pmax, "ps:" + ps + "pmax:" + pmax);
 		TraceableSequence sourceSequence = o_seqs.get(ps); // Randomness.randomSetMember(this.allSequences.values());
 		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetUntakenActionsOfOneState(sourceSequence);
 		int arg_max_ab_index = random.nextInt(candidateMutations.size());
