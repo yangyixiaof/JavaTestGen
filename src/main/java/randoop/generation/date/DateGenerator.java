@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -34,6 +35,7 @@ import randoop.reflection.TypeInstantiator;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
 import randoop.sequence.SequenceExceptionError;
+import randoop.sequence.Statement;
 
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
@@ -120,11 +122,24 @@ public class DateGenerator extends AbstractGenerator {
 			// IStopper stopper,
 			RandoopListenerManager listenerManager) {
 		super(operations, limits, componentManager, null, listenerManager); // stopper
-		// for (TypedOperation to : operations) {
-		// System.out.println("TypedOperation:" + to);
-		// }
-		// System.out.println("operations_size:" + operations.size());
-		// System.out.println("observers_size:" + observers.size());
+//		for (TypedOperation to : operations) {
+//			System.out.println("TypedOperation:" + to);
+//		}
+		List<TypedOperation> for_use_operations = new LinkedList<TypedOperation>();
+		for_use_operations.addAll(operations);
+		Iterator<Sequence> cgitr = componentManager.getAllPrimitiveSequences().iterator();
+		while (cgitr.hasNext()) {
+			Sequence s = cgitr.next();
+			Statement stmt = s.getStatement(0);
+			TypedOperation op = stmt.getOperation();
+			for_use_operations.add(op);
+//			System.out.println("ComponentSequence:" + s);
+		}
+//		for (TypedOperation to : for_use_operations) {
+//			System.out.println("TypedOperation:" + to);
+//		}
+//		 System.out.println("operations_size:" + operations.size());
+//		 System.out.println("observers_size:" + observers.size());
 		// this.observers = observers;
 		// initialize allSequences
 		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
@@ -133,7 +148,7 @@ public class DateGenerator extends AbstractGenerator {
 		// initialize generation used data
 		this.instantiator = componentManager.getTypeInstantiator();
 		this.d = new ReplayMemory();
-		this.state_action_pool = new StateActionPool(this.instantiator, operations);
+		this.state_action_pool = new StateActionPool(this.instantiator, for_use_operations);
 		this.q_learn = new QLearning(this.d, this.state_action_pool);
 	}
 
@@ -179,8 +194,8 @@ public class DateGenerator extends AbstractGenerator {
 		eSeq.execute(executionVisitor, checkGenerator);
 
 		String trace = TracePrintController.GetPrintedTrace();
-//		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
-//		System.exit(1);
+		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
+		// System.exit(1);
 
 		TraceableSequence e_sequence = transition.GetTargetSequence();
 		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
@@ -328,7 +343,8 @@ public class DateGenerator extends AbstractGenerator {
 	private QTransition createNewUniqueSequence() { // TODO whether instantiated? 1. operation 2. initial allSequences
 		Map<String, Double> sorted_uncovered_branches = branch_state.GetSortedUnCoveredBranches();
 		Map<String, Integer> uncovered_branch_states = branch_state.GetUnCoveredBranchesStates();
-//		System.out.println("uncovered_branch_states.size():" + uncovered_branch_states.size());
+		// System.out.println("uncovered_branch_states.size():" +
+		// uncovered_branch_states.size());
 		double fitness_upper = 0.0;
 		Collection<TraceableSequence> trace_seqs = needExploreSequences.values();
 		ArrayList<TraceableSequence> o_seqs = new ArrayList<TraceableSequence>();
@@ -353,13 +369,24 @@ public class DateGenerator extends AbstractGenerator {
 		Assert.isTrue(ps < pmax, "ps:" + ps + "pmax:" + pmax);
 		TraceableSequence sourceSequence = o_seqs.get(ps); // Randomness.randomSetMember(this.allSequences.values());
 		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetUntakenActionsOfOneState(sourceSequence);
+
+		Iterator<MutationOperation> citr = candidateMutations.iterator();
+
+		System.out.println("=== start mo ===");
+		while (citr.hasNext()) {
+			MutationOperation mo = citr.next();
+			System.out.println(mo);
+		}
+		System.out.println("=== end mo ===");
+
 		int arg_max_ab_index = random.nextInt(candidateMutations.size());
-//		System.out.println("candidateMutations.size():" + candidateMutations.size());
+		// System.out.println("candidateMutations.size():" + candidateMutations.size());
 		if (uncovered_branch_states.size() > 0) {
-			Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence, candidateMutations, uncovered_branch_states);
+			Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence,
+					candidateMutations, uncovered_branch_states);
 			Map<String, List<Double>> action_branches = sig_action_branches.entrySet().iterator().next().getValue();
 			Set<String> ab_keys = action_branches.keySet();
-//			System.out.println("ab_keys.size():" + ab_keys.size());
+			// System.out.println("ab_keys.size():" + ab_keys.size());
 			Iterator<String> ab_itr = ab_keys.iterator();
 			double max_all_q_val = Double.MIN_VALUE;
 			while (ab_itr.hasNext()) {
@@ -383,7 +410,7 @@ public class DateGenerator extends AbstractGenerator {
 			}
 		}
 		MutationOperation selectedMutation = candidateMutations.get(arg_max_ab_index); // Randomness.randomMember(candidateMutations);
-		
+
 		int action_index = candidateMutations.indexOf(selectedMutation);
 		state_action_pool.ActionOfOneStateBeTaken(sourceSequence, action_index);
 		if (state_action_pool.DoNotHaveUntakenActionsOfOneState(sourceSequence)) {
@@ -396,7 +423,7 @@ public class DateGenerator extends AbstractGenerator {
 			// created.");
 			return null;
 		}
-		
+
 		this.allSequences.put(newSequence.toLongFormString(), newSequence);
 
 		QTransition qt = new QTransition(sourceSequence, action_index, newSequence);

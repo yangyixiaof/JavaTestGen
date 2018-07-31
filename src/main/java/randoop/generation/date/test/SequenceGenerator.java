@@ -1,12 +1,22 @@
 package randoop.generation.date.test;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.TreeSet;
 
 import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
-import randoop.types.*;
+import randoop.types.InstantiatedType;
+import randoop.types.JDKTypes;
+import randoop.types.JavaTypes;
+import randoop.types.PrimitiveTypes;
+import randoop.types.ReferenceType;
+import randoop.types.Substitution;
+import randoop.types.Type;
 
 public class SequenceGenerator {
 
@@ -36,12 +46,12 @@ public class SequenceGenerator {
 		TypedOperation syncS = syncA.apply(substA);
 
 		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, null, s);
-		s = new TraceableSequence(s.extend(newOb).statements, null, s);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, null, s);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, null, s);
-		s = new TraceableSequence(s.extend(newTS, s.getVariable(0)).statements, null, s);
-		s = new TraceableSequence(s.extend(syncS, s.getVariable(4)).statements, null, s);
+		s = new TraceableSequence(s.extend(newLL).statements, s, null);
+		s = new TraceableSequence(s.extend(newOb).statements, s, null);
+		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
+		s = new TraceableSequence(s.extend(newTS, s.getVariable(0)).statements, s, null);
+		s = new TraceableSequence(s.extend(syncS, s.getVariable(4)).statements, s, null);
 		return s;
 	}
 
@@ -71,12 +81,12 @@ public class SequenceGenerator {
 		TypedOperation syncS = syncA.apply(substA);
 
 		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, null, s);
-		s = new TraceableSequence(s.extend(newOb).statements, null, s);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, null, s);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, null, s);
-		s = new TraceableSequence(s.extend(newTS, s.getVariable(0)).statements, null, s);
-		s = new TraceableSequence(s.extend(syncS, s.getVariable(4)).statements, null, s);
+		s = new TraceableSequence(s.extend(newLL).statements, s, null);
+		s = new TraceableSequence(s.extend(newOb).statements, s, null);
+		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
+		s = new TraceableSequence(s.extend(newTS, s.getVariable(0)).statements, s, null);
+		s = new TraceableSequence(s.extend(syncS, s.getVariable(4)).statements, s, null);
 		return s;
 	}
 
@@ -100,10 +110,10 @@ public class SequenceGenerator {
 		TypedOperation size = TypedOperation.forMethod(LinkedList.class.getMethod("size")).apply(substLL);
 
 		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, null, s);
-		s = new TraceableSequence(s.extend(newOb).statements, null, s);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, null, s);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, null, s);
+		s = new TraceableSequence(s.extend(newLL).statements, s, null);
+		s = new TraceableSequence(s.extend(newOb).statements, s, null);
+		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
 
 		return s;
 	}
@@ -126,20 +136,22 @@ public class SequenceGenerator {
 		TypedOperation size = TypedOperation.forMethod(LinkedList.class.getMethod("size")).apply(substLL);
 
 		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, null, s);
-		s = new TraceableSequence(s.extend(newOb).statements, null, s);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, null, s);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, null, s);
+		s = new TraceableSequence(s.extend(newLL).statements, s, null);
+		s = new TraceableSequence(s.extend(newOb).statements, s, null);
+		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
 
 		return s;
 	}
-	
+
 	public static TraceableSequence GenerateTraceTestExampleSequence() {
 		TraceableSequence ts = null;
 		try {
-			TypedOperation test_trace_simple_branch_invoke = TypedOperation.forMethod(StaticSimpleBranchFile.class.getMethod("TestStaticSimpleBranch"));
+			TypedOperation test_trace_simple_branch_invoke = TypedOperation
+					.forMethod(StaticSimpleBranchFile.class.getMethod("TestStaticSimpleBranch"));
 			Sequence s = new Sequence();
-			ts = new TraceableSequence(s.extend(test_trace_simple_branch_invoke).statements, null, new TraceableSequence(s));
+			ts = new TraceableSequence(s.extend(test_trace_simple_branch_invoke).statements, new TraceableSequence(s),
+					null);
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -147,5 +159,5 @@ public class SequenceGenerator {
 		ts.SetExecutionTrace(ti);
 		return ts;
 	}
-	
+
 }

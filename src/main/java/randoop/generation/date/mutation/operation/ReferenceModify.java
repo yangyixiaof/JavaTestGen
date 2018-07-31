@@ -21,7 +21,7 @@ public class ReferenceModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyReference(stmtIndex, varIndex, targetVariable);
+		return sequence.modifyReference(this, stmtIndex, varIndex, targetVariable);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class PrimitiveRealModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyReal(stmtIndex, varIndex, deltaValue);
+		return sequence.modifyReal(this, stmtIndex, varIndex, deltaValue);
 	}
 
 	@Override

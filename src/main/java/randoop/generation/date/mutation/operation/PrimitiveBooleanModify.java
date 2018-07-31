@@ -19,7 +19,7 @@ public class PrimitiveBooleanModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyBoolean(stmtIndex, varIndex);
+		return sequence.modifyBoolean(this, stmtIndex, varIndex);
 	}
 
 	@Override

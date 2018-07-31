@@ -25,7 +25,7 @@ public class Insert extends MutationOperation {
 	}
 
 	public TraceableSequence ApplyMutation() {
-		return sequence.insert(index, operation, inputVariables);
+		return sequence.insert(this, index, operation, inputVariables);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class PrimitiveIntegralModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyIntegral(stmtIndex, varIndex, deltaValue);
+		return sequence.modifyIntegral(this, stmtIndex, varIndex, deltaValue);
 	}
 
 	@Override

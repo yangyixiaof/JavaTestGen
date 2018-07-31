@@ -20,7 +20,7 @@ public class StringRemoveModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyStringRemove(stmtIndex, varIndex, charIndex);
+		return sequence.modifyStringRemove(this, stmtIndex, varIndex, charIndex);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class Remove extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.remove(stmtIndex);
+		return sequence.remove(this, stmtIndex);
 	}
 
 	@Override

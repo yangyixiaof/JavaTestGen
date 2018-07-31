@@ -21,7 +21,7 @@ public class StringInsertModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyStringInsert(stmtIndex, varIndex, charIndex);
+		return sequence.modifyStringInsert(this, stmtIndex, varIndex, charIndex);
 	}
 
 	@Override

@@ -23,7 +23,7 @@ public class StringAlterModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyStringModify(stmtIndex, varIndex, charIndex, deltaValue);
+		return sequence.modifyStringModify(this, stmtIndex, varIndex, charIndex, deltaValue);
 	}
 
 	@Override
