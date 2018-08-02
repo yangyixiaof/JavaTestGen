@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -24,6 +26,7 @@ import randoop.generation.date.mutation.operation.StringAlterModify;
 import randoop.generation.date.mutation.operation.StringInsertModify;
 import randoop.generation.date.mutation.operation.StringRemoveModify;
 import randoop.generation.date.runtime.DateRuntime;
+import randoop.generation.date.tensorflow.QTransition;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.sequence.Statement;
@@ -35,6 +38,10 @@ import randoop.util.SimpleList;
 
 public class TraceableSequence extends Sequence implements Comparable<TraceableSequence> {
 
+	QTransition input_transition = null;
+	// the key is the action indexes
+	Map<Integer, QTransition> output_transitions = new TreeMap<Integer, QTransition>();
+	
 	TraceableSequence last_sequence = null;
 //	Map<Statement, Integer> curr_statement_in_last_sequence_index_map = new HashMap<>();
 	
@@ -642,6 +649,26 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 
 	public TraceInfo GetTraceInfo() {
 		return this.trace_info;
+	}
+	
+	public void SetInputQTransition(QTransition transition) {
+		input_transition = transition;
+	}
+
+	public QTransition GetInputQTransition() {
+		return input_transition;
+	}
+	
+	public void SetOutputQTransition(int action_index, QTransition transition) {
+		output_transitions.put(action_index, transition);
+	}
+	
+	public QTransition GetOutputQTransition(int action_index) {
+		return output_transitions.get(action_index);
+	}
+	
+	public Map<Integer, QTransition> GetOutputQTransitions() {
+		return output_transitions;
 	}
 	
 //	public static void main(String[] args) {

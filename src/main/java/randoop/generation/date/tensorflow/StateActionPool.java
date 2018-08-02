@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
+import randoop.generation.date.DateMeta;
 import randoop.generation.date.DateWtfException;
 import randoop.generation.date.mutation.MutationAnalyzer;
 import randoop.generation.date.mutation.operation.MutationOperation;
@@ -23,13 +25,16 @@ import randoop.reflection.TypeInstantiator;
  * If not stored, use MutationAnalyzer to analyze and to store.
  */
 public class StateActionPool {
-
+	
 	TypeInstantiator ti = null;
 	Collection<TypedOperation> candidates = null;
 
 	Map<TraceableSequence, ArrayList<MutationOperation>> state_actions = new TreeMap<>();
 	Map<TraceableSequence, ArrayList<Integer>> state_action_states = new TreeMap<>();// 1 means taken, 0 means un_taken
 	Map<TraceableSequence, Integer> state_untaken_actions = new TreeMap<>();
+	
+	// correspond to state_actions
+	Map<TraceableSequence, ArrayList<TreeMap<String, Double>>> all_accumulated_influences = new TreeMap<>();
 
 	public StateActionPool(TypeInstantiator ti, Collection<TypedOperation> candidates) {
 		this.ti = ti;
@@ -104,6 +109,35 @@ public class StateActionPool {
 			}
 		}
 		return untaken_mos;
+	}
+	
+	public void BackTraceToStoreDiscountedInfluence(QTransition transition, Map<String, Double> current_influences, int back_turns) {
+		if (transition == null) {
+			return;
+		}
+		TraceableSequence source_sequence = transition.GetSourceSequence();
+		ArrayList<TreeMap<String, Double>> actions_accumulated_influences = all_accumulated_influences.get(source_sequence);
+		if (actions_accumulated_influences == null) {
+			actions_accumulated_influences = new ArrayList<TreeMap<String, Double>>();
+			int action_size = state_actions.get(source_sequence).size();
+			for (int i=0;i<action_size;i++) {
+				actions_accumulated_influences.add(new TreeMap<String, Double>());
+			}
+			all_accumulated_influences.put(source_sequence, actions_accumulated_influences);
+		}
+		TreeMap<String, Double> accumulated_influences = actions_accumulated_influences.get(transition.action);
+		
+		Set<String> ci_keys = current_influences.keySet();
+		Iterator<String> ci_itr = ci_keys.iterator();
+		while (ci_itr.hasNext()) {
+			String ci_key = ci_itr.next();
+			Double accumulated_influence_ci_value = accumulated_influences.get(ci_key);
+			if (accumulated_influence_ci_value == null) {
+				accumulated_influence_ci_value = 0.0;
+			}
+			accumulated_influences.put(ci_key, accumulated_influence_ci_value + current_influences.get(ci_key) * Math.pow(DateMeta.reward_discount, back_turns));
+		}
+		BackTraceToStoreDiscountedInfluence(source_sequence.GetInputQTransition(), current_influences, back_turns+1);
 	}
 	
 }

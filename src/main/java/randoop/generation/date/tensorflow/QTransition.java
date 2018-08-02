@@ -21,10 +21,16 @@ public class QTransition {
 		this.state = state;
 		this.action = action;
 		this.next_state = next_state;
+		this.state.SetOutputQTransition(action, this);
+		this.next_state.SetInputQTransition(this);
 	}
 	
 	public void  SetUpInfluences(Map<String, Double> influences) {
 		this.influences.putAll(influences);
+	}
+	
+	public Map<String, Double> GetInfluences() {
+		return influences;
 	}
 	
 	public DenseObjectMatrix1D toBranchTensor(BranchIDAssigner branch_id_assigner) {

@@ -70,8 +70,6 @@ public class DateGenerator extends AbstractGenerator {
 	// /**
 	// * Constructs a generator with the given parameters.
 	// *
-	// * <p>IDEA 自动从基类 copy 的 doc…… 这是个 good practice 么？
-	// *
 	// * @param operations statements (e.g. methods and constructors) used to create
 	// sequences.
 	// Cannot
@@ -205,6 +203,7 @@ public class DateGenerator extends AbstractGenerator {
 
 		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i, e_t_i);
 		transition.SetUpInfluences(all_branches_influences);
+		state_action_pool.BackTraceToStoreDiscountedInfluence(transition, transition.GetInfluences(), 0);
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
