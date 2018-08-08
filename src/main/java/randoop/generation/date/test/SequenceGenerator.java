@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
-import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.LinkedSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.types.InstantiatedType;
@@ -20,7 +20,7 @@ import randoop.types.Type;
 
 public class SequenceGenerator {
 
-	public TraceableSequence GenerateExampleSequence() throws NoSuchMethodException, SecurityException {
+	public LinkedSequence GenerateExampleSequence() throws NoSuchMethodException, SecurityException {
 		InstantiatedType linkedListType = JDKTypes.LINKED_LIST_TYPE.instantiate(JavaTypes.STRING_TYPE);
 		Substitution<ReferenceType> substLL = linkedListType.getTypeSubstitution();
 		TypedOperation newLL = TypedOperation.forConstructor(LinkedList.class.getConstructor()).apply(substLL);
@@ -45,17 +45,17 @@ public class SequenceGenerator {
 				(ReferenceType) JavaTypes.STRING_TYPE);
 		TypedOperation syncS = syncA.apply(substA);
 
-		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, s, null);
-		s = new TraceableSequence(s.extend(newOb).statements, s, null);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
-		s = new TraceableSequence(s.extend(newTS, s.getVariable(0)).statements, s, null);
-		s = new TraceableSequence(s.extend(syncS, s.getVariable(4)).statements, s, null);
+		LinkedSequence s = new LinkedSequence();
+		s = new LinkedSequence(s.extend(newLL).statements, s, null);
+		s = new LinkedSequence(s.extend(newOb).statements, s, null);
+		s = new LinkedSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new LinkedSequence(s.extend(size, s.getVariable(0)).statements, s, null);
+		s = new LinkedSequence(s.extend(newTS, s.getVariable(0)).statements, s, null);
+		s = new LinkedSequence(s.extend(syncS, s.getVariable(4)).statements, s, null);
 		return s;
 	}
 
-	public TraceableSequence GenerateExampleSequenceForModifyBoolean() throws NoSuchMethodException, SecurityException {
+	public LinkedSequence GenerateExampleSequenceForModifyBoolean() throws NoSuchMethodException, SecurityException {
 		InstantiatedType linkedListType = JDKTypes.LINKED_LIST_TYPE.instantiate(ReferenceType.forClass(Boolean.class));
 		Substitution<ReferenceType> substLL = linkedListType.getTypeSubstitution();
 		TypedOperation newLL = TypedOperation.forConstructor(LinkedList.class.getConstructor()).apply(substLL);
@@ -80,17 +80,17 @@ public class SequenceGenerator {
 				ReferenceType.forClass(Boolean.class));
 		TypedOperation syncS = syncA.apply(substA);
 
-		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, s, null);
-		s = new TraceableSequence(s.extend(newOb).statements, s, null);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
-		s = new TraceableSequence(s.extend(newTS, s.getVariable(0)).statements, s, null);
-		s = new TraceableSequence(s.extend(syncS, s.getVariable(4)).statements, s, null);
+		LinkedSequence s = new LinkedSequence();
+		s = new LinkedSequence(s.extend(newLL).statements, s, null);
+		s = new LinkedSequence(s.extend(newOb).statements, s, null);
+		s = new LinkedSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new LinkedSequence(s.extend(size, s.getVariable(0)).statements, s, null);
+		s = new LinkedSequence(s.extend(newTS, s.getVariable(0)).statements, s, null);
+		s = new LinkedSequence(s.extend(syncS, s.getVariable(4)).statements, s, null);
 		return s;
 	}
 
-	public TraceableSequence GenerateShortExampleSequenceForModifyBoolean(boolean boxed)
+	public LinkedSequence GenerateShortExampleSequenceForModifyBoolean(boolean boxed)
 			throws NoSuchMethodException, SecurityException {
 		InstantiatedType linkedListType = JDKTypes.LINKED_LIST_TYPE.instantiate(ReferenceType.forClass(Boolean.class));
 		Substitution<ReferenceType> substLL = linkedListType.getTypeSubstitution();
@@ -109,16 +109,16 @@ public class SequenceGenerator {
 
 		TypedOperation size = TypedOperation.forMethod(LinkedList.class.getMethod("size")).apply(substLL);
 
-		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, s, null);
-		s = new TraceableSequence(s.extend(newOb).statements, s, null);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
+		LinkedSequence s = new LinkedSequence();
+		s = new LinkedSequence(s.extend(newLL).statements, s, null);
+		s = new LinkedSequence(s.extend(newOb).statements, s, null);
+		s = new LinkedSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new LinkedSequence(s.extend(size, s.getVariable(0)).statements, s, null);
 
 		return s;
 	}
 
-	public TraceableSequence GenerateShortExampleSequenceForModifyNumber(Class<?> type, Object initValue)
+	public LinkedSequence GenerateShortExampleSequenceForModifyNumber(Class<?> type, Object initValue)
 			throws NoSuchMethodException, SecurityException, ClassNotFoundException {
 		Class<?> ensureBoxedType = type.isPrimitive() ? PrimitiveTypes.primitiveToBoxed.get(type) : type;
 
@@ -135,22 +135,22 @@ public class SequenceGenerator {
 
 		TypedOperation size = TypedOperation.forMethod(LinkedList.class.getMethod("size")).apply(substLL);
 
-		TraceableSequence s = new TraceableSequence();
-		s = new TraceableSequence(s.extend(newLL).statements, s, null);
-		s = new TraceableSequence(s.extend(newOb).statements, s, null);
-		s = new TraceableSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
-		s = new TraceableSequence(s.extend(size, s.getVariable(0)).statements, s, null);
+		LinkedSequence s = new LinkedSequence();
+		s = new LinkedSequence(s.extend(newLL).statements, s, null);
+		s = new LinkedSequence(s.extend(newOb).statements, s, null);
+		s = new LinkedSequence(s.extend(addFirst, s.getVariable(0), s.getVariable(1)).statements, s, null);
+		s = new LinkedSequence(s.extend(size, s.getVariable(0)).statements, s, null);
 
 		return s;
 	}
 
-	public static TraceableSequence GenerateTraceTestExampleSequence() {
-		TraceableSequence ts = null;
+	public static LinkedSequence GenerateTraceTestExampleSequence() {
+		LinkedSequence ts = null;
 		try {
 			TypedOperation test_trace_simple_branch_invoke = TypedOperation
 					.forMethod(StaticSimpleBranchFile.class.getMethod("TestStaticSimpleBranch"));
 			Sequence s = new Sequence();
-			ts = new TraceableSequence(s.extend(test_trace_simple_branch_invoke).statements, new TraceableSequence(s),
+			ts = new LinkedSequence(s.extend(test_trace_simple_branch_invoke).statements, new LinkedSequence(s),
 					null);
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();

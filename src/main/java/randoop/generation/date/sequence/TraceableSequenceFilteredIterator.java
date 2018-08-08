@@ -10,9 +10,9 @@ public class TraceableSequenceFilteredIterator {
   int i = 0;
   Statement next_statement = null;
   // int relative_index = 0;
-  TraceableSequence sequence = null;
+  LinkedSequence sequence = null;
 
-  public TraceableSequenceFilteredIterator(TraceableSequence sequence) {
+  public TraceableSequenceFilteredIterator(LinkedSequence sequence) {
     this.sequence = sequence;
   }
 

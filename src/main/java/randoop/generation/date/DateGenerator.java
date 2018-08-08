@@ -1,7 +1,5 @@
 package randoop.generation.date;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -12,22 +10,15 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.core.runtime.Assert;
-
 import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
 import cn.yyx.labtask.test_agent_trace_reader.InfluenceComputer;
-import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
-import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
+import randoop.ExecutionOutcome;
+import randoop.NormalExecution;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
-import randoop.generation.date.mutation.operation.MutationOperation;
-import randoop.generation.date.sequence.TraceableSequence;
-import randoop.generation.date.tensorflow.QLearning;
-import randoop.generation.date.tensorflow.QTransition;
-import randoop.generation.date.tensorflow.ReplayMemory;
-import randoop.generation.date.tensorflow.StateActionPool;
+import randoop.generation.date.sequence.LinkedSequence;
 import randoop.generation.date.test.SequenceGenerator;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
@@ -44,6 +35,7 @@ public class DateGenerator extends AbstractGenerator {
 	// public int numOfMutSelected = 1;
 
 	Random random = new Random();
+
 	/**
 	 * <p>
 	 * The set of ALL sequences ever generated, including sequences that were
@@ -54,10 +46,13 @@ public class DateGenerator extends AbstractGenerator {
 	 * in
 	 * {@link randoop.main.GenTests#printSequenceExceptionError(AbstractGenerator, SequenceExceptionError)}.
 	 */
-	// private final LinkedHashSet<TraceableSequence> allSequences;
 
-	private final Map<String, TraceableSequence> allSequences = new TreeMap<String, TraceableSequence>();
-	private final Map<String, TraceableSequence> needExploreSequences = new TreeMap<String, TraceableSequence>();
+	private final Map<Class<?>, TreeMap<Object, LinkedSequence>> class_object_head_sequence = new TreeMap<Class<?>, TreeMap<Object, LinkedSequence>>();
+	private final Map<Class<?>, TreeMap<Object, SequenceWithIndex>> class_object_created_sequence_with_index = new TreeMap<Class<?>, TreeMap<Object, SequenceWithIndex>>();
+
+	private final Map<String, Sequence> allSequences = new TreeMap<String, Sequence>();
+	// private final Map<String, TraceableSequence> needExploreSequences = new
+	// TreeMap<String, TraceableSequence>();
 
 	// The set of all primitive values seen during generation and execution
 	// of sequences. This set is used to tell if a new primitive value has
@@ -102,9 +97,9 @@ public class DateGenerator extends AbstractGenerator {
 	BranchNodesState branch_state = new BranchNodesState();
 	InfluenceComputer influence_computer = new InfluenceComputer(branch_state);
 
-	ReplayMemory d;
-	StateActionPool state_action_pool;
-	QLearning q_learn;
+	// ReplayMemory d;
+	// StateActionPool state_action_pool;
+	// QLearning q_learn;
 
 	// public DateGenerator(
 	// List<TypedOperation> operations,
@@ -120,9 +115,9 @@ public class DateGenerator extends AbstractGenerator {
 			// IStopper stopper,
 			RandoopListenerManager listenerManager) {
 		super(operations, limits, componentManager, null, listenerManager); // stopper
-//		for (TypedOperation to : operations) {
-//			System.out.println("TypedOperation:" + to);
-//		}
+		// for (TypedOperation to : operations) {
+		// System.out.println("TypedOperation:" + to);
+		// }
 		List<TypedOperation> for_use_operations = new LinkedList<TypedOperation>();
 		for_use_operations.addAll(operations);
 		Iterator<Sequence> cgitr = componentManager.getAllPrimitiveSequences().iterator();
@@ -131,23 +126,24 @@ public class DateGenerator extends AbstractGenerator {
 			Statement stmt = s.getStatement(0);
 			TypedOperation op = stmt.getOperation();
 			for_use_operations.add(op);
-//			System.out.println("ComponentSequence:" + s);
+			// System.out.println("ComponentSequence:" + s);
 		}
-//		for (TypedOperation to : for_use_operations) {
-//			System.out.println("TypedOperation:" + to);
-//		}
-//		 System.out.println("operations_size:" + operations.size());
-//		 System.out.println("observers_size:" + observers.size());
+		// for (TypedOperation to : for_use_operations) {
+		// System.out.println("TypedOperation:" + to);
+		// }
+		// System.out.println("operations_size:" + operations.size());
+		// System.out.println("observers_size:" + observers.size());
 		// this.observers = observers;
 		// initialize allSequences
-		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
+		LinkedSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
 		allSequences.put(new_seq.toLongFormString(), new_seq);
-		needExploreSequences.put(new_seq.toLongFormString(), new_seq);
+		// needExploreSequences.put(new_seq.toLongFormString(), new_seq);
 		// initialize generation used data
 		this.instantiator = componentManager.getTypeInstantiator();
-		this.d = new ReplayMemory();
-		this.state_action_pool = new StateActionPool(this.instantiator, for_use_operations);
-		this.q_learn = new QLearning(this.d, this.state_action_pool);
+		// this.d = new ReplayMemory();
+		// this.state_action_pool = new StateActionPool(this.instantiator,
+		// for_use_operations);
+		// this.q_learn = new QLearning(this.d, this.state_action_pool);
 	}
 
 	@Override
@@ -160,11 +156,11 @@ public class DateGenerator extends AbstractGenerator {
 		}
 
 		// ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
-		QTransition transition = null;
-		while (transition == null) {
-			transition = createNewUniqueSequence();
-		}
-		ExecutableSequence eSeq = transition.GetExecutableSequence();
+//		QTransition transition = null;
+//		while (transition == null) {
+//			transition = createNewUniqueSequence();
+//		}
+//		ExecutableSequence eSeq = transition.GetExecutableSequence();
 		// List<QTransition> transitions = createNewUniqueSequences(numOfSeqSelected,
 		// numOfMutSelected);
 		// System.out.println(
@@ -182,6 +178,8 @@ public class DateGenerator extends AbstractGenerator {
 		//
 		// setCurrentSequence(eSeq.sequence);
 		// }
+		
+		ExecutableSequence eSeq = new ExecutableSequence(allSequences.values().iterator().next());
 
 		long gentime1 = System.nanoTime() - startTime; // rename it
 
@@ -191,19 +189,33 @@ public class DateGenerator extends AbstractGenerator {
 
 		eSeq.execute(executionVisitor, checkGenerator);
 
+		System.out.println("==== execution outcome begin ====");
+		int e_size = eSeq.size();
+		for (int i = 0; i < e_size; i++) {
+			ExecutionOutcome e_outcome = eSeq.getResult(i);
+			System.out.println(e_outcome);
+			if (e_outcome instanceof NormalExecution) {
+				NormalExecution ne = (NormalExecution)e_outcome;
+				Object o = ne.getRuntimeValue();
+				System.out.println("NormalExecution Object Address:" + System.identityHashCode(o));
+			}
+		}
+		System.out.println("==== execution outcome end ====");
+
 		String trace = TracePrintController.GetPrintedTrace();
-		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
-		// System.exit(1);
+		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
+		System.exit(1);
 
-		TraceableSequence e_sequence = transition.GetTargetSequence();
-		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
-		TraceableSequence s_sequence = transition.GetSourceSequence();
-		TraceInfo s_t_i = s_sequence.GetTraceInfo();
-		TraceInfo e_t_i = e_sequence.GetTraceInfo();
-
-		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i, e_t_i);
-		transition.SetUpInfluences(all_branches_influences);
-		state_action_pool.BackTraceToStoreDiscountedInfluence(transition, transition.GetInfluences(), 0);
+//		TraceableSequence e_sequence = transition.GetTargetSequence();
+//		e_sequence.SetExecutionTrace(TraceReader.HandleOneTrace(trace));
+//		TraceableSequence s_sequence = transition.GetSourceSequence();
+//		TraceInfo s_t_i = s_sequence.GetTraceInfo();
+//		TraceInfo e_t_i = e_sequence.GetTraceInfo();
+//
+//		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(s_t_i, e_t_i);
+//		transition.SetUpInfluences(all_branches_influences);
+		// state_action_pool.BackTraceToStoreDiscountedInfluence(transition,
+		// transition.GetInfluences(), 0);
 		// System.out.println("After ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
@@ -215,8 +227,8 @@ public class DateGenerator extends AbstractGenerator {
 
 		startTime = System.nanoTime(); // reset start time.
 
-		d.StoreTransition(transition);
-		q_learn.QLearn();
+		// d.StoreTransition(transition);
+		// q_learn.QLearn();
 
 		// determineActiveIndices(eSeq);
 		//
@@ -331,103 +343,103 @@ public class DateGenerator extends AbstractGenerator {
 	// return transitions;
 	// }
 
-	/**
-	 * Tries to create and execute a new sequence. If the sequence is new (not
-	 * already in the specified component manager), then it is executed and added to
-	 * the manager's sequences. If the sequence created is already in the manager's
-	 * sequences, this method has no effect, and returns null.
-	 *
-	 * @return a new sequence, or null
-	 */
-	private QTransition createNewUniqueSequence() { // TODO whether instantiated? 1. operation 2. initial allSequences
-		Map<String, Double> sorted_uncovered_branches = branch_state.GetSortedUnCoveredBranches();
-		Map<String, Integer> uncovered_branch_states = branch_state.GetUnCoveredBranchesStates();
-		// System.out.println("uncovered_branch_states.size():" +
-		// uncovered_branch_states.size());
-		double fitness_upper = 0.0;
-		Collection<TraceableSequence> trace_seqs = needExploreSequences.values();
-		ArrayList<TraceableSequence> o_seqs = new ArrayList<TraceableSequence>();
-		ArrayList<Double> o_seq_up_bounds = new ArrayList<Double>();
-		Iterator<TraceableSequence> ts_itr = trace_seqs.iterator();
-		while (ts_itr.hasNext()) {
-			TraceableSequence ts = ts_itr.next();
-			o_seqs.add(ts);
-			double fitness = ts.GetTraceInfo().Fitness(sorted_uncovered_branches, uncovered_branch_states);
-			fitness_upper = fitness_upper + fitness;
-			o_seq_up_bounds.add(fitness_upper);
-		}
-		// sample state
-		double fall_position = random.nextDouble() * fitness_upper;
-		int ps = 0;
-		int pmax = o_seqs.size();
-		for (; ps < pmax; ps++) {
-			if (fall_position <= o_seq_up_bounds.get(ps)) {
-				break;
-			}
-		}
-		Assert.isTrue(ps < pmax, "ps:" + ps + "pmax:" + pmax);
-		TraceableSequence sourceSequence = o_seqs.get(ps); // Randomness.randomSetMember(this.allSequences.values());
-		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetUntakenActionsOfOneState(sourceSequence);
-
-		Iterator<MutationOperation> citr = candidateMutations.iterator();
-
-		System.out.println("=== start mo ===");
-		while (citr.hasNext()) {
-			MutationOperation mo = citr.next();
-			System.out.println(mo);
-		}
-		System.out.println("=== end mo ===");
-
-		int arg_max_ab_index = random.nextInt(candidateMutations.size());
-		// System.out.println("candidateMutations.size():" + candidateMutations.size());
-		if (uncovered_branch_states.size() > 0) {
-			Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence,
-					candidateMutations, uncovered_branch_states);
-			Map<String, List<Double>> action_branches = sig_action_branches.entrySet().iterator().next().getValue();
-			Set<String> ab_keys = action_branches.keySet();
-			// System.out.println("ab_keys.size():" + ab_keys.size());
-			Iterator<String> ab_itr = ab_keys.iterator();
-			double max_all_q_val = Double.MIN_VALUE;
-			while (ab_itr.hasNext()) {
-				double a_q_val = 0.0;
-				String ab = ab_itr.next();
-				int ab_index = Integer.parseInt(ab);
-				List<Double> branches = action_branches.get(ab);
-				Iterator<Double> b_itr = branches.iterator();
-				Set<String> ubs_keys = uncovered_branch_states.keySet();
-				Iterator<String> ubs_itr = ubs_keys.iterator();
-				while (ubs_itr.hasNext()) {
-					Double q_val = b_itr.next();
-					String ubs_sig = ubs_itr.next();
-					Double branch_weight = sorted_uncovered_branches.get(ubs_sig);
-					a_q_val += branch_weight * q_val;
-				}
-				if (max_all_q_val < a_q_val) {
-					max_all_q_val = a_q_val;
-					arg_max_ab_index = ab_index;
-				}
-			}
-		}
-		MutationOperation selectedMutation = candidateMutations.get(arg_max_ab_index); // Randomness.randomMember(candidateMutations);
-
-		int action_index = candidateMutations.indexOf(selectedMutation);
-		state_action_pool.ActionOfOneStateBeTaken(sourceSequence, action_index);
-		if (state_action_pool.DoNotHaveUntakenActionsOfOneState(sourceSequence)) {
-			needExploreSequences.remove(sourceSequence.toLongFormString());
-		}
-		TraceableSequence newSequence = selectedMutation.ApplyMutation();
-
-		if (this.allSequences.containsKey(newSequence.toLongFormString())) {
-			// Log.logLine("Sequence discarded because the same sequence was previously
-			// created.");
-			return null;
-		}
-
-		this.allSequences.put(newSequence.toLongFormString(), newSequence);
-
-		QTransition qt = new QTransition(sourceSequence, action_index, newSequence);
-		return qt;
-	}
+//	/**
+//	 * Tries to create and execute a new sequence. If the sequence is new (not
+//	 * already in the specified component manager), then it is executed and added to
+//	 * the manager's sequences. If the sequence created is already in the manager's
+//	 * sequences, this method has no effect, and returns null.
+//	 *
+//	 * @return a new sequence, or null
+//	 */
+//	private QTransition createNewUniqueSequence() { // TODO whether instantiated? 1. operation 2. initial allSequences
+//		Map<String, Double> sorted_uncovered_branches = branch_state.GetSortedUnCoveredBranches();
+//		Map<String, Integer> uncovered_branch_states = branch_state.GetUnCoveredBranchesStates();
+//		// System.out.println("uncovered_branch_states.size():" +
+//		// uncovered_branch_states.size());
+//		double fitness_upper = 0.0;
+//		Collection<TraceableSequence> trace_seqs = needExploreSequences.values();
+//		ArrayList<TraceableSequence> o_seqs = new ArrayList<TraceableSequence>();
+//		ArrayList<Double> o_seq_up_bounds = new ArrayList<Double>();
+//		Iterator<TraceableSequence> ts_itr = trace_seqs.iterator();
+//		while (ts_itr.hasNext()) {
+//			TraceableSequence ts = ts_itr.next();
+//			o_seqs.add(ts);
+//			double fitness = ts.GetTraceInfo().Fitness(sorted_uncovered_branches, uncovered_branch_states);
+//			fitness_upper = fitness_upper + fitness;
+//			o_seq_up_bounds.add(fitness_upper);
+//		}
+//		// sample state
+//		double fall_position = random.nextDouble() * fitness_upper;
+//		int ps = 0;
+//		int pmax = o_seqs.size();
+//		for (; ps < pmax; ps++) {
+//			if (fall_position <= o_seq_up_bounds.get(ps)) {
+//				break;
+//			}
+//		}
+//		Assert.isTrue(ps < pmax, "ps:" + ps + "pmax:" + pmax);
+//		TraceableSequence sourceSequence = o_seqs.get(ps); // Randomness.randomSetMember(this.allSequences.values());
+//		ArrayList<MutationOperation> candidateMutations = state_action_pool.GetUntakenActionsOfOneState(sourceSequence);
+//
+//		Iterator<MutationOperation> citr = candidateMutations.iterator();
+//
+//		System.out.println("=== start mo ===");
+//		while (citr.hasNext()) {
+//			MutationOperation mo = citr.next();
+//			System.out.println(mo);
+//		}
+//		System.out.println("=== end mo ===");
+//
+//		int arg_max_ab_index = random.nextInt(candidateMutations.size());
+//		// System.out.println("candidateMutations.size():" + candidateMutations.size());
+//		if (uncovered_branch_states.size() > 0) {
+//			Map<String, Map<String, List<Double>>> sig_action_branches = q_learn.QPredict(sourceSequence,
+//					candidateMutations, uncovered_branch_states);
+//			Map<String, List<Double>> action_branches = sig_action_branches.entrySet().iterator().next().getValue();
+//			Set<String> ab_keys = action_branches.keySet();
+//			// System.out.println("ab_keys.size():" + ab_keys.size());
+//			Iterator<String> ab_itr = ab_keys.iterator();
+//			double max_all_q_val = Double.MIN_VALUE;
+//			while (ab_itr.hasNext()) {
+//				double a_q_val = 0.0;
+//				String ab = ab_itr.next();
+//				int ab_index = Integer.parseInt(ab);
+//				List<Double> branches = action_branches.get(ab);
+//				Iterator<Double> b_itr = branches.iterator();
+//				Set<String> ubs_keys = uncovered_branch_states.keySet();
+//				Iterator<String> ubs_itr = ubs_keys.iterator();
+//				while (ubs_itr.hasNext()) {
+//					Double q_val = b_itr.next();
+//					String ubs_sig = ubs_itr.next();
+//					Double branch_weight = sorted_uncovered_branches.get(ubs_sig);
+//					a_q_val += branch_weight * q_val;
+//				}
+//				if (max_all_q_val < a_q_val) {
+//					max_all_q_val = a_q_val;
+//					arg_max_ab_index = ab_index;
+//				}
+//			}
+//		}
+//		MutationOperation selectedMutation = candidateMutations.get(arg_max_ab_index); // Randomness.randomMember(candidateMutations);
+//
+//		int action_index = candidateMutations.indexOf(selectedMutation);
+//		state_action_pool.ActionOfOneStateBeTaken(sourceSequence, action_index);
+//		if (state_action_pool.DoNotHaveUntakenActionsOfOneState(sourceSequence)) {
+//			needExploreSequences.remove(sourceSequence.toLongFormString());
+//		}
+//		TraceableSequence newSequence = selectedMutation.ApplyMutation();
+//
+//		if (this.allSequences.containsKey(newSequence.toLongFormString())) {
+//			// Log.logLine("Sequence discarded because the same sequence was previously
+//			// created.");
+//			return null;
+//		}
+//
+//		this.allSequences.put(newSequence.toLongFormString(), newSequence);
+//
+//		QTransition qt = new QTransition(sourceSequence, action_index, newSequence);
+//		return qt;
+//	}
 
 	// /**
 	// * The runtimePrimitivesSeen set contains primitive values seen during
@@ -454,6 +466,16 @@ public class DateGenerator extends AbstractGenerator {
 	@Override
 	public Set<Sequence> getSubsumedSequences() {
 		return new HashSet<Sequence>();
+	}
+
+}
+
+class SequenceWithIndex {
+
+	int index = -1;
+
+	public SequenceWithIndex(int index) {
+		this.index = index;
 	}
 
 }

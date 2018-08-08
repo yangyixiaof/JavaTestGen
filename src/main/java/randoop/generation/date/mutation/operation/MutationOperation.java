@@ -3,17 +3,17 @@ package randoop.generation.date.mutation.operation;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
-import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.LinkedSequence;
 
 public abstract class MutationOperation {
 
-  public TraceableSequence sequence = null;
+  public LinkedSequence sequence = null;
 
-  public MutationOperation(TraceableSequence sequence) {
+  public MutationOperation(LinkedSequence sequence) {
     this.sequence = sequence;
   }
 
-  public abstract TraceableSequence ApplyMutation();
+  public abstract LinkedSequence ApplyMutation();
 
   public abstract String toString();
   

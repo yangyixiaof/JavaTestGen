@@ -7,7 +7,7 @@ import java.util.List;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
-import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.LinkedSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 
@@ -17,14 +17,14 @@ public class Insert extends MutationOperation {
 	TypedOperation operation = null;
 	List<Variable> inputVariables = new LinkedList<Variable>();
 
-	public Insert(TraceableSequence sequence, int index, TypedOperation operation, List<Variable> inputVariables) {
+	public Insert(LinkedSequence sequence, int index, TypedOperation operation, List<Variable> inputVariables) {
 		super(sequence);
 		this.index = index;
 		this.operation = operation;
 		this.inputVariables.addAll(inputVariables);
 	}
 
-	public TraceableSequence ApplyMutation() {
+	public LinkedSequence ApplyMutation() {
 		return sequence.insert(this, index, operation, inputVariables);
 	}
 

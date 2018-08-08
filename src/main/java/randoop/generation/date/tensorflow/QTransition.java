@@ -7,17 +7,17 @@ import java.util.Set;
 
 import cern.colt.matrix.impl.DenseObjectMatrix1D;
 import randoop.generation.date.embed.BranchIDAssigner;
-import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.LinkedSequence;
 import randoop.sequence.ExecutableSequence;
 
 public class QTransition {
 
-	TraceableSequence state = null;
+	LinkedSequence state = null;
 	int action = -1;
-	TraceableSequence next_state = null;
+	LinkedSequence next_state = null;
 	Map<String, Double> influences = new HashMap<String, Double>();
 
-	public QTransition(TraceableSequence state, int action, TraceableSequence next_state) {
+	public QTransition(LinkedSequence state, int action, LinkedSequence next_state) {
 		this.state = state;
 		this.action = action;
 		this.next_state = next_state;
@@ -69,11 +69,11 @@ public class QTransition {
 		return new ExecutableSequence(next_state);
 	}
 
-	public TraceableSequence GetSourceSequence() {
+	public LinkedSequence GetSourceSequence() {
 		return state;
 	}
 	
-	public TraceableSequence GetTargetSequence() {
+	public LinkedSequence GetTargetSequence() {
 		return next_state;
 	}
 

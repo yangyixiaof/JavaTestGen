@@ -6,9 +6,9 @@ public class StatementWithIndex {
 
   int index = 0;
   Statement stmt = null;
-  TraceableSequence sequence = null;
+  LinkedSequence sequence = null;
 
-  public StatementWithIndex(int index, Statement stmt, TraceableSequence sequence) {
+  public StatementWithIndex(int index, Statement stmt, LinkedSequence sequence) {
     this.index = index;
     this.stmt = stmt;
     this.sequence = sequence;
@@ -22,7 +22,7 @@ public class StatementWithIndex {
     return stmt;
   }
 
-  public TraceableSequence GetTraceableSequence() {
+  public LinkedSequence GetTraceableSequence() {
     return sequence;
   }
 }

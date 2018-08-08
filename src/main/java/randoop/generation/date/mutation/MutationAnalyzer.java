@@ -4,7 +4,7 @@ import java.util.*;
 import randoop.generation.date.DateWtfException;
 import randoop.generation.date.mutation.operation.*;
 import randoop.generation.date.sequence.StatementWithIndex;
-import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.LinkedSequence;
 import randoop.generation.date.sequence.TraceableSequenceFilteredIterator;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedClassOperation;
@@ -20,10 +20,10 @@ import randoop.util.Log;
 
 public class MutationAnalyzer {
 
-	TraceableSequence sequence = null;
+	LinkedSequence sequence = null;
 	private TypeInstantiator instantiator;
 
-	public MutationAnalyzer(TraceableSequence sequence, TypeInstantiator instantiator) {
+	public MutationAnalyzer(LinkedSequence sequence, TypeInstantiator instantiator) {
 		this.sequence = sequence;
 		this.instantiator = instantiator;
 	}

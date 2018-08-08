@@ -36,13 +36,13 @@ import randoop.types.Type;
 import randoop.util.SimpleArrayList;
 import randoop.util.SimpleList;
 
-public class TraceableSequence extends Sequence implements Comparable<TraceableSequence> {
+public class LinkedSequence extends Sequence {
 
 	QTransition input_transition = null;
 	// the key is the action indexes
 	Map<Integer, QTransition> output_transitions = new TreeMap<Integer, QTransition>();
 	
-	TraceableSequence last_sequence = null;
+	LinkedSequence last_sequence = null;
 //	Map<Statement, Integer> curr_statement_in_last_sequence_index_map = new HashMap<>();
 	
 	TraceInfo trace_info = null;
@@ -53,16 +53,16 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	// this.last_sequence = last_sequence;
 	// }
 
-	public TraceableSequence() {
+	public LinkedSequence() {
 		super();
 	}
 
-	public TraceableSequence(Sequence sequence) {
+	public LinkedSequence(Sequence sequence) {
 		super(sequence.statements, computeHashcode(sequence.statements), computeNetSize(sequence.statements));
 	}
 
-	public TraceableSequence(SimpleList<Statement> statements, // Map<Statement, Integer> curr_statement_in_last_sequence_index_map, 
-			TraceableSequence last_sequence, MutationOperation mo) {
+	public LinkedSequence(SimpleList<Statement> statements, // Map<Statement, Integer> curr_statement_in_last_sequence_index_map, 
+			LinkedSequence last_sequence, MutationOperation mo) {
 		super(statements, computeHashcode(statements), computeNetSize(statements));
 		this.last_sequence = last_sequence;
 		this.mo = mo;
@@ -84,7 +84,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param inputVariables
 	 * @return a new sequence
 	 */
-	public final TraceableSequence insert(MutationOperation mo, int index, TypedOperation operation, List<Variable> inputVariables) {
+	public final LinkedSequence insert(MutationOperation mo, int index, TypedOperation operation, List<Variable> inputVariables) {
 		if (index < 0 || this.size() < index) {
 			String msg = "this.size():" + this.size() + " but index:" + index;
 			throw new IllegalArgumentException(msg);
@@ -127,7 +127,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 			newStatements.add(new Statement(stmt.getOperation(), newInputs));
 		}
 		// curr_statement_in_last_sequence_index_map_inner, 
-		return new TraceableSequence(newStatements, this, mo);
+		return new LinkedSequence(newStatements, this, mo);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param operation
 	 * @return
 	 */
-	public final TraceableSequence insert(MutationOperation mo, int index, TypedOperation operation) {
+	public final LinkedSequence insert(MutationOperation mo, int index, TypedOperation operation) {
 		return insert(mo, index, operation, new ArrayList<Variable>());
 	}
 
@@ -146,7 +146,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param targetVariable
 	 * @return
 	 */
-	public final TraceableSequence modifyReference(MutationOperation mo, int stmtIndex, int varIndex, Variable targetVariable) {
+	public final LinkedSequence modifyReference(MutationOperation mo, int stmtIndex, int varIndex, Variable targetVariable) {
 		// checkInputsForModifyReference
 		if (stmtIndex < 0 || this.size() < stmtIndex) {
 			String msg = "this.size():" + this.size() + " but stmtIndex:" + stmtIndex;
@@ -202,7 +202,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 			}
 		}
 		// curr_statement_in_last_sequence_index_map_inner, 
-		return new TraceableSequence(newStatements, this, mo);
+		return new LinkedSequence(newStatements, this, mo);
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param varIndex
 	 * @return
 	 */
-	public final TraceableSequence modifyBoolean(PrimitiveBooleanModify pbm, int stmtIndex, int varIndex) {
+	public final LinkedSequence modifyBoolean(PrimitiveBooleanModify pbm, int stmtIndex, int varIndex) {
 		Statement stmtToModify = this.getStatement(stmtIndex);
 		// Type typeOfVarToModify = stmtToModify.getInputTypes().get(varIndex); //
 		int varSourceStmtIndex = stmtIndex + stmtToModify.getInputs().get(varIndex).index;
@@ -239,7 +239,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 				methodCallNot = TypedOperation.forMethod(DateRuntime.class.getMethod("not", boolean.class));
 			}
 
-			TraceableSequence insertedFlip = this.insert(null, varSourceStmtIndex + 1, methodCallNot,
+			LinkedSequence insertedFlip = this.insert(null, varSourceStmtIndex + 1, methodCallNot,
 					Arrays.asList(new Variable(this, varSourceStmtIndex)));
 
 			return insertedFlip.modifyReference(pbm, stmtIndex + 1, varIndex,
@@ -255,7 +255,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param varIndex
 	 * @return
 	 */
-	public final TraceableSequence modifyReal(PrimitiveRealModify prm, int stmtIndex, int varIndex, Object deltaValue) {
+	public final LinkedSequence modifyReal(PrimitiveRealModify prm, int stmtIndex, int varIndex, Object deltaValue) {
 		Statement stmtToModify = this.getStatement(stmtIndex); // 鏄惁瑕佹妸瓒婄晫 Exception 鍖呮垚鏇翠笟鍔＄殑 Exception锛�
 		// Type typeOfVarToModify = stmtToModify.getInputTypes().get(varIndex); //
 		// 鏈夊己杞椂锛岄瀷瀛愬舰鐘� != 鑴氱殑褰㈢姸
@@ -286,11 +286,11 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 					deltaValue
 			// ensurePrimitive.cast(deltaValue)
 			);
-			TraceableSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, deltaInit);
+			LinkedSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, deltaInit);
 
 			TypedOperation addMethodCall = TypedOperation
 					.forMethod(DateRuntime.class.getMethod("add", classOfVarToModify, Object.class));
-			TraceableSequence insertedAdd = insertedDelta.insert(null, varSourceStmtIndex + 2, addMethodCall,
+			LinkedSequence insertedAdd = insertedDelta.insert(null, varSourceStmtIndex + 2, addMethodCall,
 					Arrays.asList(new Variable(insertedDelta, varSourceStmtIndex),
 							new Variable(insertedDelta, varSourceStmtIndex + 1)));
 
@@ -310,7 +310,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param deltaValue
 	 * @return
 	 */
-	public final TraceableSequence modifyIntegral(PrimitiveIntegralModify pim, int stmtIndex, int varIndex, Object deltaValue) {
+	public final LinkedSequence modifyIntegral(PrimitiveIntegralModify pim, int stmtIndex, int varIndex, Object deltaValue) {
 		Statement stmtToModify = this.getStatement(stmtIndex);
 		// Type typeOfVarToModify = stmtToModify.getInputTypes().get(varIndex);
 		int varSourceStmtIndex = stmtIndex + stmtToModify.getInputs().get(varIndex).index;
@@ -341,11 +341,11 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 					deltaValue
 			// ensurePrimitive.cast(deltaValue)
 			);
-			TraceableSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, deltaInit);
+			LinkedSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, deltaInit);
 
 			TypedOperation addMethodCall = TypedOperation
 					.forMethod(DateRuntime.class.getMethod("add", classOfVarToModify, Object.class));
-			TraceableSequence insertedAdd = insertedDelta.insert(null, varSourceStmtIndex + 2, addMethodCall,
+			LinkedSequence insertedAdd = insertedDelta.insert(null, varSourceStmtIndex + 2, addMethodCall,
 					Arrays.asList(new Variable(insertedDelta, varSourceStmtIndex),
 							new Variable(insertedDelta, varSourceStmtIndex + 1)));
 
@@ -367,7 +367,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	// return modifyIntegral(stmtIndex, varIndex, Integer.valueOf(deltaValue));
 	// }
 
-	public final TraceableSequence modifyStringInsert(StringInsertModify sim, int stmtIndex, int varIndex, int charIndex) {
+	public final LinkedSequence modifyStringInsert(StringInsertModify sim, int stmtIndex, int varIndex, int charIndex) {
 		/*
 		 * String s = ...; ... o.f(s);
 		 * 
@@ -387,11 +387,11 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 
 			TypedOperation charIndexInit = TypedOperation
 					.createPrimitiveInitialization(PrimitiveType.forClass(int.class), charIndex);
-			TraceableSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, charIndexInit);
+			LinkedSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, charIndexInit);
 
 			TypedOperation insertMethodCall = TypedOperation
 					.forMethod(DateRuntime.class.getMethod("insert", String.class, int.class));
-			TraceableSequence insertedInsert = insertedDelta.insert(null, varSourceStmtIndex + 2, insertMethodCall,
+			LinkedSequence insertedInsert = insertedDelta.insert(null, varSourceStmtIndex + 2, insertMethodCall,
 					Arrays.asList(new Variable(insertedDelta, varSourceStmtIndex),
 							new Variable(insertedDelta, varSourceStmtIndex + 1)));
 
@@ -403,7 +403,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 		}
 	}
 
-	public final TraceableSequence modifyStringRemove(StringRemoveModify srm, int stmtIndex, int varIndex, int charIndex) {
+	public final LinkedSequence modifyStringRemove(StringRemoveModify srm, int stmtIndex, int varIndex, int charIndex) {
 		/*
 		 * String s = ...; ... o.f(s);
 		 * 
@@ -424,11 +424,11 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 
 			TypedOperation charIndexInit = TypedOperation
 					.createPrimitiveInitialization(PrimitiveType.forClass(int.class), charIndex);
-			TraceableSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, charIndexInit);
+			LinkedSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, charIndexInit);
 
 			TypedOperation removeMethodCall = TypedOperation
 					.forMethod(DateRuntime.class.getMethod("remove", String.class, int.class));
-			TraceableSequence insertedInsert = insertedDelta.insert(null, varSourceStmtIndex + 2, removeMethodCall,
+			LinkedSequence insertedInsert = insertedDelta.insert(null, varSourceStmtIndex + 2, removeMethodCall,
 					Arrays.asList(new Variable(insertedDelta, varSourceStmtIndex),
 							new Variable(insertedDelta, varSourceStmtIndex + 1)));
 
@@ -440,7 +440,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 		}
 	}
 
-	public final TraceableSequence modifyStringModify(StringAlterModify sam, int stmtIndex, int varIndex, int charIndex, int deltaValue) {
+	public final LinkedSequence modifyStringModify(StringAlterModify sam, int stmtIndex, int varIndex, int charIndex, int deltaValue) {
 		/*
 		 * String s = ...; ... o.f(s);
 		 * 
@@ -461,15 +461,15 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 
 			TypedOperation charIndexInit = TypedOperation
 					.createPrimitiveInitialization(PrimitiveType.forClass(int.class), charIndex);
-			TraceableSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, charIndexInit);
+			LinkedSequence insertedDelta = this.insert(null, varSourceStmtIndex + 1, charIndexInit);
 
 			TypedOperation deltaValueInit = TypedOperation
 					.createPrimitiveInitialization(PrimitiveType.forClass(int.class), deltaValue);
-			TraceableSequence insertedDelta2 = insertedDelta.insert(null, varSourceStmtIndex + 2, deltaValueInit);
+			LinkedSequence insertedDelta2 = insertedDelta.insert(null, varSourceStmtIndex + 2, deltaValueInit);
 
 			TypedOperation modifyMethodCall = TypedOperation
 					.forMethod(DateRuntime.class.getMethod("modify", String.class, int.class, int.class));
-			TraceableSequence insertedModify = insertedDelta2.insert(null, varSourceStmtIndex + 3, modifyMethodCall,
+			LinkedSequence insertedModify = insertedDelta2.insert(null, varSourceStmtIndex + 3, modifyMethodCall,
 					Arrays.asList(new Variable(insertedDelta2, varSourceStmtIndex),
 							new Variable(insertedDelta2, varSourceStmtIndex + 1),
 							new Variable(insertedDelta2, varSourceStmtIndex + 2)));
@@ -490,7 +490,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @return
 	 */
 	@Deprecated
-	public final TraceableSequence modifyPrimitive(int stmtIndex, int varIndex, Object deltaValue) {
+	public final LinkedSequence modifyPrimitive(int stmtIndex, int varIndex, Object deltaValue) {
 		return null;
 	}
 
@@ -510,7 +510,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 	 * @param stmtIndex
 	 * @return
 	 */
-	public final TraceableSequence remove(Remove rmv, int stmtIndex) {
+	public final LinkedSequence remove(Remove rmv, int stmtIndex) {
 		if (stmtIndex < 0 || this.size() <= stmtIndex) {
 			String msg = "this.size():" + this.size() + " but stmtIndex:" + stmtIndex
 					+ ". Expected 0 <= stmtIndex < this.size().";
@@ -552,7 +552,7 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 			}
 		}
 		// curr_statement_in_last_sequence_index_map_inner, 
-		return new TraceableSequence(newStatements, this, rmv);
+		return new LinkedSequence(newStatements, this, rmv);
 	}
 
 	/**
@@ -638,10 +638,10 @@ public class TraceableSequence extends Sequence implements Comparable<TraceableS
 		return matrix;
 	}
 
-	@Override
-	public int compareTo(TraceableSequence o) {
-		return toLongFormString().compareTo(o.toLongFormString());
-	}
+//	@Override
+//	public int compareTo(LinkedSequence o) {
+//		return toLongFormString().compareTo(o.toLongFormString());
+//	}
 
 	public void SetExecutionTrace(TraceInfo ti) {
 		this.trace_info = ti;
