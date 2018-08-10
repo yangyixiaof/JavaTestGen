@@ -1,10 +1,23 @@
 package randoop.generation.date.mutation;
 
-import java.util.*;
-import randoop.generation.date.DateWtfException;
-import randoop.generation.date.mutation.operation.*;
-import randoop.generation.date.sequence.StatementWithIndex;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+
+import randoop.generation.date.mutation.operation.Insert;
+import randoop.generation.date.mutation.operation.MutationOperation;
+import randoop.generation.date.mutation.operation.PrimitiveBooleanModify;
+import randoop.generation.date.mutation.operation.PrimitiveIntegralModify;
+import randoop.generation.date.mutation.operation.PrimitiveRealModify;
+import randoop.generation.date.mutation.operation.ReferenceModify;
+import randoop.generation.date.mutation.operation.Remove;
+import randoop.generation.date.mutation.operation.StringAlterModify;
+import randoop.generation.date.mutation.operation.StringInsertModify;
+import randoop.generation.date.mutation.operation.StringRemoveModify;
 import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.StatementWithIndex;
 import randoop.generation.date.sequence.TraceableSequenceFilteredIterator;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedClassOperation;
@@ -28,8 +41,7 @@ public class MutationAnalyzer {
 		this.instantiator = instantiator;
 	}
 
-	public void GenerateMutationOperations(Collection<TypedOperation> candidates, List<MutationOperation> mutates)
-			throws DateWtfException {
+	public void GenerateMutationOperations(Collection<TypedOperation> candidates, List<MutationOperation> mutates) {
 		// remove
 		// GenerateRemoveOperations(mutates);
 		// insert
@@ -72,9 +84,8 @@ public class MutationAnalyzer {
 		return null;
 	}
 
-	public void GenerateInsertOperations(List<MutationOperation> mutates, Collection<TypedOperation> candidates)
-			throws DateWtfException {
-//		System.out.println("candidates_size:" + candidates.size());
+	public void GenerateInsertOperations(List<MutationOperation> mutates, Collection<TypedOperation> candidates) {
+		// System.out.println("candidates_size:" + candidates.size());
 		int i_len = sequence.size();
 		for (int i = 0; i <= i_len; i++) {
 			Iterator<TypedOperation> citr = candidates.iterator();

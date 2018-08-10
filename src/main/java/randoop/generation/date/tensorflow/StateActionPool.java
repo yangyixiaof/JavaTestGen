@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import randoop.generation.date.DateMeta;
-import randoop.generation.date.DateWtfException;
 import randoop.generation.date.mutation.MutationAnalyzer;
 import randoop.generation.date.mutation.operation.MutationOperation;
 import randoop.generation.date.sequence.LinkedSequence;
@@ -59,12 +58,8 @@ public class StateActionPool {
 		if (!state_actions.containsKey(state)) {
 			MutationAnalyzer analyzer = new MutationAnalyzer(state, ti);
 			ArrayList<MutationOperation> candidateMutations = new ArrayList<>();
-			try {
-				analyzer.GenerateMutationOperations(candidates, candidateMutations);
+			analyzer.GenerateMutationOperations(candidates, candidateMutations);
 				// System.out.println("candidateMutations_size:" + candidateMutations.size());
-			} catch (DateWtfException e) {
-				e.printStackTrace();
-			}
 			state_actions.put(state, candidateMutations);
 			int mo_size = candidateMutations.size();
 			ArrayList<Integer> ss = new ArrayList<Integer>();

@@ -148,7 +148,7 @@ public class SequenceGenerator {
 		LinkedSequence ts = null;
 		try {
 			TypedOperation test_trace_simple_branch_invoke = TypedOperation
-					.forMethod(StaticSimpleBranchFile.class.getMethod("TestStaticSimpleBranch"));
+					.forMethod(System.class.getMethod("gc"));
 			Sequence s = new Sequence();
 			ts = new LinkedSequence(s.extend(test_trace_simple_branch_invoke).statements, new LinkedSequence(s),
 					null);
