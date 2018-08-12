@@ -44,7 +44,7 @@ public class DateGenerator extends AbstractGenerator {
 	Map<String, InfluenceOfBranchChangeForClass> class_branch_overview_influence = new HashMap<String, InfluenceOfBranchChangeForClass>();
 	
 	/**
-	 * the keys in the following two maps are meaning the detailed class name
+	 * the keys in the following two maps are meaning the qualified class name
 	 */
 	private final Map<String, ArrayList<LinkedSequence>> class_object_headed_sequence = new HashMap<String, ArrayList<LinkedSequence>>();
 	private final Map<String, ArrayList<LinkedSequenceWithIndex>> class_object_created_sequence_with_index = new HashMap<String, ArrayList<LinkedSequenceWithIndex>>();
