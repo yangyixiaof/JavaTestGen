@@ -8,7 +8,7 @@ import randoop.generation.date.embed.BranchIDAssigner;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.mutation.operation.MutationOperation;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 
 public class QLearning {
 
@@ -151,7 +151,7 @@ public class QLearning {
 		// }
 	}
 
-	public Map<String, Map<String, List<Double>>> QPredict(LinkedSequence state, Collection<MutationOperation> un_tried_actions,
+	public Map<String, Map<String, List<Double>>> QPredict(TraceableSequence state, Collection<MutationOperation> un_tried_actions,
 			Map<String, Integer> un_covered_branches) {
 
 //		DenseObjectMatrix2D s_t_batch = new DenseObjectMatrix2D(2, 0);

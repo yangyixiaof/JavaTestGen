@@ -16,7 +16,7 @@ import randoop.generation.date.mutation.operation.Remove;
 import randoop.generation.date.mutation.operation.StringAlterModify;
 import randoop.generation.date.mutation.operation.StringInsertModify;
 import randoop.generation.date.mutation.operation.StringRemoveModify;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.sequence.StatementWithIndex;
 import randoop.generation.date.sequence.TraceableSequenceFilteredIterator;
 import randoop.main.GenInputsAbstract;
@@ -33,10 +33,10 @@ import randoop.util.Log;
 
 public class MutationAnalyzer {
 
-	LinkedSequence sequence = null;
+	TraceableSequence sequence = null;
 	private TypeInstantiator instantiator;
 
-	public MutationAnalyzer(LinkedSequence sequence, TypeInstantiator instantiator) {
+	public MutationAnalyzer(TraceableSequence sequence, TypeInstantiator instantiator) {
 		this.sequence = sequence;
 		this.instantiator = instantiator;
 	}

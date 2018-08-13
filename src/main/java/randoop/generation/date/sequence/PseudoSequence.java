@@ -10,12 +10,12 @@ public class PseudoSequence {
 	
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
 	
-	HashSet<PseudoSequence> sequences_which_uses_this_sequence = new HashSet<PseudoSequence>();
+	HashSet<PseudoSequence> sequences_which_use_this_sequence = new HashSet<PseudoSequence>();
 	
 	public PseudoSequence() {
 	}
 	
-	public void Append(TypedOperation operation, List<PseudoVariable> inputVariables) {
+	public void Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
 		statements.add(new PseudoStatement(operation, inputVariables));
 		AddReferenceForAllVariables(inputVariables);
 	}
@@ -48,11 +48,26 @@ public class PseudoSequence {
 	}
 	
 	private void AddReferenceToInUseSequence(PseudoSequence in_use_sequence) {
-		in_use_sequence.sequences_which_uses_this_sequence.add(this);
+		in_use_sequence.sequences_which_use_this_sequence.add(this);
 	}
 	
 	private void RemoveReferenceToInUseSequence(PseudoSequence in_use_sequence) {
-		in_use_sequence.sequences_which_uses_this_sequence.remove(this);
+		in_use_sequence.sequences_which_use_this_sequence.remove(this);
+	}
+	
+	public PseudoSequence CopySelfInDeepCloneWay() {
+		PseudoSequence copy_version = new PseudoSequence();
+		for (PseudoStatement stmt : statements) {
+			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay();
+			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);
+		}
+		return copy_version;
+	}
+	
+	public LinkedSequence GenerateLinkedSequence() {
+		
+		
+		
 	}
 	
 }

@@ -9,5 +9,9 @@ public class PseudoVariable {
 		this.sequence = sequence;
 		this.index = index;
 	}
+
+	public PseudoVariable CopySelfInDeepCloneWay() {
+		return new PseudoVariable(sequence.CopySelfInDeepCloneWay(), index);
+	}
 	
 }

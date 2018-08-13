@@ -3,7 +3,7 @@ package randoop.generation.date.mutation.operation;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 import randoop.sequence.Variable;
 
 public class ReferenceModify extends MutationOperation {
@@ -12,7 +12,7 @@ public class ReferenceModify extends MutationOperation {
 	int varIndex = -1;
 	Variable targetVariable = null;
 
-	public ReferenceModify(LinkedSequence sequence, int stmtIndex, int varIndex, Variable targetVariable) {
+	public ReferenceModify(TraceableSequence sequence, int stmtIndex, int varIndex, Variable targetVariable) {
 		super(sequence);
 		this.stmtIndex = stmtIndex;
 		this.varIndex = varIndex;
@@ -20,7 +20,7 @@ public class ReferenceModify extends MutationOperation {
 	}
 
 	@Override
-	public LinkedSequence ApplyMutation() {
+	public TraceableSequence ApplyMutation() {
 		return sequence.modifyReference(this, stmtIndex, varIndex, targetVariable);
 	}
 

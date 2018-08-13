@@ -4,7 +4,7 @@ import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.mutation.util.StatementInfoFetcher;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 
 public class PrimitiveIntegralModify extends MutationOperation {
 
@@ -12,7 +12,7 @@ public class PrimitiveIntegralModify extends MutationOperation {
 	int varIndex = -1;
 	Object deltaValue = null;
 
-	public PrimitiveIntegralModify(LinkedSequence sequence, int stmtIndex, int varIndex, Object deltaValue) {
+	public PrimitiveIntegralModify(TraceableSequence sequence, int stmtIndex, int varIndex, Object deltaValue) {
 		super(sequence);
 		this.stmtIndex = stmtIndex;
 		this.varIndex = varIndex;
@@ -20,7 +20,7 @@ public class PrimitiveIntegralModify extends MutationOperation {
 	}
 
 	@Override
-	public LinkedSequence ApplyMutation() {
+	public TraceableSequence ApplyMutation() {
 		return sequence.modifyIntegral(this, stmtIndex, varIndex, deltaValue);
 	}
 

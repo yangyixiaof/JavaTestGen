@@ -4,21 +4,21 @@ import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.mutation.util.StatementInfoFetcher;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 
 public class PrimitiveBooleanModify extends MutationOperation {
 
 	int stmtIndex = -1;
 	int varIndex = -1;
 
-	public PrimitiveBooleanModify(LinkedSequence sequence, int stmtIndex, int varIndex) {
+	public PrimitiveBooleanModify(TraceableSequence sequence, int stmtIndex, int varIndex) {
 		super(sequence);
 		this.stmtIndex = stmtIndex;
 		this.varIndex = varIndex;
 	}
 
 	@Override
-	public LinkedSequence ApplyMutation() {
+	public TraceableSequence ApplyMutation() {
 		return sequence.modifyBoolean(this, stmtIndex, varIndex);
 	}
 

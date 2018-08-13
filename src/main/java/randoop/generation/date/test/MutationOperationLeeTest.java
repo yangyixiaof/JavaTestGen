@@ -3,7 +3,7 @@ package randoop.generation.date.test;
 import org.junit.Assert;
 import org.junit.Test;
 
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.NonreceiverTerm;
 import randoop.operation.TypedOperation;
 import randoop.operation.TypedTermOperation;
@@ -98,9 +98,9 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testRemoveBoundary1() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 		try {
-			LinkedSequence after = before.remove(null, -1);
+			TraceableSequence after = before.remove(null, -1);
 			System.err.println(after);
 		} catch (IllegalArgumentException iae) {
 			Assert.assertTrue(true);
@@ -112,9 +112,9 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testRemoveBoundary2() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 		try {
-			LinkedSequence after = before.remove(null, before.size());
+			TraceableSequence after = before.remove(null, before.size());
 			System.err.println(after);
 		} catch (IllegalArgumentException iae) {
 			Assert.assertTrue(true);
@@ -126,7 +126,7 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testRemoveFunction1() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 
 		System.out.println("yyx:");
 		System.out.println("before size: " + before.size());
@@ -134,7 +134,7 @@ public class MutationOperationLeeTest {
 		System.out.println(before);
 
 		for (int toRemove = before.size() - 1; toRemove >= 0; toRemove--) {
-			LinkedSequence after = before.remove(null, toRemove);
+			TraceableSequence after = before.remove(null, toRemove);
 			System.out.printf("after remove(%d), size: %d\n", toRemove, after.size());
 			after.disableShortForm();
 			System.out.println(after);
@@ -144,14 +144,14 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testInsert1() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 
 		System.out.println("yyx:");
 		System.out.println("before size: " + before.size());
 		System.out.println(before.toLongFormString());
 
 		for (int toRemove = before.size() - 1; toRemove >= 0; toRemove--) {
-			LinkedSequence after = before.remove(null, toRemove);
+			TraceableSequence after = before.remove(null, toRemove);
 			System.out.printf("after remove(%d), size: %d\n", toRemove, after.size());
 			System.out.println(after.toLongFormString());
 		}
@@ -160,19 +160,19 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyReference1() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequenceForModifyBoolean();
+		TraceableSequence before = sg.GenerateExampleSequenceForModifyBoolean();
 
 		before.disableShortForm();
 		System.out.println(before);
 		System.out.println();
 
-		LinkedSequence afterInsert = before.insert(null, 2, TypedOperation
+		TraceableSequence afterInsert = before.insert(null, 2, TypedOperation
 				.createNonreceiverInitialization(new NonreceiverTerm(Type.forClass(Boolean.class), false)));
 		afterInsert.disableShortForm();
 		System.out.println(afterInsert);
 		System.out.println();
 
-		LinkedSequence afterModify = afterInsert.modifyReference(null, 3, 1, new Variable(afterInsert, 2));
+		TraceableSequence afterModify = afterInsert.modifyReference(null, 3, 1, new Variable(afterInsert, 2));
 		afterModify.disableShortForm();
 		System.out.println(afterModify);
 
@@ -182,12 +182,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyBooleanUnboxed() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyBoolean(false);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyBoolean(false);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyBoolean(null, 2, 1);
+		TraceableSequence after = before.modifyBoolean(null, 2, 1);
 		after.disableShortForm();
 		System.out.println(after);
 
@@ -202,12 +202,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyBooleanBoxed() throws NoSuchMethodException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyBoolean(true);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyBoolean(true);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyBoolean(null, 2, 1);
+		TraceableSequence after = before.modifyBoolean(null, 2, 1);
 		after.disableShortForm();
 		System.out.println(after);
 
@@ -222,12 +222,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyRealfloat() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(float.class, 1.2f);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(float.class, 1.2f);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyReal(null, 2, 1, -0.1f);
+		TraceableSequence after = before.modifyReal(null, 2, 1, -0.1f);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -245,12 +245,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyRealFloat() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Float.class, 1.2f);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Float.class, 1.2f);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyReal(null, 2, 1, -0.1f);
+		TraceableSequence after = before.modifyReal(null, 2, 1, -0.1f);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -268,12 +268,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyRealdouble() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(double.class, 1.2);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(double.class, 1.2);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyReal(null, 2, 1, -0.1);
+		TraceableSequence after = before.modifyReal(null, 2, 1, -0.1);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -291,12 +291,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyRealDouble() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Double.class, 1.2);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Double.class, 1.2);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyReal(null, 2, 1, -0.1);
+		TraceableSequence after = before.modifyReal(null, 2, 1, -0.1);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -314,12 +314,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralint() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(int.class, 42);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(int.class, 42);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, -233);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, -233);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -337,12 +337,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralInteger() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Integer.class, 42);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Integer.class, 42);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, -233);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, -233);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -360,12 +360,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegrallong() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(long.class, 42L);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(long.class, 42L);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, -233L);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, -233L);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -383,12 +383,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralLong() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Long.class, 42L);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Long.class, 42L);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, -233L);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, -233L);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -406,12 +406,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralshort() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(short.class, (short) 42);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(short.class, (short) 42);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, (short) -233);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, (short) -233);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -429,12 +429,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralShort() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Short.class, (short) 42);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Short.class, (short) 42);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, (short) -233);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, (short) -233);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -452,12 +452,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralbyte() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(byte.class, (byte) 42);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(byte.class, (byte) 42);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, (byte) -23);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, (byte) -23);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -475,12 +475,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralByte() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Byte.class, (byte) 42L);
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Byte.class, (byte) 42L);
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, (byte) -23L);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, (byte) -23L);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -498,12 +498,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralchar() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(char.class, 'c');
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(char.class, 'c');
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, (char) 5);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, (char) 5);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -521,12 +521,12 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyIntegralCharacter() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Character.class, 'c');
+		TraceableSequence before = sg.GenerateShortExampleSequenceForModifyNumber(Character.class, 'c');
 
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyIntegral(null, 2, 1, (char) 5);
+		TraceableSequence after = before.modifyIntegral(null, 2, 1, (char) 5);
 		System.out.println("after - shortform");
 		System.out.println(after);
 		after.disableShortForm();
@@ -544,13 +544,13 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyStringInsert() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 
 		System.out.println("before size: " + before.size());
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyStringInsert(null, 2, 1, 1); // "hi!" -> "h i!"
+		TraceableSequence after = before.modifyStringInsert(null, 2, 1, 1); // "hi!" -> "h i!"
 		after.disableShortForm();
 		System.out.println(after);
 
@@ -567,13 +567,13 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyStringRemove() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 
 		System.out.println("before size: " + before.size());
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyStringRemove(null, 2, 1, 1); // "hi!" -> "h!"
+		TraceableSequence after = before.modifyStringRemove(null, 2, 1, 1); // "hi!" -> "h!"
 		after.disableShortForm();
 		System.out.println(after);
 
@@ -590,13 +590,13 @@ public class MutationOperationLeeTest {
 	@Test
 	public void testModifyStringModify() throws NoSuchMethodException, ClassNotFoundException {
 		SequenceGenerator sg = new SequenceGenerator();
-		LinkedSequence before = sg.GenerateExampleSequence();
+		TraceableSequence before = sg.GenerateExampleSequence();
 
 		System.out.println("before size: " + before.size());
 		before.disableShortForm();
 		System.out.println(before);
 
-		LinkedSequence after = before.modifyStringModify(null, 2, 1, 1, 10); // "hi!" -> "hs!"
+		TraceableSequence after = before.modifyStringModify(null, 2, 1, 1, 10); // "hi!" -> "hs!"
 		after.disableShortForm();
 		System.out.println(after);
 

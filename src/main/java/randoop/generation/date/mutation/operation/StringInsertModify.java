@@ -4,7 +4,7 @@ import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
 import randoop.generation.date.mutation.util.StatementInfoFetcher;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 
 public class StringInsertModify extends MutationOperation {
 
@@ -12,7 +12,7 @@ public class StringInsertModify extends MutationOperation {
 	int varIndex = -1;
 	int charIndex = -1;
 
-	public StringInsertModify(LinkedSequence sequence, int stmtIndex, int varIndex, int charIndex) {
+	public StringInsertModify(TraceableSequence sequence, int stmtIndex, int varIndex, int charIndex) {
 		super(sequence);
 		this.stmtIndex = stmtIndex;
 		this.varIndex = varIndex;
@@ -20,7 +20,7 @@ public class StringInsertModify extends MutationOperation {
 	}
 
 	@Override
-	public LinkedSequence ApplyMutation() {
+	public TraceableSequence ApplyMutation() {
 		return sequence.modifyStringInsert(this, stmtIndex, varIndex, charIndex);
 	}
 

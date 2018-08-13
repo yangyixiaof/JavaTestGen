@@ -3,7 +3,7 @@ package randoop.generation.date.mutation.operation;
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
 
 public class StringRemoveModify extends MutationOperation {
 
@@ -11,7 +11,7 @@ public class StringRemoveModify extends MutationOperation {
 	int varIndex = -1;
 	int charIndex = -1;
 
-	public StringRemoveModify(LinkedSequence sequence, int stmtIndex, int varIndex, int charIndex) {
+	public StringRemoveModify(TraceableSequence sequence, int stmtIndex, int varIndex, int charIndex) {
 		super(sequence);
 		this.stmtIndex = stmtIndex;
 		this.varIndex = varIndex;
@@ -19,7 +19,7 @@ public class StringRemoveModify extends MutationOperation {
 	}
 
 	@Override
-	public LinkedSequence ApplyMutation() {
+	public TraceableSequence ApplyMutation() {
 		return sequence.modifyStringRemove(this, stmtIndex, varIndex, charIndex);
 	}
 

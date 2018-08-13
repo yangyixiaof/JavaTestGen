@@ -18,7 +18,9 @@ import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
-import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.PseudoSequence;
+import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.test.SequenceGenerator;
 import randoop.generation.date.util.MapUtil;
 import randoop.main.GenInputsAbstract;
@@ -48,8 +50,8 @@ public class DateGenerator extends AbstractGenerator {
 	 * the keys in the following two maps are meaning the qualified class name
 	 * these two maps have no corresponding relationship. 
 	 */
-	private final Map<Class<?>, ArrayList<LinkedSequence>> class_object_headed_sequence = new HashMap<Class<?>, ArrayList<LinkedSequence>>();
-	private final Map<Class<?>, ArrayList<LinkedSequenceWithIndex>> class_object_created_sequence_with_index = new HashMap<Class<?>, ArrayList<LinkedSequenceWithIndex>>();
+	private final Map<Class<?>, ArrayList<PseudoSequence>> class_object_headed_sequence = new HashMap<Class<?>, ArrayList<PseudoSequence>>();
+	private final Map<Class<?>, ArrayList<PseudoVariable>> class_object_created_sequence_with_index = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
 
 	private final Map<String, Sequence> allSequences = new TreeMap<String, Sequence>();
 	
@@ -139,7 +141,7 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println("observers_size:" + observers.size());
 		// this.observers = observers;
 		// initialize allSequences
-		LinkedSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
+		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
 		allSequences.put(new_seq.toLongFormString(), new_seq);
 		// needExploreSequences.put(new_seq.toLongFormString(), new_seq);
 		// initialize generation used data
@@ -528,10 +530,10 @@ public class DateGenerator extends AbstractGenerator {
 
 class LinkedSequenceWithIndex {
 
-	LinkedSequence seq = null;
+	TraceableSequence seq = null;
 	int index = -1;
 
-	public LinkedSequenceWithIndex(LinkedSequence seq, int index) {
+	public LinkedSequenceWithIndex(TraceableSequence seq, int index) {
 		this.seq = seq;
 		this.index = index;
 	}
