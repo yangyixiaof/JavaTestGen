@@ -1,6 +1,7 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import randoop.operation.TypedOperation;
 
@@ -14,10 +15,10 @@ class PseudoStatement {
 		this.inputVariables = inputVariables;
 	}
 
-	public PseudoStatement CopySelfInDeepCloneWay() {
+	public PseudoStatement CopySelfInDeepCloneWay(Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map) {
 		ArrayList<PseudoVariable> copyInputVariables = new ArrayList<PseudoVariable>();
 		for (PseudoVariable pv : inputVariables) {
-			copyInputVariables.add(pv.CopySelfInDeepCloneWay());
+			copyInputVariables.add(pv.CopySelfInDeepCloneWay(origin_copied_sequence_map));
 		}
 		return new PseudoStatement(operation, copyInputVariables);
 	}
