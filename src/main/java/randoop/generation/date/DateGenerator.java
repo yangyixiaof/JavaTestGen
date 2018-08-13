@@ -39,15 +39,17 @@ public class DateGenerator extends AbstractGenerator {
 	/**
 	 * the key in the following map is meaning the qualified class name
 	 */
-	Map<String, LinkedList<TypedOperation>> for_use_operations = new HashMap<String, LinkedList<TypedOperation>>();
+	Map<Class<?>, LinkedList<TypedOperation>> for_use_operations = new HashMap<Class<?>, LinkedList<TypedOperation>>();
+	Map<Class<?>, InfluenceOfBranchChangeForClass> class_branch_overview_influence = new HashMap<Class<?>, InfluenceOfBranchChangeForClass>();
+	
 	Map<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass> operation_self_state_influence = new HashMap<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass>();
-	Map<String, InfluenceOfBranchChangeForClass> class_branch_overview_influence = new HashMap<String, InfluenceOfBranchChangeForClass>();
 	
 	/**
 	 * the keys in the following two maps are meaning the qualified class name
+	 * these two maps have no corresponding relationship. 
 	 */
-	private final Map<String, ArrayList<LinkedSequence>> class_object_headed_sequence = new HashMap<String, ArrayList<LinkedSequence>>();
-	private final Map<String, ArrayList<LinkedSequenceWithIndex>> class_object_created_sequence_with_index = new HashMap<String, ArrayList<LinkedSequenceWithIndex>>();
+	private final Map<Class<?>, ArrayList<LinkedSequence>> class_object_headed_sequence = new HashMap<Class<?>, ArrayList<LinkedSequence>>();
+	private final Map<Class<?>, ArrayList<LinkedSequenceWithIndex>> class_object_created_sequence_with_index = new HashMap<Class<?>, ArrayList<LinkedSequenceWithIndex>>();
 
 	private final Map<String, Sequence> allSequences = new TreeMap<String, Sequence>();
 	
@@ -483,43 +485,43 @@ public class DateGenerator extends AbstractGenerator {
 			// extract qualified class name from signature string.
 			String class_name_method_name = to_sig.substring(0, to_sig.indexOf('('));
 			String class_name = class_name_method_name.substring(0, class_name_method_name.lastIndexOf('.'));
-			MapUtil.Insert(for_use_operations, Class.forName(class_name).getName(), to);
+			MapUtil.Insert(for_use_operations, Class.forName(class_name), to);
 		}
 //		System.out.println("String.class.getName():" + String.class.getName());
 		TypedOperation str_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.STRING_TYPE, "hi!");
-		MapUtil.Insert(for_use_operations, String.class.getName(), str_ob);
+		MapUtil.Insert(for_use_operations, String.class, str_ob);
 		TypedOperation bool_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.BOOLEAN_TYPE, true);
-		MapUtil.Insert(for_use_operations, boolean.class.getName(), bool_ob);
+		MapUtil.Insert(for_use_operations, boolean.class, bool_ob);
 		TypedOperation bool_obj_ob = TypedOperation.forConstructor(Boolean.class.getConstructor(boolean.class));
-		MapUtil.Insert(for_use_operations, Boolean.class.getName(), bool_obj_ob);
+		MapUtil.Insert(for_use_operations, Boolean.class, bool_obj_ob);
 		TypedOperation char_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.CHAR_TYPE, ' ');
-		MapUtil.Insert(for_use_operations, char.class.getName(), char_ob);
+		MapUtil.Insert(for_use_operations, char.class, char_ob);
 		TypedOperation char_obj_ob = TypedOperation.forConstructor(Character.class.getConstructor(char.class));
-		MapUtil.Insert(for_use_operations, Character.class.getName(), char_obj_ob);
+		MapUtil.Insert(for_use_operations, Character.class, char_obj_ob);
 		TypedOperation byte_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.BYTE_TYPE, (byte)0);
-		MapUtil.Insert(for_use_operations, byte.class.getName(), byte_ob);
+		MapUtil.Insert(for_use_operations, byte.class, byte_ob);
 		TypedOperation byte_obj_ob = TypedOperation.forConstructor(Byte.class.getConstructor(byte.class));
-		MapUtil.Insert(for_use_operations, Byte.class.getName(), byte_obj_ob);
+		MapUtil.Insert(for_use_operations, Byte.class, byte_obj_ob);
 		TypedOperation short_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.SHORT_TYPE, (short)0);
-		MapUtil.Insert(for_use_operations, short.class.getName(), short_ob);
+		MapUtil.Insert(for_use_operations, short.class, short_ob);
 		TypedOperation short_obj_ob = TypedOperation.forConstructor(Short.class.getConstructor(short.class));
-		MapUtil.Insert(for_use_operations, Short.class.getName(), short_obj_ob);
+		MapUtil.Insert(for_use_operations, Short.class, short_obj_ob);
 		TypedOperation int_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.INT_TYPE, 0);
-		MapUtil.Insert(for_use_operations, int.class.getName(), int_ob);
+		MapUtil.Insert(for_use_operations, int.class, int_ob);
 		TypedOperation int_obj_ob = TypedOperation.forConstructor(Integer.class.getConstructor(int.class));
-		MapUtil.Insert(for_use_operations, Integer.class.getName(), int_obj_ob);
+		MapUtil.Insert(for_use_operations, Integer.class, int_obj_ob);
 		TypedOperation long_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.LONG_TYPE, 0L);
-		MapUtil.Insert(for_use_operations, long.class.getName(), long_ob);
+		MapUtil.Insert(for_use_operations, long.class, long_ob);
 		TypedOperation long_obj_ob = TypedOperation.forConstructor(Long.class.getConstructor(long.class));
-		MapUtil.Insert(for_use_operations, Long.class.getName(), long_obj_ob);
+		MapUtil.Insert(for_use_operations, Long.class, long_obj_ob);
 		TypedOperation float_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.FLOAT_TYPE, 0.0f);
-		MapUtil.Insert(for_use_operations, float.class.getName(), float_ob);
+		MapUtil.Insert(for_use_operations, float.class, float_ob);
 		TypedOperation float_obj_ob = TypedOperation.forConstructor(Float.class.getConstructor(float.class));
-		MapUtil.Insert(for_use_operations, Float.class.getName(), float_obj_ob);
+		MapUtil.Insert(for_use_operations, Float.class, float_obj_ob);
 		TypedOperation double_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.DOUBLE_TYPE, (double)0.0);
-		MapUtil.Insert(for_use_operations, double.class.getName(), double_ob);
+		MapUtil.Insert(for_use_operations, double.class, double_ob);
 		TypedOperation double_obj_ob = TypedOperation.forConstructor(Double.class.getConstructor(double.class));
-		MapUtil.Insert(for_use_operations, Double.class.getName(), double_obj_ob);
+		MapUtil.Insert(for_use_operations, Double.class, double_obj_ob);
 	}
 
 }

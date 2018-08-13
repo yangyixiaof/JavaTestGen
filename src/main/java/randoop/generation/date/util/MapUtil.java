@@ -7,7 +7,7 @@ import randoop.operation.TypedOperation;
 
 public class MapUtil {
 	
-	public static void Insert(Map<String, LinkedList<TypedOperation>> be_inserted, String key, TypedOperation value) {
+	public static void Insert(Map<Class<?>, LinkedList<TypedOperation>> be_inserted, Class<?> key, TypedOperation value) {
 		LinkedList<TypedOperation> to_list = be_inserted.get(key);
 		if (to_list == null) {
 			to_list = new LinkedList<TypedOperation>();
