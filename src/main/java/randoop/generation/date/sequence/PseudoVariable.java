@@ -11,7 +11,9 @@ public class PseudoVariable {
 	}
 
 	public PseudoVariable CopySelfInDeepCloneWay() {
-		return new PseudoVariable(sequence.CopySelfInDeepCloneWay(), index);
+		PseudoSequence copyed_sequence = sequence.CopySelfInDeepCloneWay();
+		copyed_sequence.Reset(index+1);
+		return new PseudoVariable(copyed_sequence, index);
 	}
 	
 }
