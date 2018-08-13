@@ -4,12 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.core.runtime.Assert;
-
-import randoop.generation.date.mutation.operation.MutationOperation;
 import randoop.operation.TypedOperation;
-import randoop.sequence.Statement;
-import randoop.util.SimpleList;
 
 public class PseudoSequence {
 	
