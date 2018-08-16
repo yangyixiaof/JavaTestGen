@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.core.runtime.Assert;
+
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.sequence.Variable;
@@ -21,7 +23,15 @@ public class PseudoSequence {
 	public PseudoSequence() {
 	}
 	
-	public void Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
+	public void Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+		if (!operation.getOutputType().isVoid()) {
+			int soon_be_added_variable_index_of_statement = statements.size();
+			PseudoVariable pv = new PseudoVariable(this, soon_be_added_variable_index_of_statement);
+			PseudoSequence ps = class_object_headed_sequence.get(pv);
+			Assert.isTrue(ps == null);
+			ps = new PseudoSequence();
+			class_object_headed_sequence.put(pv, ps);
+		}
 		statements.add(new PseudoStatement(operation, inputVariables));
 		AddReferenceForAllVariables(inputVariables);
 	}
@@ -61,28 +71,34 @@ public class PseudoSequence {
 		in_use_sequence.sequences_which_use_this_sequence.remove(this);
 	}
 	
-	public PseudoSequence CopySelfInDeepCloneWay(Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map) {
+	public PseudoSequence CopySelfInDeepCloneWay(Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		if (origin_copied_sequence_map.containsKey(this)) {
 			return origin_copied_sequence_map.get(this);
 		}
 		PseudoSequence copy_version = new PseudoSequence();
 		for (PseudoStatement stmt : statements) {
-			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(origin_copied_sequence_map);
-			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);
+			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
+			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, class_object_headed_sequence);
 		}
 		origin_copied_sequence_map.put(this, copy_version);
 		return copy_version;
 	}
 	
-	private void BuildDependency(HashSet<PseudoSequence> depends, HashSet<PseudoSequence> encountered) {
+	private void BuildDependency(PseudoSequence ps, HashSet<PseudoSequence> depends, HashSet<PseudoSequence> encountered) {
 		if (encountered.contains(this)) {
 			return;
 		}
 		encountered.add(this);
-		for (PseudoStatement stmt : statements) {
+		for (PseudoStatement stmt : ps.statements) {
 			for (PseudoVariable pv : stmt.inputVariables) {
-				depends.add(pv.sequence);
+				PseudoSequence pv_sequence = pv.sequence;
+				depends.add(pv_sequence);
+				BuildDependency(pv.sequence, depends, encountered);
 			}
+		}
+		for (PseudoSequence ps_which_uses_this : sequences_which_use_this_sequence) {
+			depends.add(ps_which_uses_this);
+			BuildDependency(ps_which_uses_this, depends, encountered);
 		}
 	}
 	
@@ -93,7 +109,7 @@ public class PseudoSequence {
 		// build all dependency set for this pseudo sequence
 		HashSet<PseudoSequence> depends = new HashSet<PseudoSequence>();
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
-		BuildDependency(depends, encountered);
+		BuildDependency(this, depends, encountered);
 		HashMap<PseudoSequence, Integer> ps_safe_length = new HashMap<PseudoSequence, Integer>();
 		for (PseudoSequence depend : depends) {
 			ps_safe_length.put(depend, 0);

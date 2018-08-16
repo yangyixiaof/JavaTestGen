@@ -1,5 +1,6 @@
 package cn.yyx.labtask.runtime.memory.state;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +73,7 @@ public class BranchNodesState {
 		return has_been_over_branch_state.containsKey(sig);
 	}
 	
-	public Map<String, Double> GetSortedUnCoveredBranches() {
+	public ArrayList<String> GetSortedUnCoveredBranches() {
 		Map<String, Double> wait_sort_map = new TreeMap<String, Double>();
 		Set<String> bs_keys = branch_state.keySet();
 		Iterator<String> bs_itr = bs_keys.iterator();
