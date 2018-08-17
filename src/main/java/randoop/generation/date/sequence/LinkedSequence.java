@@ -15,4 +15,8 @@ public class LinkedSequence extends Sequence {
 		this.variables = variables;
 	}
 	
+	public PseudoVariable GetPseudoVariable(int i) {
+		return variables.get(i);
+	}
+	
 }

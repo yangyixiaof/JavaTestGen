@@ -23,10 +23,11 @@ public class PseudoSequence {
 	public PseudoSequence() {
 	}
 	
-	public void Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+		PseudoVariable pv = null;
 		if (!operation.getOutputType().isVoid()) {
 			int soon_be_added_variable_index_of_statement = statements.size();
-			PseudoVariable pv = new PseudoVariable(this, soon_be_added_variable_index_of_statement);
+			pv = new PseudoVariable(this, soon_be_added_variable_index_of_statement);
 			PseudoSequence ps = class_object_headed_sequence.get(pv);
 			Assert.isTrue(ps == null);
 			ps = new PseudoSequence();
@@ -34,6 +35,7 @@ public class PseudoSequence {
 		}
 		statements.add(new PseudoStatement(operation, inputVariables));
 		AddReferenceForAllVariables(inputVariables);
+		return pv;
 	}
 	
 	public void Reset(int retain_length) {
@@ -151,6 +153,10 @@ public class PseudoSequence {
 			depends.removeAll(need_to_remove);
 		}
 		return new LinkedSequence(sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
+	}
+	
+	public int Size() {
+		return statements.size();
 	}
 	
 }

@@ -92,4 +92,16 @@ public class BranchNodesState {
 		return branch_state;
 	}
 	
+	public String RepresentationOfUnCoveredBranchWithState() {
+		StringBuilder builder = new StringBuilder();
+		Set<String> bs_keys = branch_state.keySet();
+		Iterator<String> bs_itr = bs_keys.iterator();
+		while (bs_itr.hasNext()) {
+			String bs = bs_itr.next();
+			Integer state = branch_state.get(bs);
+			builder.append(bs + "@" + state + "#");
+		}
+		return builder.toString();
+	}
+	
 }
