@@ -73,4 +73,14 @@ public class InfluenceOfBranchChange {
 		return all_reward;
 	}
 
+	public InfluenceOfBranchChange CopySelfInDeepCloneWay() {
+		InfluenceOfBranchChange res = new InfluenceOfBranchChange();
+		res.all_count.putAll(all_count);
+		res.positive_value_change_count.putAll(positive_value_change_count);
+		res.negative_value_change_count.putAll(negative_value_change_count);
+		res.reach_branch_count.putAll(reach_branch_count);
+		res.lose_branch_count.putAll(lose_branch_count);
+		return res;
+	}
+
 }

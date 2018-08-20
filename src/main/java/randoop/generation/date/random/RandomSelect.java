@@ -48,7 +48,7 @@ public class RandomSelect {
 		return selected_to;
 	}
 	
-	public static <T> T RandomKeyFromMapByValue(Map<T, InfluenceOfBranchChange> wait_select, ArrayList<String> interested_branch, SelectFileter<T> filter) {
+	public static <T> T RandomKeyFromMapByValueOfBranchInfluence(Map<T, InfluenceOfBranchChange> wait_select, ArrayList<String> interested_branch, SelectFileter<T> filter) {
 		Map<T, Double> final_wait_select = new HashMap<T, Double>();
 		Set<T> keys = wait_select.keySet();
 		Iterator<T> kitr = keys.iterator();
@@ -72,7 +72,7 @@ public class RandomSelect {
 	public static PseudoVariable RandomPseudoVariableListAccordingToLength(ArrayList<PseudoVariable> pvs) {
 		Map<PseudoVariable, Double> wait_select = new HashMap<PseudoVariable, Double>();
 		for (PseudoVariable pv : pvs) {
-			double reward = pv.sequence.Size() * 1.5 + pv.index * 1.0;
+			double reward = pv.sequence.SizeOfCiters() * 2.0 + pv.sequence.Size() * 1.5 + pv.index * 1.0;
 			wait_select.put(pv, reward);
 		}
 		return RandomKeyFromMapByValue(wait_select);
