@@ -24,22 +24,22 @@ import randoop.generation.date.execution.TracePrintController;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.random.filter.PseudoVariableSelectFilter;
-import randoop.generation.date.runtime.DateRuntime;
+import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
 import randoop.generation.date.sequence.LinkedSequence;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoVariable;
+import randoop.generation.date.sequence.SequenceGeneratorHelper;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.test.SequenceGenerator;
 import randoop.generation.date.util.MapUtil;
 import randoop.main.GenInputsAbstract;
+import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
-import randoop.types.JavaTypes;
 import randoop.types.Type;
-import randoop.types.TypeTuple;
 
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
@@ -50,6 +50,7 @@ public class DateGenerator extends AbstractGenerator {
 	Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations = new HashMap<Class<?>, ArrayList<TypedOperation>>();
 	Map<TypedOperation, Class<?>> operation_class = new HashMap<TypedOperation, Class<?>>();
 	Map<TypedOperation, Boolean> operation_is_to_create = new HashMap<TypedOperation, Boolean>();
+	Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
 	
 	Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = new HashMap<PseudoVariable, PseudoSequence>();
 	Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
@@ -149,28 +150,6 @@ public class DateGenerator extends AbstractGenerator {
 		
 		ExecutableSequence eSeq = new ExecutableSequence(n_cmp_sequence.GetAfterLinkedSequence());
 		eSeq.execute(executionVisitor, checkGenerator);
-		
-		// set up execution outcome.
-		int e_size = eSeq.size();
-		for (int i=0;i<e_size;i++) {
-			ExecutionOutcome e_result = eSeq.getResult(i);
-			TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
-			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
-			if (e_result instanceof NormalExecution) {
-				NormalExecution ne = (NormalExecution)e_result;
-				Object out_obj = ne.getRuntimeValue();
-				Class<?> out_class = out_obj.getClass();
-				if (!e_op.getOutputType().isVoid()) {
-					ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
-					if (pvs == null) {
-						pvs = new ArrayList<PseudoVariable>();
-						class_pseudo_variable.put(out_class, pvs);
-					}
-					pvs.add(e_pv);
-					pseudo_variable_class.put(e_pv, out_class);
-				}
-			}
-		}
 
 //		System.out.println("==== execution outcome begin ====");
 //		int e_size = eSeq.size();
@@ -185,7 +164,7 @@ public class DateGenerator extends AbstractGenerator {
 //		}
 //		System.out.println("==== execution outcome end ====");
 
-		// analyze trace and set up information in model.
+		// analyze trace and compute influence.
 		String after_trace_info = TracePrintController.GetPrintedTrace();
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
@@ -197,18 +176,48 @@ public class DateGenerator extends AbstractGenerator {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
 		}
 		
-		InfluenceOfBranchChange branch_influence_operation = typed_operation_branch_influence.get(n_cmp_sequence.operation);
+		// set up influence of the modified TypedOperation or PseudoVariable headed sequence
+		InfluenceOfBranchChange branch_influence_operation = typed_operation_branch_influence.get(n_cmp_sequence.GetTypedOperation());
 		if (branch_influence_operation == null) {
 			branch_influence_operation = new InfluenceOfBranchChange();
-			typed_operation_branch_influence.put(n_cmp_sequence.operation, branch_influence_operation);
+			typed_operation_branch_influence.put(n_cmp_sequence.GetTypedOperation(), branch_influence_operation);
 		}
 		branch_influence_operation.AddInfluenceOfBranches(all_branches_influences);
-		InfluenceOfBranchChange branch_influence_pseudo_variable = pseudo_variable_branch_influence.get(n_cmp_sequence.pseudo_variable);
+		InfluenceOfBranchChange branch_influence_pseudo_variable = pseudo_variable_branch_influence.get(n_cmp_sequence.GetPseudoVariable());
 		if (branch_influence_pseudo_variable == null) {
 			branch_influence_pseudo_variable = new InfluenceOfBranchChange();
-			pseudo_variable_branch_influence.put(n_cmp_sequence.pseudo_variable, branch_influence_pseudo_variable);
+			pseudo_variable_branch_influence.put(n_cmp_sequence.GetPseudoVariable(), branch_influence_pseudo_variable);
 		}
 		branch_influence_pseudo_variable.AddInfluenceOfBranches(all_branches_influences);
+		
+		// set up execution outcome.
+		int e_size = eSeq.size();
+		for (int i=0;i<e_size;i++) {
+			ExecutionOutcome e_result = eSeq.getResult(i);
+			TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
+			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
+			if (e_result instanceof NormalExecution) {
+				NormalExecution ne = (NormalExecution)e_result;
+				if (!e_op.getOutputType().isVoid()) {
+					Object out_obj = ne.getRuntimeValue();
+					Class<?> out_class = out_obj.getClass();
+					ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
+					if (pvs == null) {
+						pvs = new ArrayList<PseudoVariable>();
+						class_pseudo_variable.put(out_class, pvs);
+					}
+					pvs.add(e_pv);
+					pseudo_variable_class.put(e_pv, out_class);
+					pseudo_variable_content.put(e_pv, out_obj.toString());
+					InfluenceOfBranchChange e_pv_branch_influence = pseudo_variable_branch_influence.get(e_pv);
+					if (e_pv_branch_influence == null) {
+						e_pv_branch_influence = new InfluenceOfBranchChange();
+						pseudo_variable_branch_influence.put(e_pv, e_pv_branch_influence);
+					}
+					e_pv_branch_influence.AddInfluenceOfBranchesWithDiscount(all_branches_influences, 0.25);
+				}
+			}
+		}
 		
 //		System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 //		System.exit(1);
@@ -249,57 +258,27 @@ public class DateGenerator extends AbstractGenerator {
 	private BeforeAfterLinkedSequence CreateNewCompareSequence() {
 		// select useful TypedOperation.
 		ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
-		// after selecting TypedOperation, select suitable variable to mutate which I mean the suitable-variable headed sequence exactly. 
-		if (selected_to.isStatic()) {
-			// reuse first parameter.
-			if (selected_to.getSignatureString().startsWith(DateRuntime.class.getName())) {
-				// the static method is defined by us to modify primitives.
-				return AppendMethodCallToFirstParameterHeadedSequence(selected_to, interested_branch);
+		TypedOperation selected_to = RandomSelect.RandomKeyFromMapByValueOfBranchInfluence(typed_operation_branch_influence, interested_branch, null);
+		Class<?> selected_to_class = operation_class.get(selected_to);
+		if (operation_is_to_create.get(selected_to) == true) {
+			// create new sequence
+			PseudoSequence ps = new PseudoSequence(for_use_object_modify_operations.get(selected_to_class));
+			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
+			List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(selected_to.getInputTypes());
+			SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, type_list, class_pseudo_variable, pseudo_variable_headed_sequence);
+			if (input_pseudo_variables.size() == type_list.size()) {
+				LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
+				PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables, pseudo_variable_headed_sequence);
+				ps.SetHeadedVariable(created_pv);
+				LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
+				return new BeforeAfterLinkedSequence(selected_to, created_pv, before_linked_sequence, after_linked_sequence);
 			}
 		} else {
-			if (selected_to.isConstructorCall() || selected_to.isNonreceivingValue()) {
-				// create new sequence
-				PseudoSequence ps = new PseudoSequence();
-				ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
-				List<Type> type_list = TypeTupleToTypeList(selected_to.getInputTypes());
-				GenerateInputPseudoVariables(input_pseudo_variables, type_list);
-				if (input_pseudo_variables.size() == type_list.size()) {
-					LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
-					PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables, pseudo_variable_headed_sequence);
-					LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
-					return new BeforeAfterLinkedSequence(selected_to, created_pv, before_linked_sequence, after_linked_sequence);
-				}
-			} else {
-				if (selected_to.isMethodCall()) {
-					// reuse first parameter.
-					return AppendMethodCallToFirstParameterHeadedSequence(selected_to, interested_branch);
-				} else {
-					new Exception("TypedOperation unsupported: " + selected_to.getSignatureString()).printStackTrace();
-					System.exit(1);
-				}
-			}
-		}
-		return null;
-	}
-	
-	private BeforeAfterLinkedSequence AppendMethodCallToFirstParameterHeadedSequence(TypedOperation selected_to, ArrayList<String> interested_branch) {
-		PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(operation_class.get(selected_to), pseudo_variable_class);
-		PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByValueOfBranchInfluence(pseudo_variable_branch_influence, interested_branch, pvsf);
-		PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
-		// modify the headed sequence.
-		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
-		input_pseudo_variables.add(selected_pv);
-		// add parameters.
-		TypeTuple input_types = selected_to.getInputTypes();
-		List<Type> type_list = TypeTupleToTypeList(input_types);
-		List<Type> r_type_list = type_list.subList(1, type_list.size());
-		GenerateInputPseudoVariables(input_pseudo_variables, r_type_list);
-		// initialize candidates.
-		if (input_pseudo_variables.size() == type_list.size()) {
-			LinkedSequence before_linked_sequence = selected_pv_headed_sequence.GenerateLinkedSequence();
-			selected_pv_headed_sequence.Append(selected_to, input_pseudo_variables, pseudo_variable_headed_sequence);
-			LinkedSequence after_linked_sequence = selected_pv_headed_sequence.GenerateLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to, selected_pv, before_linked_sequence, after_linked_sequence);
+			// mutate existing sequence
+			PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class, pseudo_variable_class);
+			PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByValueOfBranchInfluence(pseudo_variable_branch_influence, interested_branch, pvsf);
+			PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
+			return selected_pv_headed_sequence.Mutate(interested_branch, typed_operation_branch_influence, class_pseudo_variable, pseudo_variable_headed_sequence);
 		}
 		return null;
 	}
@@ -547,52 +526,50 @@ public class DateGenerator extends AbstractGenerator {
 			// extract qualified class name from signature string.
 			String class_name_method_name = to_sig.substring(0, to_sig.indexOf('('));
 			String class_name = class_name_method_name.substring(0, class_name_method_name.lastIndexOf('.'));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Class.forName(class_name), to);
+			MapUtil.Insert(to, Class.forName(class_name), to.isConstructorCall(), for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 		}
 //		System.out.println("String.class.getName():" + String.class.getName());
 		{
-			// primitives initialization
-			TypedOperation str_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.STRING_TYPE, "hi!");
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, String.class, str_ob);
-			TypedOperation bool_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.BOOLEAN_TYPE, true);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, boolean.class, bool_ob);
-			TypedOperation bool_obj_ob = TypedOperation.forConstructor(Boolean.class.getConstructor(boolean.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Boolean.class, bool_obj_ob);
-			TypedOperation char_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.CHAR_TYPE, ' ');
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, char.class, char_ob);
-			TypedOperation char_obj_ob = TypedOperation.forConstructor(Character.class.getConstructor(char.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Character.class, char_obj_ob);
-			TypedOperation byte_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.BYTE_TYPE, (byte)0);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, byte.class, byte_ob);
-			TypedOperation byte_obj_ob = TypedOperation.forConstructor(Byte.class.getConstructor(byte.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Byte.class, byte_obj_ob);
-			TypedOperation short_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.SHORT_TYPE, (short)0);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, short.class, short_ob);
-			TypedOperation short_obj_ob = TypedOperation.forConstructor(Short.class.getConstructor(short.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Short.class, short_obj_ob);
-			TypedOperation int_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.INT_TYPE, 0);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, int.class, int_ob);
-			TypedOperation int_obj_ob = TypedOperation.forConstructor(Integer.class.getConstructor(int.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Integer.class, int_obj_ob);
-			TypedOperation long_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.LONG_TYPE, 0L);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, long.class, long_ob);
-			TypedOperation long_obj_ob = TypedOperation.forConstructor(Long.class.getConstructor(long.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Long.class, long_obj_ob);
-			TypedOperation float_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.FLOAT_TYPE, 0.0f);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, float.class, float_ob);
-			TypedOperation float_obj_ob = TypedOperation.forConstructor(Float.class.getConstructor(float.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Float.class, float_obj_ob);
-			TypedOperation double_ob = TypedOperation.createPrimitiveInitialization(JavaTypes.DOUBLE_TYPE, (double)0.0);
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, double.class, double_ob);
-			TypedOperation double_obj_ob = TypedOperation.forConstructor(Double.class.getConstructor(double.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Double.class, double_obj_ob);
+			// primitives creation initialization
+			TypedClassOperation str_builder_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateStringBuilder"));
+			MapUtil.Insert(str_builder_ob, StringBuilder.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation str_ob = TypedOperation.forMethod(StringBuilder.class.getMethod("toString"));
+			MapUtil.Insert(str_ob, String.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateBoolean"));
+			MapUtil.Insert(bool_ob, Boolean.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateCharacter"));
+			MapUtil.Insert(char_ob, Character.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateByte"));
+			MapUtil.Insert(byte_ob, Byte.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateShort"));
+			MapUtil.Insert(short_ob, Short.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
+			MapUtil.Insert(int_ob, Integer.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateLong"));
+			MapUtil.Insert(long_ob, Long.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateFloat"));
+			MapUtil.Insert(float_ob, Float.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateDouble"));
+			MapUtil.Insert(double_ob, Double.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 		}
 		{
 			// add operations to modify primitives
-			TypedOperation bool_obj_ob = TypedOperation.forConstructor(Boolean.class.getConstructor(boolean.class));
-			MapUtil.Insert(typed_operation_branch_influence, operation_class, for_use_operations, Boolean.class, bool_obj_ob);
-			String s = "sd";
-			s.hashCode();
+			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("not", Boolean.class));
+			MapUtil.Insert(bool_ob, Boolean.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Character.class, Object.class));
+			MapUtil.Insert(char_ob, Character.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Byte.class, Object.class));
+			MapUtil.Insert(byte_ob, Byte.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Short.class, Object.class));
+			MapUtil.Insert(short_ob, Short.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Integer.class, Object.class));
+			MapUtil.Insert(int_ob, Integer.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Long.class, Object.class));
+			MapUtil.Insert(long_ob, Long.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Float.class, Object.class));
+			MapUtil.Insert(float_ob, Float.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Double.class, Object.class));
+			MapUtil.Insert(double_ob, Double.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 		}
 	}
 

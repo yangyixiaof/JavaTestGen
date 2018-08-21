@@ -15,6 +15,10 @@ public class InfluenceOfBranchChange {
 	Map<String, Double> lose_branch_count = new HashMap<String, Double>();
 
 	public void AddInfluenceOfBranches(Map<String, Double> branch_influence) {
+		AddInfluenceOfBranchesWithDiscount(branch_influence, 1.0);
+	}
+	
+	public void AddInfluenceOfBranchesWithDiscount(Map<String, Double> branch_influence, double discount) {
 		Set<String> bi_keys = branch_influence.keySet();
 		Iterator<String> bi_itr = bi_keys.iterator();
 		while (bi_itr.hasNext()) {
@@ -36,11 +40,11 @@ public class InfluenceOfBranchChange {
 				rbc = 0.0;
 				lbc = 0.0;
 			}
-			ac++;
-			pvcc += pi;
-			nvcc += ni;
-			rbc += rb;
-			lbc += lb;
+			ac += 1.0 * discount;
+			pvcc += pi * discount;
+			nvcc += ni * discount;
+			rbc += rb * discount;
+			lbc += lb * discount;
 			all_count.put(branch, ac);
 			positive_value_change_count.put(branch, pvcc);
 			negative_value_change_count.put(branch, nvcc);
