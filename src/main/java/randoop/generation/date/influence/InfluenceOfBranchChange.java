@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class InfluenceOfBranchChange {
+public class InfluenceOfBranchChange implements Rewardable {
 
 	Map<String, Double> all_count = new HashMap<String, Double>();
 	Map<String, Double> positive_value_change_count = new HashMap<String, Double>();
@@ -14,20 +14,21 @@ public class InfluenceOfBranchChange {
 	Map<String, Double> reach_branch_count = new HashMap<String, Double>();
 	Map<String, Double> lose_branch_count = new HashMap<String, Double>();
 
-	public void AddInfluenceOfBranches(Map<String, Double> branch_influence) {
+	public void AddInfluenceOfBranches(Map<String, Influence> branch_influence) {
 		AddInfluenceOfBranchesWithDiscount(branch_influence, 1.0);
 	}
 	
-	public void AddInfluenceOfBranchesWithDiscount(Map<String, Double> branch_influence, double discount) {
+	public void AddInfluenceOfBranchesWithDiscount(Map<String, Influence> branch_influence, double discount) {
 		Set<String> bi_keys = branch_influence.keySet();
 		Iterator<String> bi_itr = bi_keys.iterator();
 		while (bi_itr.hasNext()) {
 			String branch = bi_itr.next();
-			Double influence = branch_influence.get(branch);
-			Double pi = (influence > 0.0 && influence < 10.0) ? 1.0 : 0.0;
-			Double ni = (influence > -10.0 && influence < 0.0) ? 1.0 : 0.0;
-			Double rb = (influence >= 10.0) ? 1.0 : 0.0;
-			Double lb = (influence <= -10.0) ? 1.0 : 0.0;
+			Influence influence_object = branch_influence.get(branch);
+			double influence = influence_object.GetInfluence();
+			Double pi = influence > 0.5 ? 1.0 : 0.0;
+			Double ni = influence < -0.5 ? 1.0 : 0.0;
+			Double rb = influence == 0.5 ? 1.0 : 0.0;
+			Double lb = influence == -0.5 ? 1.0 : 0.0;
 			Double ac = all_count.get(branch);
 			Double pvcc = positive_value_change_count.get(branch);
 			Double nvcc = negative_value_change_count.get(branch);
@@ -53,6 +54,7 @@ public class InfluenceOfBranchChange {
 		}
 	}
 
+	@Override
 	public double GetReward(ArrayList<String> interested_branch) {
 		double weights_max = 1.0;
 		double weights_min = 0.4;

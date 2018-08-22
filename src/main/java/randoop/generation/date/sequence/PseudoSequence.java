@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import randoop.generation.date.influence.InfluenceOfBranchChange;
-import randoop.generation.date.random.RandomSelect;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.sequence.Variable;
@@ -39,10 +37,7 @@ public class PseudoSequence {
 		this.operations = operations;
 	}
 	
-	public BeforeAfterLinkedSequence Mutate(ArrayList<String> interested_branch, Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
-		HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-		Map<TypedOperation, InfluenceOfBranchChange> real_use_typed_operation_branch_influence = EnsureTypedOperationBranchInfluence(typed_operation_branch_influence);
-		TypedOperation selected_to = RandomSelect.RandomKeyFromMapByValueOfBranchInfluence(real_use_typed_operation_branch_influence, interested_branch, null);
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		// add parameters.
 		TypeTuple input_types = selected_to.getInputTypes();
@@ -51,6 +46,7 @@ public class PseudoSequence {
 		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, class_pseudo_variable, class_object_headed_sequence);
 		// initialize candidates.
 		if (input_pseudo_variables.size() == type_list.size()) {
+			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 			PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
@@ -222,17 +218,17 @@ public class PseudoSequence {
 		return new LinkedSequence(sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
 	}
 	
-	private Map<TypedOperation, InfluenceOfBranchChange> EnsureTypedOperationBranchInfluence(Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence) {
-		Map<TypedOperation, InfluenceOfBranchChange> real_use_typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
-		for (TypedOperation op : operations) {
-			InfluenceOfBranchChange branch_influence = typed_operation_branch_influence.get(op);
-			if (branch_influence == null) {
-				branch_influence = new InfluenceOfBranchChange();
-			}
-			real_use_typed_operation_branch_influence.put(op, branch_influence);
-		}
-		return real_use_typed_operation_branch_influence;
-	}
+//	private Map<TypedOperation, InfluenceOfBranchChange> EnsureTypedOperationBranchInfluence(Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence) {
+//		Map<TypedOperation, InfluenceOfBranchChange> real_use_typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
+//		for (TypedOperation op : operations) {
+//			InfluenceOfBranchChange branch_influence = typed_operation_branch_influence.get(op);
+//			if (branch_influence == null) {
+//				branch_influence = new InfluenceOfBranchChange();
+//			}
+//			real_use_typed_operation_branch_influence.put(op, branch_influence);
+//		}
+//		return real_use_typed_operation_branch_influence;
+//	}
 	
 	public int Size() {
 		return statements.size();

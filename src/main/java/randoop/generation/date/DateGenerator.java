@@ -11,8 +11,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
+
 import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
-import cn.yyx.labtask.test_agent_trace_reader.InfluenceComputer;
 import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
 import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
 import randoop.ExecutionOutcome;
@@ -21,7 +22,10 @@ import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
+import randoop.generation.date.influence.BranchValueState;
+import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.random.filter.PseudoVariableSelectFilter;
 import randoop.generation.date.runtime.DateRuntimeSupport;
@@ -56,13 +60,14 @@ public class DateGenerator extends AbstractGenerator {
 	Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
 	Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>();
 	Map<PseudoVariable, String> pseudo_variable_content = new HashMap<PseudoVariable, String>();
-	Map<PseudoVariable, InfluenceOfBranchChange> pseudo_variable_branch_influence = new HashMap<PseudoVariable, InfluenceOfBranchChange>();
+	Map<PseudoVariable, BranchValueState> pseudo_variable_branch_value_state = new HashMap<PseudoVariable, BranchValueState>();
+	
+	Map<String, TraceInfo> recorded_traces = new HashMap<String, TraceInfo>();
+	BranchNodesState branch_state = new BranchNodesState();
 	
 //	Map<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass> operation_self_state_influence = new HashMap<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass>();
 	
 	private ArrayList<Sequence> allSequences = new ArrayList<Sequence>();
-	
-	private Map<String, TraceInfo> recorded_traces = new HashMap<String, TraceInfo>();
 	
 	// The set of all primitive values seen during generation and execution
 	// of sequences. This set is used to tell if a new primitive value has
@@ -71,9 +76,6 @@ public class DateGenerator extends AbstractGenerator {
 	
 	private TypeInstantiator instantiator = null;
 
-	BranchNodesState branch_state = new BranchNodesState();
-	InfluenceComputer influence_computer = new InfluenceComputer(branch_state);
-	
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
 			GenInputsAbstract.Limits limits, ComponentManager componentManager,
 			RandoopListenerManager listenerManager) {
@@ -170,25 +172,25 @@ public class DateGenerator extends AbstractGenerator {
 		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
 		
 		String branch_state_representation_before = branch_state.RepresentationOfUnCoveredBranchWithState();
-		Map<String, Double> all_branches_influences = influence_computer.BuildGuidedModel(before_trace, after_trace);
+		Map<String, Influence> all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state, before_trace, after_trace);
 		String branch_state_representation_after = branch_state.RepresentationOfUnCoveredBranchWithState();
 		if (!branch_state_representation_before.equals(branch_state_representation_after)) {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
 		}
 		
-		// set up influence of the modified TypedOperation or PseudoVariable headed sequence
+		// set up influence of the modified TypedOperation
 		InfluenceOfBranchChange branch_influence_operation = typed_operation_branch_influence.get(n_cmp_sequence.GetTypedOperation());
 		if (branch_influence_operation == null) {
 			branch_influence_operation = new InfluenceOfBranchChange();
 			typed_operation_branch_influence.put(n_cmp_sequence.GetTypedOperation(), branch_influence_operation);
 		}
+		
+		// set up value state of PseudoVariable headed sequence
 		branch_influence_operation.AddInfluenceOfBranches(all_branches_influences);
-		InfluenceOfBranchChange branch_influence_pseudo_variable = pseudo_variable_branch_influence.get(n_cmp_sequence.GetPseudoVariable());
-		if (branch_influence_pseudo_variable == null) {
-			branch_influence_pseudo_variable = new InfluenceOfBranchChange();
-			pseudo_variable_branch_influence.put(n_cmp_sequence.GetPseudoVariable(), branch_influence_pseudo_variable);
-		}
-		branch_influence_pseudo_variable.AddInfluenceOfBranches(all_branches_influences);
+		BranchValueState branch_value_state_pseudo_variable = pseudo_variable_branch_value_state.get(n_cmp_sequence.GetPseudoVariable());
+		Assert.isTrue(branch_value_state_pseudo_variable  == null);
+		BranchValueState branch_v_stat = SimpleInfluenceComputer.CreateBranchValueState(after_trace);
+		pseudo_variable_branch_value_state.put(n_cmp_sequence.GetPseudoVariable(), branch_v_stat);
 		
 		// set up execution outcome.
 		int e_size = eSeq.size();
@@ -209,12 +211,11 @@ public class DateGenerator extends AbstractGenerator {
 					pvs.add(e_pv);
 					pseudo_variable_class.put(e_pv, out_class);
 					pseudo_variable_content.put(e_pv, out_obj.toString());
-					InfluenceOfBranchChange e_pv_branch_influence = pseudo_variable_branch_influence.get(e_pv);
-					if (e_pv_branch_influence == null) {
-						e_pv_branch_influence = new InfluenceOfBranchChange();
-						pseudo_variable_branch_influence.put(e_pv, e_pv_branch_influence);
+					if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
+						BranchValueState e_pv_branch_value_state = pseudo_variable_branch_value_state.get(e_pv);
+						Assert.isTrue(e_pv_branch_value_state == null);
+						pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
 					}
-					e_pv_branch_influence.AddInfluenceOfBranchesWithDiscount(all_branches_influences, 0.25);
 				}
 			}
 		}
@@ -258,7 +259,7 @@ public class DateGenerator extends AbstractGenerator {
 	private BeforeAfterLinkedSequence CreateNewCompareSequence() {
 		// select useful TypedOperation.
 		ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
-		TypedOperation selected_to = RandomSelect.RandomKeyFromMapByValueOfBranchInfluence(typed_operation_branch_influence, interested_branch, null);
+		TypedOperation selected_to = RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence, interested_branch, null);
 		Class<?> selected_to_class = operation_class.get(selected_to);
 		if (operation_is_to_create.get(selected_to) == true) {
 			// create new sequence
@@ -276,9 +277,9 @@ public class DateGenerator extends AbstractGenerator {
 		} else {
 			// mutate existing sequence
 			PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class, pseudo_variable_class);
-			PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByValueOfBranchInfluence(pseudo_variable_branch_influence, interested_branch, pvsf);
+			PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByRewardableValue(pseudo_variable_branch_value_state, interested_branch, pvsf);
 			PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
-			return selected_pv_headed_sequence.Mutate(interested_branch, typed_operation_branch_influence, class_pseudo_variable, pseudo_variable_headed_sequence);
+			return selected_pv_headed_sequence.Mutate(selected_to, interested_branch, class_pseudo_variable, pseudo_variable_headed_sequence);
 		}
 		return null;
 	}
