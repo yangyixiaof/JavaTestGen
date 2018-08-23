@@ -50,6 +50,7 @@ public class DateGenerator extends AbstractGenerator {
 	
 	Random random = new Random();
 	
+	Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
 	Map<Class<?>, ArrayList<TypedOperation>> for_use_object_create_operations = new HashMap<Class<?>, ArrayList<TypedOperation>>();
 	Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations = new HashMap<Class<?>, ArrayList<TypedOperation>>();
 	Map<TypedOperation, Class<?>> operation_class = new HashMap<TypedOperation, Class<?>>();
@@ -527,50 +528,52 @@ public class DateGenerator extends AbstractGenerator {
 			// extract qualified class name from signature string.
 			String class_name_method_name = to_sig.substring(0, to_sig.indexOf('('));
 			String class_name = class_name_method_name.substring(0, class_name_method_name.lastIndexOf('.'));
-			MapUtil.Insert(to, Class.forName(class_name), to.isConstructorCall(), for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(to, Class.forName(class_name), PseudoSequence.class, to.isConstructorCall(), for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 		}
 //		System.out.println("String.class.getName():" + String.class.getName());
 		{
 			// primitives creation initialization
-			TypedClassOperation str_builder_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateStringBuilder"));
-			MapUtil.Insert(str_builder_ob, StringBuilder.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
-			TypedOperation str_ob = TypedOperation.forMethod(StringBuilder.class.getMethod("toString"));
-			MapUtil.Insert(str_ob, String.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedClassOperation str_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateString"));
+			MapUtil.Insert(str_ob, String.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateBoolean"));
-			MapUtil.Insert(bool_ob, Boolean.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(bool_ob, Boolean.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateCharacter"));
-			MapUtil.Insert(char_ob, Character.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(char_ob, Character.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateByte"));
-			MapUtil.Insert(byte_ob, Byte.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(byte_ob, Byte.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateShort"));
-			MapUtil.Insert(short_ob, Short.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(short_ob, Short.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
-			MapUtil.Insert(int_ob, Integer.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(int_ob, Integer.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateLong"));
-			MapUtil.Insert(long_ob, Long.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(long_ob, Long.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateFloat"));
-			MapUtil.Insert(float_ob, Float.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(float_ob, Float.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateDouble"));
-			MapUtil.Insert(double_ob, Double.class, true, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(double_ob, Double.class, true, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 		}
 		{
 			// add operations to modify primitives
+			TypedOperation str_modify_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("ModifyString", String.class, int.class, Object.class));
+			MapUtil.Insert(str_modify_ob, String.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			TypedOperation str_append_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("AppendString", String.class));
+			MapUtil.Insert(str_append_ob, String.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("not", Boolean.class));
-			MapUtil.Insert(bool_ob, Boolean.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(bool_ob, Boolean.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Character.class, Object.class));
-			MapUtil.Insert(char_ob, Character.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(char_ob, Character.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Byte.class, Object.class));
-			MapUtil.Insert(byte_ob, Byte.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(byte_ob, Byte.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Short.class, Object.class));
-			MapUtil.Insert(short_ob, Short.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(short_ob, Short.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Integer.class, Object.class));
-			MapUtil.Insert(int_ob, Integer.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(int_ob, Integer.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Long.class, Object.class));
-			MapUtil.Insert(long_ob, Long.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(long_ob, Long.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Float.class, Object.class));
-			MapUtil.Insert(float_ob, Float.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(float_ob, Float.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("add", Double.class, Object.class));
-			MapUtil.Insert(double_ob, Double.class, false, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
+			MapUtil.Insert(double_ob, Double.class, false, for_use_object_create_sequence_type, for_use_object_create_operations, for_use_object_modify_operations, operation_class, operation_is_to_create);
 		}
 	}
 

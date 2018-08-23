@@ -3,22 +3,14 @@ package randoop.generation.date.util;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
+
 import randoop.operation.TypedOperation;
 
 public class MapUtil {
-	
-//	public static void Insert(Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence, Map<TypedOperation, Class<?>> insert, Map<Class<?>, ArrayList<TypedOperation>> be_inserted, Class<?> key, TypedOperation value) {
-//		typed_operation_branch_influence.put(value, new InfluenceOfBranchChange());
-//		insert.put(value, key);
-//		ArrayList<TypedOperation> to_list = be_inserted.get(key);
-//		if (to_list == null) {
-//			to_list = new ArrayList<TypedOperation>();
-//			be_inserted.put(key, to_list);
-//		}
-//		to_list.add(value);
-//	}
 
-	public static void Insert(TypedOperation op, Class<?> op_for_class, boolean is_to_create,
+	public static void Insert(TypedOperation op, Class<?> op_for_class, Class<?> sequence_type, boolean is_to_create,
+			Map<Class<?>, Class<?>> for_use_object_create_sequence_type, 
 			Map<Class<?>, ArrayList<TypedOperation>> for_use_object_create_operations,
 			Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations,
 			Map<TypedOperation, Class<?>> operation_class, Map<TypedOperation, Boolean> operation_is_to_create) {
@@ -29,6 +21,13 @@ public class MapUtil {
 				for_use_object_create_operations.put(op_for_class, tos);
 			}
 			for_use_object_create_operations.put(op_for_class, tos);
+			// set up sequence type
+			Class<?> already_sequence_type = for_use_object_create_sequence_type.get(op_for_class);
+			if (already_sequence_type == null) {
+				for_use_object_create_sequence_type.put(op_for_class, sequence_type);
+			} else {
+				Assert.isTrue(already_sequence_type.equals(sequence_type));
+			}
 		} else {
 			ArrayList<TypedOperation> tos = for_use_object_modify_operations.get(op_for_class);
 			if (tos == null) {

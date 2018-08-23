@@ -72,8 +72,16 @@ public class DateRuntimeSupport {
 		return x + (Double) delta;
 	}
 	
-	public static StringBuilder CreateStringBuilder() {
-		return new StringBuilder();
+	public static String CreateString() {
+		return "";
+	}
+	
+	public static String ModifyString(String s, int index, Object delta) {
+		return new StringBuilder(s).replace(index, index+1, (char)(s.charAt(index)+(int)delta) + "").toString();
+	}
+	
+	public static String AppendString(String s) {
+		return s + CreateCharacter();
 	}
 
 	private static char getRandomCharacter(char ch1, char ch2) {
