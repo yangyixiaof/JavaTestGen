@@ -13,9 +13,11 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
+import randoop.generation.date.influence.Penalizable;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.random.filter.SelectFileter;
 import randoop.generation.date.sequence.PseudoVariable;
+import randoop.operation.TypedOperation;
 
 public class RandomSelect {
 
@@ -79,6 +81,32 @@ public class RandomSelect {
 				Rewardable to_branch_influence = wait_select.get(t);
 				if (to_branch_influence != null) {
 					reward += to_branch_influence.GetReward(interested_branch);
+				}
+				final_wait_select.put(t, reward);
+			}
+		}
+		if (final_wait_select.size() == 0) {
+			return null;
+		}
+		return RandomKeyFromMapByValue(final_wait_select);
+	}
+	
+	public static <T> T RandomKeyFromMapByRewardableValueWithPenalizableValue(Map<T, ? extends Rewardable> wait_select, Map<T, ? extends Penalizable> addition,
+			ArrayList<String> interested_branch, SelectFileter<T> filter, TypedOperation to) {
+		Map<T, Double> final_wait_select = new HashMap<T, Double>();
+		Set<T> keys = wait_select.keySet();
+		Iterator<T> kitr = keys.iterator();
+		while (kitr.hasNext()) {
+			T t = kitr.next();
+			if (filter == null || filter.Retain(t)) {
+				double reward = 0.0;
+				Rewardable to_branch_influence = wait_select.get(t);
+				if (to_branch_influence != null) {
+					reward += to_branch_influence.GetReward(interested_branch);
+				}
+				Penalizable punish = addition.get(t);
+				if (punish != null) {
+					reward += punish.GetPunishment(to);
 				}
 				final_wait_select.put(t, reward);
 			}
