@@ -1,5 +1,6 @@
 package randoop.generation.date.influence;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,8 +13,9 @@ import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
 import cn.yyx.labtask.test_agent_trace_reader.ValuesOfBranch;
 
 public class SimpleInfluenceComputer {
-	
-	public static Map<String, Influence> BuildGuidedModel(BranchNodesState branch_state, TraceInfo previous_trace_info, TraceInfo current_trace_info) {
+
+	public static Map<String, Influence> BuildGuidedModel(BranchNodesState branch_state, TraceInfo previous_trace_info,
+			TraceInfo current_trace_info) {
 		Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature = previous_trace_info.GetValuesOfBranches();
 		Map<String, LinkedList<ValuesOfBranch>> current_branch_signature = current_trace_info.GetValuesOfBranches();
 		Map<String, Influence> influence = new TreeMap<String, Influence>();
@@ -73,7 +75,7 @@ public class SimpleInfluenceComputer {
 		}
 		return influence;
 	}
-	
+
 	public static double AverageGapOfBranch(LinkedList<ValuesOfBranch> vobs) {
 		double all_gaps = 0.0;
 		Iterator<ValuesOfBranch> vob_itr = vobs.iterator();
@@ -85,7 +87,7 @@ public class SimpleInfluenceComputer {
 		all_gaps /= (vobs.size() * 1.0);
 		return all_gaps;
 	}
-	
+
 	public static BranchValueState CreateBranchValueState(TraceInfo trace_info) {
 		BranchValueState bvs = new BranchValueState();
 		Map<String, LinkedList<ValuesOfBranch>> vob_map = trace_info.GetValuesOfBranches();
@@ -107,5 +109,22 @@ public class SimpleInfluenceComputer {
 		}
 		return bvs;
 	}
-	
+
+	public static double ComputeAveragedInfluence(ArrayList<String> interested_branch,
+			Map<String, Influence> branch_influence) {
+		double average_influence = 0.0;
+		double max_w = 5.0;
+		double min_w = 0.0;
+		double gap_w = (max_w - min_w) / ((interested_branch.size() + 1) * 1.0);
+		double w = max_w;
+		Iterator<String> ib_itr = interested_branch.iterator();
+		while (ib_itr.hasNext()) {
+			String ib = ib_itr.next();
+			double influence = branch_influence.get(ib).GetInfluence();
+			average_influence += w * influence;
+			w -= gap_w;
+		}
+		return average_influence;
+	}
+
 }

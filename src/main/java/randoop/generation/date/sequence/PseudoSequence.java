@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.core.runtime.Assert;
+
+import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.Penalizable;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
@@ -25,6 +28,12 @@ public class PseudoSequence implements Penalizable {
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
 
 	HashSet<PseudoSequence> sequences_which_use_this_sequence = new HashSet<PseudoSequence>();
+	
+	PseudoSequence previous = null;
+	
+	Map<String, Influence> all_branches_influences_compared_to_previous = null;
+	
+	String headed_variable_string = null;
 
 	public PseudoSequence(ArrayList<TypedOperation> operations) {
 		this.operations = operations;
@@ -32,6 +41,19 @@ public class PseudoSequence implements Penalizable {
 
 	public void SetHeadedVariable(PseudoVariable headed_variable) {
 		this.headed_variable = headed_variable;
+	}
+	
+	public void SetHeadedVariableString(String headed_variable_string) {
+		if (headed_variable_string == null) {
+			Assert.isTrue(this.headed_variable_string == null);
+		} else {
+			if (this.headed_variable_string == null) {
+				this.headed_variable_string = headed_variable_string;
+			} else {
+				Assert.isTrue(headed_variable_string.equals(this.headed_variable_string));
+			}
+		}
+		
 	}
 
 	public PseudoSequence(PseudoVariable headed_variable, ArrayList<TypedOperation> operations) {
@@ -51,15 +73,16 @@ public class PseudoSequence implements Penalizable {
 		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, class_pseudo_variable,
 				class_object_headed_sequence);
 		// initialize candidates.
-		if (input_pseudo_variables.size() == type_list.size()) {
+		if (input_pseudo_variables.size() == r_type_list.size()) {
 			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 			PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
 					class_object_headed_sequence);
+			ps.SetPreviousSequence(this);
 			input_pseudo_variables.add(0, ps.headed_variable);
-			LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
+			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
 			ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
-			result = new BeforeAfterLinkedSequence(selected_to, ps.headed_variable, before_linked_sequence,
+			result = new BeforeAfterLinkedSequence(selected_to, ps.headed_variable, ps, before_linked_sequence,
 					after_linked_sequence);
 		}
 		if (result != null) {
@@ -71,6 +94,14 @@ public class PseudoSequence implements Penalizable {
 			operation_use_count.put(selected_to, count);
 		}
 		return result;
+	}
+
+	public void SetPreviousSequence(PseudoSequence pseudo_sequence) {
+		this.previous = pseudo_sequence;
+	}
+	
+	public void SetAllBranchesInfluencesComparedToPrevious(Map<String, Influence> all_branches_influences_compared_to_previous) {
+		this.all_branches_influences_compared_to_previous = all_branches_influences_compared_to_previous;
 	}
 
 	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables,
@@ -152,7 +183,13 @@ public class PseudoSequence implements Penalizable {
 		}
 		PseudoVariable copied_headed_variable = headed_variable
 				.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
-		PseudoSequence copy_version = new PseudoSequence(copied_headed_variable, operations);
+		PseudoSequence copy_version = null;
+		try {
+			copy_version = this.getClass().getConstructor(PseudoVariable.class, ArrayList.class).newInstance(copied_headed_variable, operations);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		origin_copied_sequence_map.put(this, copy_version);
 		// clone statements
 		for (PseudoStatement stmt : statements) {
@@ -176,23 +213,40 @@ public class PseudoSequence implements Penalizable {
 		// }
 		return copy_version;
 	}
+	
+	public void ReplacePseudoVariableInCitesAndCiters(PseudoSequence self, PseudoVariable be_replaced, PseudoVariable the_replace) {
+		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
+		this.BuildDependency(encountered);
+		for (PseudoSequence ps : encountered) {
+			if (ps == self) {
+				continue;
+			}
+			for (PseudoStatement stmt : ps.statements) {
+				ArrayList<PseudoVariable> ivs = stmt.inputVariables;
+				int iv_len = ivs.size();
+				for (int i=0;i<iv_len;i++) {
+					PseudoVariable pv = ivs.get(i);
+					if (pv.equals(be_replaced)) {
+						ivs.set(i, the_replace);
+					}
+				}
+			}
+		}
+	}
 
-	private void BuildDependency(PseudoSequence ps, HashSet<PseudoSequence> depends,
-			HashSet<PseudoSequence> encountered) {
+	private void BuildDependency(HashSet<PseudoSequence> encountered) {
 		if (encountered.contains(this)) {
 			return;
 		}
 		encountered.add(this);
-		for (PseudoStatement stmt : ps.statements) {
+		for (PseudoStatement stmt : this.statements) {
 			for (PseudoVariable pv : stmt.inputVariables) {
 				PseudoSequence pv_sequence = pv.sequence;
-				depends.add(pv_sequence);
-				BuildDependency(pv.sequence, depends, encountered);
+				pv_sequence.BuildDependency(encountered);
 			}
 		}
 		for (PseudoSequence ps_which_uses_this : sequences_which_use_this_sequence) {
-			depends.add(ps_which_uses_this);
-			BuildDependency(ps_which_uses_this, depends, encountered);
+			ps_which_uses_this.BuildDependency(encountered);
 		}
 	}
 
@@ -201,17 +255,16 @@ public class PseudoSequence implements Penalizable {
 		ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence = new ArrayList<PseudoVariable>();
 		HashMap<PseudoSequence, TreeMap<Integer, Integer>> pseudo_sequence_index_to_sequence_index = new HashMap<PseudoSequence, TreeMap<Integer, Integer>>();
 		// build all dependency set for this pseudo sequence
-		HashSet<PseudoSequence> depends = new HashSet<PseudoSequence>();
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
-		BuildDependency(this, depends, encountered);
+		this.BuildDependency(encountered);
 		HashMap<PseudoSequence, Integer> ps_safe_length = new HashMap<PseudoSequence, Integer>();
-		for (PseudoSequence depend : depends) {
+		for (PseudoSequence depend : encountered) {
 			ps_safe_length.put(depend, 0);
 			pseudo_sequence_index_to_sequence_index.put(depend, new TreeMap<Integer, Integer>());
 		}
-		while (depends.size() > 0) {
+		while (encountered.size() > 0) {
 			HashSet<PseudoSequence> need_to_remove = new HashSet<PseudoSequence>();
-			Iterator<PseudoSequence> d_itr = depends.iterator();
+			Iterator<PseudoSequence> d_itr = encountered.iterator();
 			while (d_itr.hasNext()) {
 				PseudoSequence ps = d_itr.next();
 				int safe_length = ps_safe_length.get(ps);
@@ -243,7 +296,7 @@ public class PseudoSequence implements Penalizable {
 					}
 				}
 			}
-			depends.removeAll(need_to_remove);
+			encountered.removeAll(need_to_remove);
 		}
 		return new LinkedSequence(sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
 	}
@@ -277,7 +330,7 @@ public class PseudoSequence implements Penalizable {
 	public double GetPunishment(TypedOperation selected_op) {
 		Integer count = operation_use_count.get(selected_op);
 		if (count != null) {
-			return -10.0 * (count * 1.0);
+			return -(count * 1.0);
 		}
 		return 0.0;
 	}
