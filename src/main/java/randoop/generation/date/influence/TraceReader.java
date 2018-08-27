@@ -54,18 +54,17 @@ public class TraceReader {
 //						exit++;
 //						ProcessMethodExit(parts[1], runtime_stack);
 //					}
-					if (one_line.startsWith("@Branch-Operand_")) {
-						String[] parts = one_line.split(":");
+					if (one_line.startsWith("@Branch-Operand")) {
+						String[] parts = one_line.split("#");
 //						branch_operand++;
 						try {
-							String operandPart = parts[3];
-							String[] operandParts = operandPart.split("#");
-							double op1 = Double.parseDouble(operandParts[1]);
-							double op2 = Double.parseDouble(operandParts[2]);
+							String operandSig = parts[1] + "#" + parts[2] + "#" + parts[3];
+							int relativeOffset = Integer.parseInt(parts[4]);
+							String cmpOperator = parts[5];
+							double op1 = Double.parseDouble(parts[6]);
+							double op2 = Double.parseDouble(parts[7]);
 //							String enclosingMethod = runtime_stack.peek();
-							int relativeOffset = Integer.parseInt(parts[1]);
-							String cmpOperator = parts[2];
-							ProcessBranchOperand(parts[0], relativeOffset, cmpOperator, op1, op2, ti);
+							ProcessBranchOperand(operandSig, relativeOffset, cmpOperator, op1, op2, ti);
 						} catch (Exception e) {
 							// System.out.println("lastPop: " + lastPop);
 							// System.out.println("currentLineFrom1 " + currentLineFrom1);
@@ -73,15 +72,28 @@ public class TraceReader {
 							System.exit(1);
 						}
 					}
-					if (one_line.startsWith("@Var")) {
+//					if (one_line.startsWith("@Var")) {
+//						String[] parts = one_line.split("#");
+//						String var_type = parts[1];
+//						String var_value = parts[2];
+//						Class<?> var_class = Class.forName(var_type);
+//						ti.AddOneReturnOfStatement(new StatementReturn(var_class, var_value));
+//					}
+					if (one_line.startsWith("@Object-Address")) {
 						String[] parts = one_line.split("#");
-						String var_type = parts[1];
-						String var_value = parts[2];
-						Class<?> var_class = Class.forName(var_type);
-						ti.AddOneReturnOfStatement(new StatementReturn(var_class, var_value));
-					}
-					if (one_line.startsWith("@Var")) {
-						
+//						branch_operand++;
+						try {
+							String operandSig = parts[1] + "#" + parts[2] + "#" + parts[3];
+							int relativeOffset = Integer.parseInt(parts[4]);
+							int object_address = Integer.parseInt(parts[5]);
+//							String enclosingMethod = runtime_stack.peek();
+							ProcessObjectAddress(operandSig, relativeOffset, object_address, ti);
+						} catch (Exception e) {
+							// System.out.println("lastPop: " + lastPop);
+							// System.out.println("currentLineFrom1 " + currentLineFrom1);
+							e.printStackTrace();
+							System.exit(1);
+						}
 					}
 				}
 			}
@@ -119,20 +131,17 @@ public class TraceReader {
 //		}
 //	}
 	
-	/**
-	 * @param enclosing_method
-	 * @param relative_offset
-	 * @param cmp_optr
-	 * @param branch_value1
-	 * @param branch_value2
-	 * @param runtime_stack
-	 * @param branch_signature
-	 */
-	private static void ProcessBranchOperand(String enclosing_method, int relative_offset, String cmp_optr,
+	private static void ProcessBranchOperand(String operand_sig, int relative_offset, String cmp_optr,
 			double branch_value1, double branch_value2, TraceInfo ti) {
-		ValuesOfBranch vob = new ValuesOfBranch(enclosing_method, relative_offset, cmp_optr, branch_value1,
+		ValuesOfBranch vob = new ValuesOfBranch(operand_sig, relative_offset, cmp_optr, branch_value1,
 				branch_value2);
-		String catted = enclosing_method + "#" + relative_offset;
+		String catted = operand_sig + "#" + relative_offset;
 		ti.AddOneValueOfBranch(catted, vob);
 	}
+
+	private static void ProcessObjectAddress(String operand_sig, int relative_offset, int object_address, TraceInfo ti) {
+		String catted = operand_sig + "#" + relative_offset;
+		ti.AddOneObjectAddress(catted, object_address);
+	}
+	
 }
