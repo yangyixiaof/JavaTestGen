@@ -26,8 +26,6 @@ public class PseudoSequence implements Penalizable {
 	Map<TypedOperation, Integer> operation_use_count = new HashMap<TypedOperation, Integer>();
 
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
-
-	HashSet<PseudoSequence> sequences_which_use_this_sequence = new HashSet<PseudoSequence>();
 	
 	PseudoSequence previous = null;
 	
@@ -61,13 +59,13 @@ public class PseudoSequence implements Penalizable {
 		this.operations = operations;
 	}
 
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, TypedOperation could_use_to, ArrayList<String> interested_branch,
 			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		BeforeAfterLinkedSequence result = null;
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		// add parameters.
-		TypeTuple input_types = selected_to.getInputTypes();
+		TypeTuple input_types = could_use_to.getInputTypes();
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(input_types);
 		List<Type> r_type_list = type_list.subList(1, type_list.size());
 		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, class_pseudo_variable,
@@ -80,7 +78,7 @@ public class PseudoSequence implements Penalizable {
 			ps.SetPreviousSequence(this);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
-			ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
+			ps.Append(could_use_to, input_pseudo_variables, class_object_headed_sequence);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			result = new BeforeAfterLinkedSequence(selected_to, ps.headed_variable, ps, before_linked_sequence,
 					after_linked_sequence);
@@ -149,12 +147,8 @@ public class PseudoSequence implements Penalizable {
 
 	private void AddReferenceForAllVariables(List<PseudoVariable> inputVariables) {
 		for (PseudoVariable pv : inputVariables) {
-			AddReferenceToInUseSequence(pv.sequence);
+			pv.sequences_which_use_this_variable.add(this);
 		}
-	}
-
-	private void AddReferenceToInUseSequence(PseudoSequence in_use_sequence) {
-		in_use_sequence.sequences_which_use_this_sequence.add(this);
 	}
 
 	public PseudoSequence CopySelfInDeepCloneWay(Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map,
@@ -198,8 +192,10 @@ public class PseudoSequence implements Penalizable {
 			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, class_object_headed_sequence);
 		}
 		// clone citer sequences
-		for (PseudoSequence citer : sequences_which_use_this_sequence) {
-			copy_version.sequences_which_use_this_sequence.add(
+		Assert.isTrue(headed_variable == null);
+		HashSet<PseudoSequence> sequences_which_use_this_headed_variable = headed_variable.sequences_which_use_this_variable;
+		for (PseudoSequence citer : sequences_which_use_this_headed_variable) {
+			copied_headed_variable.sequences_which_use_this_variable.add(
 					citer.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence));
 		}
 		// clone influences
@@ -245,8 +241,13 @@ public class PseudoSequence implements Penalizable {
 				pv_sequence.BuildDependency(encountered);
 			}
 		}
-		for (PseudoSequence ps_which_uses_this : sequences_which_use_this_sequence) {
-			ps_which_uses_this.BuildDependency(encountered);
+		if (headed_variable == null) {
+			Assert.isTrue(statements.size() == 0);
+		} else {
+			HashSet<PseudoSequence> sequences_which_use_this_headed_variable = headed_variable.sequences_which_use_this_variable;
+			for (PseudoSequence ps_which_uses_this : sequences_which_use_this_headed_variable) {
+				ps_which_uses_this.BuildDependency(encountered);
+			}
 		}
 	}
 
@@ -320,10 +321,6 @@ public class PseudoSequence implements Penalizable {
 
 	public int Size() {
 		return statements.size();
-	}
-
-	public int SizeOfCiters() {
-		return sequences_which_use_this_sequence.size();
 	}
 
 	@Override

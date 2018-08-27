@@ -130,7 +130,7 @@ public class RandomSelect {
 	public static PseudoVariable RandomPseudoVariableListAccordingToLength(ArrayList<PseudoVariable> pvs) {
 		Map<PseudoVariable, Double> wait_select = new HashMap<PseudoVariable, Double>();
 		for (PseudoVariable pv : pvs) {
-			double reward = pv.sequence.SizeOfCiters() * 2.0 + pv.sequence.Size() * 1.5 + pv.index * 1.0;
+			double reward = pv.SizeOfUsers() * 2.0 + pv.sequence.Size() * 1.5 + pv.index * 1.0;
 			wait_select.put(pv, -reward);
 		}
 		return RandomKeyFromMapByValue(wait_select);

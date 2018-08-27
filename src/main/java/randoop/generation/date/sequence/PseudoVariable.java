@@ -1,5 +1,6 @@
 package randoop.generation.date.sequence;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class PseudoVariable {
@@ -7,6 +8,8 @@ public class PseudoVariable {
 	public PseudoSequence sequence = null;
 	public int index = -1;
 
+	HashSet<PseudoSequence> sequences_which_use_this_variable = new HashSet<PseudoSequence>();
+	
 	public PseudoVariable(PseudoSequence sequence, int index) {
 		this.sequence = sequence;
 		this.index = index;
@@ -25,6 +28,10 @@ public class PseudoVariable {
 		PseudoSequence copied_sequence = sequence.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
 				class_object_headed_sequence);
 		return new PseudoVariable(copied_sequence, index);
+	}
+	
+	public int SizeOfUsers() {
+		return sequences_which_use_this_variable.size();
 	}
 
 	@Override
