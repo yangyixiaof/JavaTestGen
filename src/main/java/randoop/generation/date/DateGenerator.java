@@ -30,8 +30,8 @@ import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.random.filter.PseudoVariableSelectFilter;
 import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
-import randoop.generation.date.sequence.NumberDeltaChangePseudoSequence;
 import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.NumberDeltaChangePseudoSequence;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.sequence.SequenceGeneratorHelper;
@@ -71,10 +71,10 @@ public class DateGenerator extends AbstractGenerator {
 	// Map<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass>
 	// operation_self_state_influence = new HashMap<TypedOperation,
 	// InfluenceOfStateChangeForTypedOperationInClass>();
-	
+
 	Set<Type> encountered_types = new HashSet<Type>();
 	TypeInstantiator instantiator = new TypeInstantiator(encountered_types);
-	
+
 	private ArrayList<Sequence> allSequences = new ArrayList<Sequence>();
 
 	// The set of all primitive values seen during generation and execution
@@ -216,6 +216,7 @@ public class DateGenerator extends AbstractGenerator {
 				if (!e_op.getOutputType().isVoid()) {
 					Object out_obj = ne.getRuntimeValue();
 					Class<?> out_class = out_obj.getClass();
+					encountered_types.add(Type.forClass(out_class));
 					ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
 					if (pvs == null) {
 						pvs = new ArrayList<PseudoVariable>();
@@ -323,8 +324,8 @@ public class DateGenerator extends AbstractGenerator {
 				}
 				String content = pseudo_variable_content.get(selected_pv);
 				selected_pv_headed_sequence.SetHeadedVariableString(content);
-				return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch, class_pseudo_variable,
-						pseudo_variable_headed_sequence);
+				return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch,
+						class_pseudo_variable, pseudo_variable_headed_sequence);
 			}
 		}
 		return null;
