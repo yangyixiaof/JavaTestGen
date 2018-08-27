@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 
+import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.operation.TypedOperation;
 
 public class MapUtil {
@@ -13,7 +14,7 @@ public class MapUtil {
 			Map<Class<?>, Class<?>> for_use_object_create_sequence_type, 
 			Map<Class<?>, ArrayList<TypedOperation>> for_use_object_create_operations,
 			Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations,
-			Map<TypedOperation, Class<?>> operation_class, Map<TypedOperation, Boolean> operation_is_to_create) {
+			Map<TypedOperation, Class<?>> operation_class, Map<TypedOperation, Boolean> operation_is_to_create, Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence) {
 		if (is_to_create) {
 			ArrayList<TypedOperation> tos = for_use_object_create_operations.get(op_for_class);
 			if (tos == null) {
@@ -38,6 +39,7 @@ public class MapUtil {
 		}
 		operation_class.put(op, op_for_class);
 		operation_is_to_create.put(op, is_to_create);
+		typed_operation_branch_influence.put(op, new InfluenceOfBranchChange());
 	}
 	
 }
