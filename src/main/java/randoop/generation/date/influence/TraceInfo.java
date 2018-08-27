@@ -1,4 +1,4 @@
-package cn.yyx.labtask.test_agent_trace_reader;
+package randoop.generation.date.influence;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class TraceInfo {
 		while (vitr.hasNext()) {
 			String vk = vitr.next();
 			LinkedList<ValuesOfBranch> vk_vobs = vobs.get(vk);
-			Integer state = InfluenceComputer.IdentifyBranchState(vk_vobs);
+			Integer state = SimpleInfluenceComputer.IdentifyBranchState(vk_vobs);
 			branch_state.put(vk, state);
 		}
 	}

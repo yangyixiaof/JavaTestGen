@@ -13,19 +13,19 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
-import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
-import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
-import cn.yyx.labtask.test_agent_trace_reader.TraceReader;
 import randoop.ExecutionOutcome;
 import randoop.NormalExecution;
 import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
+import randoop.generation.date.influence.BranchNodesState;
 import randoop.generation.date.influence.BranchValueState;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
+import randoop.generation.date.influence.TraceInfo;
+import randoop.generation.date.influence.TraceReader;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.random.filter.PseudoVariableSelectFilter;
 import randoop.generation.date.runtime.DateRuntimeSupport;

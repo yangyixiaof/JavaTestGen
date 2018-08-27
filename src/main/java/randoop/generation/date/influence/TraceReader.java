@@ -1,4 +1,4 @@
-package cn.yyx.labtask.test_agent_trace_reader;
+package randoop.generation.date.influence;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -79,6 +79,9 @@ public class TraceReader {
 						String var_value = parts[2];
 						Class<?> var_class = Class.forName(var_type);
 						ti.AddOneReturnOfStatement(new StatementReturn(var_class, var_value));
+					}
+					if (one_line.startsWith("@Var")) {
+						
 					}
 				}
 			}

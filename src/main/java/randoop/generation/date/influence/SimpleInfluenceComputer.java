@@ -8,10 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import cn.yyx.labtask.runtime.memory.state.BranchNodesState;
-import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
-import cn.yyx.labtask.test_agent_trace_reader.ValuesOfBranch;
-
 public class SimpleInfluenceComputer {
 
 	public static Map<String, Influence> BuildGuidedModel(BranchNodesState branch_state, TraceInfo previous_trace_info,
@@ -125,6 +121,117 @@ public class SimpleInfluenceComputer {
 			w -= gap_w;
 		}
 		return average_influence;
+	}
+	
+	public static Integer IdentifyBranchState(LinkedList<ValuesOfBranch> vobs) {
+		Integer state = null;
+		Iterator<ValuesOfBranch> vob_itr = vobs.iterator();
+		while (vob_itr.hasNext()) {
+			ValuesOfBranch vob = vob_itr.next();
+			state = IndentifyBranchState(vob, state);
+		}
+		return state;
+	}
+	
+	private static Integer IndentifyBranchState(ValuesOfBranch vob, Integer state) {
+		double v1 = vob.GetBranchValue1();
+		double v2 = vob.GetBranchValue2();
+		switch (vob.GetCmpOptr()) {
+		// ``compare then store'' series
+		case "D$CMPG":
+		case "D$CMPL":
+		case "F$CMPG":
+		case "F$CMPL":
+		case "L$CMP": {
+			if (state == null) {
+				state = 0b111;
+			}
+			if (v1 == v2) {
+				state &= 0b101;
+			} else {
+				if (v1 > v2) {
+					state &= 0b110;
+				} else {
+					state &= 0b011;
+				}
+			}
+		} // // ``compare then store'' series BLOCK
+			break;
+		// eq neq series... *8
+		case "I$==":
+		case "I$!=":
+		case "A$==":
+		case "A$!=":
+		case "IZ$==":
+		case "IZ$!=":
+		case "N$!=":
+		case "N$==": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 == v2) {
+				state &= 0b01;
+			} else {
+				state &= 0b10;
+			}
+		}
+			break;
+		// ge, ge 0 *2
+		case "I$>=":
+		case "IZ$>=": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 >= v2) {
+				state &= 0b10;
+			} else {
+				state &= 0b01;
+			}
+		}
+			break;
+		// le, le 0
+		case "I$<=":
+		case "IZ$<=": {
+			{
+				if (state == null) {
+					state = 0b11;
+				}
+				if (v1 <= v2) {
+					state &= 0b01;
+				} else {
+					state &= 0b10;
+				}
+			}
+		}
+			break;
+		// gt, gt 0
+		case "I$>":
+		case "IZ$>": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 > v2) {
+				state &= 0b10;
+			} else {
+				state &= 0b01;
+			}
+		}
+			break;
+		// lt, lt 0
+		case "I$<":
+		case "IZ$<": {
+			if (state == null) {
+				state = 0b11;
+			}
+			if (v1 < v2) {
+				state &= 0b01;
+			} else {
+				state &= 0b10;
+			}
+		}
+			break;
+		} // switch (current_vob.GetCmpOptr())
+		return state;
 	}
 
 }

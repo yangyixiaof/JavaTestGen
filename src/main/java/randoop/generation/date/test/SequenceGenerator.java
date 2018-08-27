@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 
-import cn.yyx.labtask.test_agent_trace_reader.TraceInfo;
+import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
