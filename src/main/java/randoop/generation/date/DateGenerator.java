@@ -275,57 +275,59 @@ public class DateGenerator extends AbstractGenerator {
 		ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
 		TypedOperation selected_to = RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence,
 				interested_branch, null);
-		TypedOperation could_use_to = selected_to;
-		if (selected_to.isGeneric() || selected_to.hasWildcardTypes()) {
-			could_use_to = instantiator.instantiate((TypedClassOperation) selected_to);
-		}
-		Class<?> selected_to_class = operation_class.get(selected_to);
-		Class<?> sequence_type = for_use_object_create_sequence_type.get(selected_to_class);
-		if (operation_is_to_create.get(selected_to) == true) {
-			// create new sequence
-			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
-			List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(could_use_to.getInputTypes());
-			SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, type_list,
-					class_pseudo_variable, pseudo_variable_headed_sequence);
-			if (input_pseudo_variables.size() == type_list.size()) {
-				PseudoSequence ps = null;
-				try {
-					ps = (PseudoSequence) sequence_type.getConstructor(ArrayList.class)
-							.newInstance(for_use_object_modify_operations.get(selected_to_class));
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.exit(1);
-				}
-				LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
-				PseudoVariable created_pv = ps.Append(could_use_to, input_pseudo_variables,
-						pseudo_variable_headed_sequence);
-				ps.SetHeadedVariable(created_pv);
-				LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
-				return new BeforeAfterLinkedSequence(selected_to, created_pv, ps, before_linked_sequence,
-						after_linked_sequence);
+		if (selected_to != null) {
+			TypedOperation could_use_to = selected_to;
+			if (selected_to.isGeneric() || selected_to.hasWildcardTypes()) {
+				could_use_to = instantiator.instantiate((TypedClassOperation) selected_to);
 			}
-		} else {
-			// mutate existing sequence
-			PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class, pseudo_variable_class);
-			PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByRewardableValueWithPenalizableValue(
-					pseudo_variable_branch_value_state, pseudo_variable_headed_sequence, interested_branch, pvsf,
-					selected_to);
-			if (selected_pv != null) {
-				PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
-				if (selected_pv_headed_sequence == null) {
+			Class<?> selected_to_class = operation_class.get(selected_to);
+			Class<?> sequence_type = for_use_object_create_sequence_type.get(selected_to_class);
+			if (operation_is_to_create.get(selected_to) == true) {
+				// create new sequence
+				ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
+				List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(could_use_to.getInputTypes());
+				SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, type_list,
+						class_pseudo_variable, pseudo_variable_headed_sequence);
+				if (input_pseudo_variables.size() == type_list.size()) {
+					PseudoSequence ps = null;
 					try {
-						selected_pv_headed_sequence = (PseudoSequence) sequence_type.getConstructor(ArrayList.class)
+						ps = (PseudoSequence) sequence_type.getConstructor(ArrayList.class)
 								.newInstance(for_use_object_modify_operations.get(selected_to_class));
 					} catch (Exception e) {
 						e.printStackTrace();
 						System.exit(1);
 					}
-					selected_pv_headed_sequence.SetHeadedVariable(selected_pv);
+					LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
+					PseudoVariable created_pv = ps.Append(could_use_to, input_pseudo_variables,
+							pseudo_variable_headed_sequence);
+					ps.SetHeadedVariable(created_pv);
+					LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
+					return new BeforeAfterLinkedSequence(selected_to, created_pv, ps, before_linked_sequence,
+							after_linked_sequence);
 				}
-				String content = pseudo_variable_content.get(selected_pv);
-				selected_pv_headed_sequence.SetHeadedVariableString(content);
-				return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch,
-						class_pseudo_variable, pseudo_variable_headed_sequence);
+			} else {
+				// mutate existing sequence
+				PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class, pseudo_variable_class);
+				PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByRewardableValueWithPenalizableValue(
+						pseudo_variable_branch_value_state, pseudo_variable_headed_sequence, interested_branch, pvsf,
+						selected_to);
+				if (selected_pv != null) {
+					PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
+					if (selected_pv_headed_sequence == null) {
+						try {
+							selected_pv_headed_sequence = (PseudoSequence) sequence_type.getConstructor(ArrayList.class)
+									.newInstance(for_use_object_modify_operations.get(selected_to_class));
+						} catch (Exception e) {
+							e.printStackTrace();
+							System.exit(1);
+						}
+						selected_pv_headed_sequence.SetHeadedVariable(selected_pv);
+					}
+					String content = pseudo_variable_content.get(selected_pv);
+					selected_pv_headed_sequence.SetHeadedVariableString(content);
+					return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch,
+							class_pseudo_variable, pseudo_variable_headed_sequence);
+				}
 			}
 		}
 		return null;
