@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.Penalizable;
 import randoop.operation.TypedOperation;
-import randoop.sequence.Sequence;
 import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
@@ -255,7 +254,7 @@ public class PseudoSequence implements Penalizable {
 	}
 
 	public LinkedSequence GenerateLinkedSequence() {
-		Sequence sequence = new Sequence();
+		SequenceWrapper sw = new SequenceWrapper();
 		ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence = new ArrayList<PseudoVariable>();
 		HashMap<PseudoSequence, TreeMap<Integer, Integer>> pseudo_sequence_index_to_sequence_index = new HashMap<PseudoSequence, TreeMap<Integer, Integer>>();
 		// build all dependency set for this pseudo sequence
@@ -271,7 +270,7 @@ public class PseudoSequence implements Penalizable {
 			Iterator<PseudoSequence> d_itr = encountered.iterator();
 			while (d_itr.hasNext()) {
 				PseudoSequence ps = d_itr.next();
-				boolean over = HandleOneSequenceAsFar(sequence, ps, ps_safe_length,
+				boolean over = HandleOneSequenceAsFar(sw, ps, ps_safe_length,
 						pseudo_sequence_index_to_sequence_index,
 						pseudo_sequence_with_index_for_each_statement_in_sequence);
 				if (over) {
@@ -280,15 +279,17 @@ public class PseudoSequence implements Penalizable {
 			}
 			encountered.removeAll(need_to_remove);
 		}
-		return new LinkedSequence(sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
+		System.out.println("sequence_size:" + sw.sequence.size() + "#sequence:" + sw.sequence);
+		return new LinkedSequence(sw.sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
 	}
 
-	private boolean HandleOneSequenceAsFar(Sequence sequence, PseudoSequence ps,
+	private static boolean HandleOneSequenceAsFar(SequenceWrapper sw, PseudoSequence ps,
 			HashMap<PseudoSequence, Integer> ps_safe_length,
 			HashMap<PseudoSequence, TreeMap<Integer, Integer>> pseudo_sequence_index_to_sequence_index,
 			ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence) {
 		while (true) {
 			int safe_length = ps_safe_length.get(ps);
+//			System.out.println("safe_length:" + safe_length + "#ps.statements.size():" + ps.statements.size());
 			if (safe_length >= ps.statements.size()) {
 				break;
 			}
@@ -304,14 +305,17 @@ public class PseudoSequence implements Penalizable {
 					ensure_safe = false;
 					break;
 				}
+				int index_in_sequence = pseudo_sequence_index_to_sequence_index.get(pv.sequence).get(pv.index);
+//				System.out.println("index_in_sequence:" + index_in_sequence);
 				realInputVariables
-						.add(sequence.getVariable(pseudo_sequence_index_to_sequence_index.get(pv.sequence).get(pv.index)));
+						.add(sw.sequence.getVariable(index_in_sequence));
 			}
 			if (ensure_safe) {
 				// handle real Sequence, append to last of the real Sequence.
-				int recently_add_index = sequence.size();
+				int recently_add_index = sw.sequence.size();
 				pseudo_sequence_index_to_sequence_index.get(ps).put(safe_length, recently_add_index);
-				sequence.extend(need_to_handle.operation, realInputVariables);
+//				System.out.println("need_to_handle.operation:" + need_to_handle.operation);
+				sw.sequence = sw.sequence.extend(need_to_handle.operation, realInputVariables);
 				pseudo_sequence_with_index_for_each_statement_in_sequence.add(new PseudoVariable(ps, safe_length));
 				safe_length++;
 				ps_safe_length.put(ps, safe_length);
@@ -319,6 +323,7 @@ public class PseudoSequence implements Penalizable {
 				break;
 			}
 		}
+//		System.out.println("sequence:" + sw.sequence);
 		if (ps_safe_length.get(ps) >= ps.statements.size()) {
 			return true;
 		}

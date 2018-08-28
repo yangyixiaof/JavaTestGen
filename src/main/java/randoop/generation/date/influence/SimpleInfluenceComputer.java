@@ -12,23 +12,25 @@ public class SimpleInfluenceComputer {
 
 	public static Map<String, Influence> BuildGuidedModel(BranchNodesState branch_state, TraceInfo previous_trace_info,
 			TraceInfo current_trace_info) {
-		Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature = previous_trace_info.GetValuesOfBranches();
+		Map<String, LinkedList<ValuesOfBranch>> previous_branch_signature = previous_trace_info == null ? null : previous_trace_info.GetValuesOfBranches();
 		Map<String, LinkedList<ValuesOfBranch>> current_branch_signature = current_trace_info.GetValuesOfBranches();
 		Map<String, Influence> influence = new TreeMap<String, Influence>();
-		Set<String> pset = previous_branch_signature.keySet();
-		Set<String> cset = current_branch_signature.keySet();
 		Set<String> sig_set = new HashSet<String>();
-		sig_set.addAll(pset);
+		Set<String> pset = previous_branch_signature == null ? null : previous_branch_signature.keySet();
+		if (pset != null) {
+			sig_set.addAll(pset);
+		}
+		Set<String> cset = current_branch_signature.keySet();
 		sig_set.addAll(cset);
 		for (String sig : sig_set) {
 			if (branch_state.BranchHasBeenIteratedOver(sig)) {
 				continue;
 			}
 			double sig_influence = 0.0;
-			LinkedList<ValuesOfBranch> previous_vobs = previous_branch_signature.get(sig);
+			LinkedList<ValuesOfBranch> previous_vobs = previous_branch_signature == null ? null : previous_branch_signature.get(sig);
 			LinkedList<ValuesOfBranch> current_vobs = current_branch_signature.get(sig);
 			Integer state = branch_state.GetBranchState(sig);
-			Integer previous_state = previous_trace_info.GetBranchState(sig);
+			Integer previous_state = previous_trace_info == null ? null : previous_trace_info.GetBranchState(sig);
 			if (previous_state != null) {
 				if (state == null) {
 					state = previous_state;
