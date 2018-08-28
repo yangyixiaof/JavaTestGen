@@ -158,7 +158,7 @@ public class DateGenerator extends AbstractGenerator {
 
 		TraceInfo before_trace = recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
 
-		System.out.println("Executing sequence:" + n_cmp_sequence.GetAfterLinkedSequence());
+		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#" + n_cmp_sequence.GetAfterLinkedSequence());
 		ExecutableSequence eSeq = new ExecutableSequence(n_cmp_sequence.GetAfterLinkedSequence());
 		eSeq.execute(executionVisitor, checkGenerator);
 
