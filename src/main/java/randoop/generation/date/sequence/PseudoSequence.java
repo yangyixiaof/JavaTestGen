@@ -279,7 +279,7 @@ public class PseudoSequence implements Penalizable {
 			}
 			encountered.removeAll(need_to_remove);
 		}
-		System.out.println("sequence_size:" + sw.sequence.size() + "#sequence:" + sw.sequence);
+//		System.out.println("sequence_size:" + sw.sequence.size() + "#sequence:" + sw.sequence);
 		return new LinkedSequence(sw.sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
 	}
 
