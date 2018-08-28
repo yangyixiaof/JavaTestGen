@@ -156,10 +156,17 @@ public class PseudoSequence implements Penalizable {
 		if (origin_copied_sequence_map.containsKey(this)) {
 			return origin_copied_sequence_map.get(this);
 		}
+		PseudoSequence copy_version = null;
+		try {
+			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance(operations);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		origin_copied_sequence_map.put(this, copy_version);
 		PseudoVariable copied_headed_variable = headed_variable.CopySelfInDeepCloneWay(origin_copied_sequence_map,
 				class_object_headed_sequence);
-		PseudoSequence copy_version = new PseudoSequence(copied_headed_variable, operations);
-		origin_copied_sequence_map.put(this, copy_version);
+		copy_version.SetHeadedVariable(copied_headed_variable);
 		// clone statements
 		for (PseudoStatement stmt : statements) {
 			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(origin_copied_sequence_map,
@@ -175,17 +182,17 @@ public class PseudoSequence implements Penalizable {
 		if (origin_copied_sequence_map.containsKey(this)) {
 			return origin_copied_sequence_map.get(this);
 		}
-		PseudoVariable copied_headed_variable = headed_variable
-				.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
 		PseudoSequence copy_version = null;
 		try {
-			copy_version = this.getClass().getConstructor(PseudoVariable.class, ArrayList.class)
-					.newInstance(copied_headed_variable, operations);
+			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance(operations);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 		origin_copied_sequence_map.put(this, copy_version);
+		PseudoVariable copied_headed_variable = headed_variable
+				.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
+		copy_version.SetHeadedVariable(copied_headed_variable);
 		// clone statements
 		for (PseudoStatement stmt : statements) {
 			PseudoStatement copy_stmt = stmt.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
@@ -193,7 +200,7 @@ public class PseudoSequence implements Penalizable {
 			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, class_object_headed_sequence);
 		}
 		// clone citer sequences
-		Assert.isTrue(headed_variable == null);
+		Assert.isTrue(headed_variable != null);
 		HashSet<PseudoSequence> sequences_which_use_this_headed_variable = headed_variable.sequences_which_use_this_variable;
 		for (PseudoSequence citer : sequences_which_use_this_headed_variable) {
 			copied_headed_variable.sequences_which_use_this_variable.add(
@@ -270,8 +277,7 @@ public class PseudoSequence implements Penalizable {
 			Iterator<PseudoSequence> d_itr = encountered.iterator();
 			while (d_itr.hasNext()) {
 				PseudoSequence ps = d_itr.next();
-				boolean over = HandleOneSequenceAsFar(sw, ps, ps_safe_length,
-						pseudo_sequence_index_to_sequence_index,
+				boolean over = HandleOneSequenceAsFar(sw, ps, ps_safe_length, pseudo_sequence_index_to_sequence_index,
 						pseudo_sequence_with_index_for_each_statement_in_sequence);
 				if (over) {
 					need_to_remove.add(ps);
@@ -279,7 +285,8 @@ public class PseudoSequence implements Penalizable {
 			}
 			encountered.removeAll(need_to_remove);
 		}
-//		System.out.println("sequence_size:" + sw.sequence.size() + "#sequence:" + sw.sequence);
+		// System.out.println("sequence_size:" + sw.sequence.size() + "#sequence:" +
+		// sw.sequence);
 		return new LinkedSequence(sw.sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
 	}
 
@@ -289,7 +296,8 @@ public class PseudoSequence implements Penalizable {
 			ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence) {
 		while (true) {
 			int safe_length = ps_safe_length.get(ps);
-//			System.out.println("safe_length:" + safe_length + "#ps.statements.size():" + ps.statements.size());
+			// System.out.println("safe_length:" + safe_length + "#ps.statements.size():" +
+			// ps.statements.size());
 			if (safe_length >= ps.statements.size()) {
 				break;
 			}
@@ -306,15 +314,14 @@ public class PseudoSequence implements Penalizable {
 					break;
 				}
 				int index_in_sequence = pseudo_sequence_index_to_sequence_index.get(pv.sequence).get(pv.index);
-//				System.out.println("index_in_sequence:" + index_in_sequence);
-				realInputVariables
-						.add(sw.sequence.getVariable(index_in_sequence));
+				// System.out.println("index_in_sequence:" + index_in_sequence);
+				realInputVariables.add(sw.sequence.getVariable(index_in_sequence));
 			}
 			if (ensure_safe) {
 				// handle real Sequence, append to last of the real Sequence.
 				int recently_add_index = sw.sequence.size();
 				pseudo_sequence_index_to_sequence_index.get(ps).put(safe_length, recently_add_index);
-//				System.out.println("need_to_handle.operation:" + need_to_handle.operation);
+				// System.out.println("need_to_handle.operation:" + need_to_handle.operation);
 				sw.sequence = sw.sequence.extend(need_to_handle.operation, realInputVariables);
 				pseudo_sequence_with_index_for_each_statement_in_sequence.add(new PseudoVariable(ps, safe_length));
 				safe_length++;
@@ -323,7 +330,7 @@ public class PseudoSequence implements Penalizable {
 				break;
 			}
 		}
-//		System.out.println("sequence:" + sw.sequence);
+		// System.out.println("sequence:" + sw.sequence);
 		if (ps_safe_length.get(ps) >= ps.statements.size()) {
 			return true;
 		}

@@ -200,11 +200,11 @@ public class DateGenerator extends AbstractGenerator {
 
 		// set up value state of PseudoVariable headed sequence
 		branch_influence_operation.AddInfluenceOfBranches(all_branches_influences);
-		BranchValueState branch_value_state_pseudo_variable = pseudo_variable_branch_value_state
-				.get(n_cmp_sequence.GetPseudoVariable());
-		Assert.isTrue(branch_value_state_pseudo_variable == null);
+//		BranchValueState branch_value_state_pseudo_variable = pseudo_variable_branch_value_state
+//				.get(n_cmp_sequence.GetPseudoVariable());
+//		Assert.isTrue(branch_value_state_pseudo_variable == null);
 		BranchValueState branch_v_stat = SimpleInfluenceComputer.CreateBranchValueState(after_trace);
-		pseudo_variable_branch_value_state.put(n_cmp_sequence.GetPseudoVariable(), branch_v_stat);
+//		pseudo_variable_branch_value_state.put(n_cmp_sequence.GetPseudoVariable(), branch_v_stat);
 
 		// set up execution outcome.
 		int e_size = eSeq.size();
@@ -226,11 +226,11 @@ public class DateGenerator extends AbstractGenerator {
 					pvs.add(e_pv);
 					pseudo_variable_class.put(e_pv, out_class);
 					pseudo_variable_content.put(e_pv, out_obj.toString());
-					if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
-						BranchValueState e_pv_branch_value_state = pseudo_variable_branch_value_state.get(e_pv);
-						Assert.isTrue(e_pv_branch_value_state == null);
-						pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
-					}
+//					if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
+					BranchValueState e_pv_branch_value_state = pseudo_variable_branch_value_state.get(e_pv);
+					Assert.isTrue(e_pv_branch_value_state == null);
+					pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
+//					}
 				}
 			}
 		}
@@ -307,27 +307,33 @@ public class DateGenerator extends AbstractGenerator {
 							after_linked_sequence);
 				}
 			} else {
-				// mutate existing sequence
-				PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class, pseudo_variable_class);
-				PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByRewardableValueWithPenalizableValue(
-						pseudo_variable_branch_value_state, pseudo_variable_headed_sequence, interested_branch, pvsf,
-						selected_to);
-				if (selected_pv != null) {
-					PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
-					if (selected_pv_headed_sequence == null) {
-						try {
-							selected_pv_headed_sequence = (PseudoSequence) sequence_type.getConstructor(ArrayList.class)
-									.newInstance(for_use_object_modify_operations.get(selected_to_class));
-						} catch (Exception e) {
-							e.printStackTrace();
-							System.exit(1);
+				if (selected_to.isStatic()) {
+					// TODO two options: create a new one, append to last
+				} else {
+					System.out.println("selected_to:" + selected_to);
+					// mutate existing sequence
+					PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class, pseudo_variable_class);
+					PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByRewardableValueWithPenalizableValue(
+							pseudo_variable_branch_value_state, pseudo_variable_headed_sequence, interested_branch, pvsf,
+							selected_to);
+					System.out.println("selected_pv:" + selected_pv);
+					if (selected_pv != null) {
+						PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
+						if (selected_pv_headed_sequence == null) {
+							try {
+								selected_pv_headed_sequence = (PseudoSequence) sequence_type.getConstructor(ArrayList.class)
+										.newInstance(for_use_object_modify_operations.get(selected_to_class));
+							} catch (Exception e) {
+								e.printStackTrace();
+								System.exit(1);
+							}
+							selected_pv_headed_sequence.SetHeadedVariable(selected_pv);
 						}
-						selected_pv_headed_sequence.SetHeadedVariable(selected_pv);
+						String content = pseudo_variable_content.get(selected_pv);
+						selected_pv_headed_sequence.SetHeadedVariableString(content);
+						return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch,
+								class_pseudo_variable, pseudo_variable_headed_sequence);
 					}
-					String content = pseudo_variable_content.get(selected_pv);
-					selected_pv_headed_sequence.SetHeadedVariableString(content);
-					return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch,
-							class_pseudo_variable, pseudo_variable_headed_sequence);
 				}
 			}
 		}

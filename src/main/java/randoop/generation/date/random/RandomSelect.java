@@ -106,9 +106,11 @@ public class RandomSelect {
 		Map<T, Double> final_wait_select = new HashMap<T, Double>();
 		Set<T> keys = wait_select.keySet();
 		Iterator<T> kitr = keys.iterator();
+		System.out.println("=== start ===");
 		while (kitr.hasNext()) {
 			T t = kitr.next();
 			if (filter == null || filter.Retain(t)) {
+				System.out.println("Retained:" + t);
 				double reward = 0.0;
 				Rewardable to_branch_influence = wait_select.get(t);
 				if (to_branch_influence != null) {
