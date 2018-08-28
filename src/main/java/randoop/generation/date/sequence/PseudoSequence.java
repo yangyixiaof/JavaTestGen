@@ -26,11 +26,11 @@ public class PseudoSequence implements Penalizable {
 	Map<TypedOperation, Integer> operation_use_count = new HashMap<TypedOperation, Integer>();
 
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
-	
+
 	PseudoSequence previous = null;
-	
+
 	Map<String, Influence> all_branches_influences_compared_to_previous = null;
-	
+
 	String headed_variable_string = null;
 
 	public PseudoSequence(ArrayList<TypedOperation> operations) {
@@ -40,7 +40,7 @@ public class PseudoSequence implements Penalizable {
 	public void SetHeadedVariable(PseudoVariable headed_variable) {
 		this.headed_variable = headed_variable;
 	}
-	
+
 	public void SetHeadedVariableString(String headed_variable_string) {
 		if (headed_variable_string == null) {
 			Assert.isTrue(this.headed_variable_string == null);
@@ -51,7 +51,7 @@ public class PseudoSequence implements Penalizable {
 				Assert.isTrue(headed_variable_string.equals(this.headed_variable_string));
 			}
 		}
-		
+
 	}
 
 	public PseudoSequence(PseudoVariable headed_variable, ArrayList<TypedOperation> operations) {
@@ -59,8 +59,8 @@ public class PseudoSequence implements Penalizable {
 		this.operations = operations;
 	}
 
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, TypedOperation could_use_to, ArrayList<String> interested_branch,
-			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, TypedOperation could_use_to,
+			ArrayList<String> interested_branch, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		BeforeAfterLinkedSequence result = null;
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
@@ -97,8 +97,9 @@ public class PseudoSequence implements Penalizable {
 	public void SetPreviousSequence(PseudoSequence pseudo_sequence) {
 		this.previous = pseudo_sequence;
 	}
-	
-	public void SetAllBranchesInfluencesComparedToPrevious(Map<String, Influence> all_branches_influences_compared_to_previous) {
+
+	public void SetAllBranchesInfluencesComparedToPrevious(
+			Map<String, Influence> all_branches_influences_compared_to_previous) {
 		this.all_branches_influences_compared_to_previous = all_branches_influences_compared_to_previous;
 	}
 
@@ -179,7 +180,8 @@ public class PseudoSequence implements Penalizable {
 				.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
 		PseudoSequence copy_version = null;
 		try {
-			copy_version = this.getClass().getConstructor(PseudoVariable.class, ArrayList.class).newInstance(copied_headed_variable, operations);
+			copy_version = this.getClass().getConstructor(PseudoVariable.class, ArrayList.class)
+					.newInstance(copied_headed_variable, operations);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -209,8 +211,9 @@ public class PseudoSequence implements Penalizable {
 		// }
 		return copy_version;
 	}
-	
-	public void ReplacePseudoVariableInCitesAndCiters(PseudoSequence self, PseudoVariable be_replaced, PseudoVariable the_replace) {
+
+	public void ReplacePseudoVariableInCitesAndCiters(PseudoSequence self, PseudoVariable be_replaced,
+			PseudoVariable the_replace) {
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
 		this.BuildDependency(encountered);
 		for (PseudoSequence ps : encountered) {
@@ -220,7 +223,7 @@ public class PseudoSequence implements Penalizable {
 			for (PseudoStatement stmt : ps.statements) {
 				ArrayList<PseudoVariable> ivs = stmt.inputVariables;
 				int iv_len = ivs.size();
-				for (int i=0;i<iv_len;i++) {
+				for (int i = 0; i < iv_len; i++) {
 					PseudoVariable pv = ivs.get(i);
 					if (pv.equals(be_replaced)) {
 						ivs.set(i, the_replace);
@@ -268,38 +271,57 @@ public class PseudoSequence implements Penalizable {
 			Iterator<PseudoSequence> d_itr = encountered.iterator();
 			while (d_itr.hasNext()) {
 				PseudoSequence ps = d_itr.next();
-				int safe_length = ps_safe_length.get(ps);
-				PseudoStatement need_to_handle = ps.statements.get(safe_length);
-				ArrayList<PseudoVariable> ivs = need_to_handle.inputVariables;
-				Iterator<PseudoVariable> iv_itr = ivs.iterator();
-				boolean ensure_safe = true;
-				ArrayList<Variable> realInputVariables = new ArrayList<Variable>();
-				while (iv_itr.hasNext()) {
-					PseudoVariable pv = iv_itr.next();
-					realInputVariables.add(sequence
-							.getVariable(pseudo_sequence_index_to_sequence_index.get(pv.sequence).get(pv.index)));
-					if (pv.index >= ps_safe_length.get(pv.sequence)) {
-						ensure_safe = false;
-						break;
-					}
-				}
-				if (ensure_safe) {
-					// handle real Sequence, append to last of the real Sequence.
-					int recently_add_index = sequence.size();
-					pseudo_sequence_index_to_sequence_index.get(ps).put(safe_length, recently_add_index);
-					sequence.extend(need_to_handle.operation, realInputVariables);
-					pseudo_sequence_with_index_for_each_statement_in_sequence.add(new PseudoVariable(ps, safe_length));
-					safe_length++;
-					ps_safe_length.put(ps, safe_length);
-
-					if (safe_length >= ps.statements.size()) {
-						need_to_remove.add(ps);
-					}
+				boolean over = HandleOneSequenceAsFar(sequence, ps, ps_safe_length,
+						pseudo_sequence_index_to_sequence_index,
+						pseudo_sequence_with_index_for_each_statement_in_sequence);
+				if (over) {
+					need_to_remove.add(ps);
 				}
 			}
 			encountered.removeAll(need_to_remove);
 		}
 		return new LinkedSequence(sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
+	}
+
+	private boolean HandleOneSequenceAsFar(Sequence sequence, PseudoSequence ps,
+			HashMap<PseudoSequence, Integer> ps_safe_length,
+			HashMap<PseudoSequence, TreeMap<Integer, Integer>> pseudo_sequence_index_to_sequence_index,
+			ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence) {
+		while (true) {
+			int safe_length = ps_safe_length.get(ps);
+			if (safe_length >= ps.statements.size()) {
+				break;
+			}
+			PseudoStatement need_to_handle = ps.statements.get(safe_length);
+			ArrayList<PseudoVariable> ivs = need_to_handle.inputVariables;
+			Iterator<PseudoVariable> iv_itr = ivs.iterator();
+			boolean ensure_safe = true;
+			ArrayList<Variable> realInputVariables = new ArrayList<Variable>();
+			while (iv_itr.hasNext()) {
+				PseudoVariable pv = iv_itr.next();
+				if (pv.index >= ps_safe_length.get(pv.sequence)) {
+					ensure_safe = false;
+					break;
+				}
+				realInputVariables
+						.add(sequence.getVariable(pseudo_sequence_index_to_sequence_index.get(pv.sequence).get(pv.index)));
+			}
+			if (ensure_safe) {
+				// handle real Sequence, append to last of the real Sequence.
+				int recently_add_index = sequence.size();
+				pseudo_sequence_index_to_sequence_index.get(ps).put(safe_length, recently_add_index);
+				sequence.extend(need_to_handle.operation, realInputVariables);
+				pseudo_sequence_with_index_for_each_statement_in_sequence.add(new PseudoVariable(ps, safe_length));
+				safe_length++;
+				ps_safe_length.put(ps, safe_length);
+			} else {
+				break;
+			}
+		}
+		if (ps_safe_length.get(ps) >= ps.statements.size()) {
+			return true;
+		}
+		return false;
 	}
 
 	// private Map<TypedOperation, InfluenceOfBranchChange>
