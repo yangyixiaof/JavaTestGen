@@ -19,7 +19,6 @@ public class SequenceGeneratorHelper {
 		Iterator<Type> r_t_itr = r_type_list.iterator();
 		while (r_t_itr.hasNext()) {
 			ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
-			each_position_candidates.add(candidates);
 			Type tp = r_t_itr.next();
 			Class<?> tp_runtime_class = tp.getRuntimeClass();
 			Set<Class<?>> class_set = class_pseudo_variable.keySet();
@@ -30,8 +29,11 @@ public class SequenceGeneratorHelper {
 					candidates.addAll(class_pseudo_variable.get(cls));
 				}
 			}
+			if (candidates.size() > 0) {
+				each_position_candidates.add(candidates);
+			}
 		}
-		if (each_position_candidates.size() == r_type_list.size()-1) {
+		if (each_position_candidates.size() == r_type_list.size()) {
 			Iterator<ArrayList<PseudoVariable>> ipv_itr = each_position_candidates.iterator();
 			while (ipv_itr.hasNext()) {
 				ArrayList<PseudoVariable> pvs = ipv_itr.next();
