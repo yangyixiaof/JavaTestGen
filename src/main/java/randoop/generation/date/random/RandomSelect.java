@@ -38,16 +38,19 @@ public class RandomSelect {
 		Map<T, Double> aligned_map = new HashMap<T, Double>();
 
 		double total_rewards = 0.0;
-		Set<T> keys = wait_select.keySet();
-		Iterator<T> kitr = keys.iterator();
+		double prev_reward = 0.0;
+		Iterator<Map.Entry<T, Double>> kitr = list.iterator();
 		while (kitr.hasNext()) {
-			T t = kitr.next();
+			Map.Entry<T, Double> entry = kitr.next();
+			T curr_t = entry.getKey();
+			double curr_reward = entry.getValue();
+			if (curr_reward != prev_reward) {
+				r -= gap_r;
+			}
 			double r_r = Math.pow(r, 2.5);
-			aligned_map.put(t, r_r);
 			total_rewards += r_r;
-			r -= gap_r;
+			aligned_map.put(curr_t, r_r);
 		}
-
 		return new TotalAlignedResult<T>(total_rewards, aligned_map);
 	}
 
