@@ -299,6 +299,7 @@ public class PseudoSequence implements Penalizable {
 			ArrayList<Variable> realInputVariables = new ArrayList<Variable>();
 			while (iv_itr.hasNext()) {
 				PseudoVariable pv = iv_itr.next();
+				Assert.isTrue(pv.index >= 0);
 				if (pv.index >= ps_safe_length.get(pv.sequence)) {
 					ensure_safe = false;
 					break;
