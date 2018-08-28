@@ -20,12 +20,11 @@ public class SequenceGeneratorHelper {
 		while (r_t_itr.hasNext()) {
 			ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
 			Type tp = r_t_itr.next();
-			Class<?> tp_runtime_class = tp.getRuntimeClass();
 			Set<Class<?>> class_set = class_pseudo_variable.keySet();
 			Iterator<Class<?>> citr = class_set.iterator();
 			while (citr.hasNext()) {
 				Class<?> cls = citr.next();
-				if (tp_runtime_class.isAssignableFrom(cls)) {
+				if (tp.isAssignableFrom(Type.forClass(cls))) {
 					candidates.addAll(class_pseudo_variable.get(cls));
 				}
 			}
