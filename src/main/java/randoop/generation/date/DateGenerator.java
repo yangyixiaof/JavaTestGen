@@ -575,6 +575,7 @@ public class DateGenerator extends AbstractGenerator {
 		Iterator<TypedOperation> io_itr = inherit_operations.iterator();
 		while (io_itr.hasNext()) {
 			TypedOperation to = io_itr.next();
+			System.out.println("TypedOperation:" + to);
 			// System.out.println("to:" + to + "#to.getOutputType():" +
 			// to.getOutputType().isVoid());
 			String to_sig = to.getSignatureString();
