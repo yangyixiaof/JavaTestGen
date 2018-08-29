@@ -625,10 +625,10 @@ public class DateGenerator extends AbstractGenerator {
 //			MapUtil.Insert(short_ob, Short.class, NumberDeltaChangePseudoSequence.class, true,
 //					for_use_object_create_sequence_type, for_use_object_create_operations,
 //					for_use_object_modify_operations, operation_class, operation_is_to_create, typed_operation_branch_influence);
-			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
-			MapUtil.Insert(int_ob, Integer.class, NumberDeltaChangePseudoSequence.class, true,
-					for_use_object_create_sequence_type, for_use_object_create_operations,
-					for_use_object_modify_operations, operation_class, operation_is_to_create, typed_operation_branch_influence);
+//			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
+//			MapUtil.Insert(int_ob, Integer.class, NumberDeltaChangePseudoSequence.class, true,
+//					for_use_object_create_sequence_type, for_use_object_create_operations,
+//					for_use_object_modify_operations, operation_class, operation_is_to_create, typed_operation_branch_influence);
 //			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateLong"));
 //			MapUtil.Insert(long_ob, Long.class, NumberDeltaChangePseudoSequence.class, true,
 //					for_use_object_create_sequence_type, for_use_object_create_operations,
