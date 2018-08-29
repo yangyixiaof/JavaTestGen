@@ -31,11 +31,11 @@ public class StringDeltaChangePseudoSequence extends PseudoSequence {
 	}
 	
 	@Override
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, TypedOperation could_use_to, ArrayList<String> interested_branch,
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		if (selected_to.getInputTypes().size() == 1) {
-			return super.Mutate(selected_to, could_use_to, interested_branch, class_pseudo_variable, class_object_headed_sequence);
+			return super.Mutate(selected_to, interested_branch, class_pseudo_variable, class_object_headed_sequence);
 		} else {
 			int next_position = 0;
 			double next_delta = 1.0;

@@ -58,13 +58,13 @@ public class PseudoSequence implements Penalizable {
 		this.operations = operations;
 	}
 
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, TypedOperation could_use_to,
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, 
 			ArrayList<String> interested_branch, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		BeforeAfterLinkedSequence result = null;
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		// add parameters.
-		TypeTuple input_types = could_use_to.getInputTypes();
+		TypeTuple input_types = selected_to.getInputTypes();
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(input_types);
 		List<Type> r_type_list = type_list.subList(1, type_list.size());
 		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, class_pseudo_variable,
@@ -77,7 +77,7 @@ public class PseudoSequence implements Penalizable {
 			ps.SetPreviousSequence(this);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
-			ps.Append(could_use_to, input_pseudo_variables, class_object_headed_sequence);
+			ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			result = new BeforeAfterLinkedSequence(selected_to, ps.headed_variable, ps, before_linked_sequence,
 					after_linked_sequence);

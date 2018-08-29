@@ -278,20 +278,20 @@ public class DateGenerator extends AbstractGenerator {
 		TypedOperation selected_to = RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence,
 				interested_branch, null);
 		if (selected_to != null) {
-			TypedOperation could_use_to = selected_to;
-			if (selected_to.isGeneric() || selected_to.hasWildcardTypes()) {
-				System.out.println();
-				System.out.println("selected typed operation:" + selected_to);
-				could_use_to = instantiator.instantiate((TypedClassOperation) selected_to);
-				System.out.println("instantiated typed operation is generic or wild? " + (could_use_to.isGeneric() || could_use_to.hasWildcardTypes()) + "#instantiated typed operation:" + could_use_to);
-				System.exit(1);
-			}
+//			TypedOperation could_use_to = selected_to;
+//			if (selected_to.isGeneric() || selected_to.hasWildcardTypes()) {
+//				System.out.println();
+//				System.out.println("selected typed operation:" + selected_to);
+//				could_use_to = instantiator.instantiate((TypedClassOperation) selected_to);
+//				System.out.println("instantiated typed operation is generic or wild? " + (could_use_to.isGeneric() || could_use_to.hasWildcardTypes()) + "#instantiated typed operation:" + could_use_to);
+//				System.exit(1);
+//			}
 			Class<?> selected_to_class = operation_class.get(selected_to);
 			Class<?> sequence_type = for_use_object_create_sequence_type.get(selected_to_class);
 			if (operation_is_to_create.get(selected_to) == true) {
 				// create new sequence
 				ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
-				List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(could_use_to.getInputTypes());
+				List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(selected_to.getInputTypes());
 				SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, type_list,
 						class_pseudo_variable, pseudo_variable_headed_sequence);
 				if (input_pseudo_variables.size() == type_list.size()) {
@@ -304,7 +304,7 @@ public class DateGenerator extends AbstractGenerator {
 						System.exit(1);
 					}
 					LinkedSequence before_linked_sequence = ps.GenerateLinkedSequence();
-					PseudoVariable created_pv = ps.Append(could_use_to, input_pseudo_variables,
+					PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables,
 							pseudo_variable_headed_sequence);
 					ps.SetHeadedVariable(created_pv);
 					LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
@@ -336,7 +336,7 @@ public class DateGenerator extends AbstractGenerator {
 						}
 						String content = pseudo_variable_content.get(selected_pv);
 						selected_pv_headed_sequence.SetHeadedVariableString(content);
-						return selected_pv_headed_sequence.Mutate(selected_to, could_use_to, interested_branch,
+						return selected_pv_headed_sequence.Mutate(selected_to, interested_branch,
 								class_pseudo_variable, pseudo_variable_headed_sequence);
 					}
 				}
