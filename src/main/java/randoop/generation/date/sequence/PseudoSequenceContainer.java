@@ -10,13 +10,17 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
+import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.BranchValueState;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.Rewardable;
+import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.ObjectConstraintMutation;
 import randoop.generation.date.mutation.ObligatoryObjectConstraintMutation;
 import randoop.generation.date.mutation.TypedOperationMutation;
+import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.constraint.PseudoSequenceAddressConstraint;
 import randoop.generation.date.sequence.constraint.PseudoSequenceTypeConstraint;
 import randoop.generation.date.util.ClassUtil;
@@ -31,6 +35,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	// ========= split line =========
 	// the following are set up by execution trace
 	TraceInfo info = null;
+	BranchValueState val_state = null;
 
 	// must satisfied constraint in next generation
 	boolean obligatory_constraint_solved = false;
@@ -58,6 +63,7 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	public void SetTraceInfo(TraceInfo info) {
 		this.info = info;
+		this.val_state = SimpleInfluenceComputer.CreateBranchValueState(info);
 	}
 
 	public TraceInfo GetTraceInfo() {
@@ -68,11 +74,45 @@ public class PseudoSequenceContainer implements Rewardable {
 		return end.GenerateLinkedSequence();
 	}
 	
+	private PseudoSequenceContainer MutateByApplyingObjectAddressConstraint(DateGenerator dg, PseudoSequenceAddressConstraint psac) {
+		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+		PseudoSequence copied_end = (PseudoSequence)end.CopySelfInDeepCloneWay(origin_copied_sequence_map, dg.pseudo_variable_headed_sequence);
+		copied_end.ReplacePseudoVariableInDependency(dg, psac.GetShouldBeSamePseudoVariableOne(), psac.GetShouldBeSamePseudoVariableTwo());
+		return copied_end.container;
+	}
+	
+	private PseudoSequenceContainer MutateByApplyingObjectTypeConstraint(DateGenerator dg, PseudoSequenceTypeConstraint pstc) {
+		PseudoVariable pv = pstc.GetPseudoVariable();
+		Class<?> st = pstc.GetSpecifiedType();
+		boolean is_to_same = pstc.IsToSame();
+		Set<Class<?>> origin = dg.class_pseudo_variable.keySet();
+		Set<Class<?>> descendants = ClassUtil.GetDescendantClasses(origin, st);
+		Set<Class<?>> not_descendants = new HashSet<Class<?>>(origin);
+		not_descendants.removeAll(descendants);
+		if (is_to_same) {
+			return MakeSelectedVariableMatchSelectedClasses(pv, descendants, dg);
+		} else {
+			return MakeSelectedVariableMatchSelectedClasses(pv, not_descendants, dg);
+		}
+	}
+	
+	private PseudoSequenceContainer MakeSelectedVariableMatchSelectedClasses(PseudoVariable pv, Set<Class<?>> selected_classes, DateGenerator dg) {
+		ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
+		SequenceGeneratorHelper.SelectToListFromMap(selected_classes, dg.class_pseudo_variable, candidates);
+		PseudoVariable sv = RandomSelect.RandomPseudoVariableListAccordingToLength(candidates);
+		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+		PseudoVariable copied_sv = sv.CopySelfInDeepCloneWay(origin_copied_sequence_map, dg.pseudo_variable_headed_sequence);
+		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map_for_end = new HashMap<PseudoSequence, PseudoSequence>();
+		PseudoSequence copied_end = (PseudoSequence)end.CopySelfInDeepCloneWay(origin_copied_sequence_map_for_end, dg.pseudo_variable_headed_sequence);
+		copied_end.ReplacePseudoVariableInDependency(dg, pv, copied_sv);
+		return copied_end.container;
+	}
+	
 	public boolean ObligatoryConstraintSolved() {
 		return obligatory_constraint_solved;
 	}
 	
-	public PseudoSequenceContainer MutateByApplyingObligatoryConstraint() {
+	public PseudoSequenceContainer MutateByApplyingObligatoryConstraint(DateGenerator dg) {
 		// TODO
 		
 		obligatory_constraint_solved = true;
@@ -99,10 +139,8 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	@Override
 	public double GetReward(ArrayList<String> interested_branch) {
-		// TODO Auto-generated method stub
-		Assert.isTrue(info != null);
-		
-		return 0;
+		Assert.isTrue(info != null && val_state != null);
+		return val_state.GetReward(interested_branch);
 	}
 
 	public List<Mutation> UntriedMutations(Map<TypedOperation, Class<?>> operation_class,
@@ -116,7 +154,7 @@ public class PseudoSequenceContainer implements Rewardable {
 		for (PseudoVariable var : variables) {
 			ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
 			Class<?> var_class = pseudo_variable_class.get(var);
-			Set<Class<?>> could_assign_classes = ClassUtil.GetAssignableClasses(classes, var_class);
+			Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
 			for (Class<?> ca_cls : could_assign_classes) {
 				tos.addAll(for_use_object_modify_operations.get(ca_cls));
 			}

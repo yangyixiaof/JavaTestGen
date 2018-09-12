@@ -2,6 +2,7 @@ package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,20 +15,29 @@ import randoop.util.Randomness;
 
 public class SequenceGeneratorHelper {
 	
+	public static void SelectToListFromMap(Set<Class<?>> selected_classes, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable, ArrayList<PseudoVariable> candidates) {
+		for (Class<?> sc : selected_classes) {
+			candidates.addAll(class_pseudo_variable.get(sc));
+		}
+	}
+	
 	public static void GenerateInputPseudoVariables(ArrayList<PseudoVariable> input_pseudo_variables, List<Type> r_type_list, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable, Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence) {
 		ArrayList<ArrayList<PseudoVariable>> each_position_candidates = new ArrayList<ArrayList<PseudoVariable>>();
 		Iterator<Type> r_t_itr = r_type_list.iterator();
 		while (r_t_itr.hasNext()) {
 			ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
 			Type tp = r_t_itr.next();
+			Set<Class<?>> selected_classes = new HashSet<Class<?>>();
 			Set<Class<?>> class_set = class_pseudo_variable.keySet();
 			Iterator<Class<?>> citr = class_set.iterator();
 			while (citr.hasNext()) {
 				Class<?> cls = citr.next();
 				if (tp.isAssignableFrom(Type.forClass(cls))) {
-					candidates.addAll(class_pseudo_variable.get(cls));
+					selected_classes.add(cls);
+//					candidates.addAll(class_pseudo_variable.get(cls));
 				}
 			}
+			SelectToListFromMap(selected_classes, class_pseudo_variable, candidates);
 			if (candidates.size() > 0) {
 				each_position_candidates.add(candidates);
 			}

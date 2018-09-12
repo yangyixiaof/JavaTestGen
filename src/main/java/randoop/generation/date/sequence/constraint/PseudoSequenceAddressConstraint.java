@@ -13,11 +13,19 @@ public class PseudoSequenceAddressConstraint {
 	}
 
 	public PseudoVariable GetShouldBeSamePseudoVariableOne() {
-		return pv1;
+		if (pv1.SizeOfUsers() >= pv2.SizeOfUsers()) {
+			return pv1;
+		} else {
+			return pv2;
+		}
 	}
 
 	public PseudoVariable GetShouldBeSamePseudoVariableTwo() {
-		return pv2;
+		if (pv1.SizeOfUsers() >= pv2.SizeOfUsers()) {
+			return pv2;
+		} else {
+			return pv1;
+		}
 	}
 
 }

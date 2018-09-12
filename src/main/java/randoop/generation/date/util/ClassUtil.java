@@ -9,7 +9,7 @@ public class ClassUtil {
 	
 	private static Map<Class<?>, Set<Class<?>>> cache = new HashMap<>();
 	
-	public static Set<Class<?>> GetAssignableClasses(Set<Class<?>> classes, Class<?> spec) {
+	public static Set<Class<?>> GetSuperClasses(Set<Class<?>> classes, Class<?> spec) {
 		if (cache.containsKey(spec)) {
 			return cache.get(spec);
 		}
@@ -20,6 +20,16 @@ public class ClassUtil {
 			}
 		}
 		cache.put(spec, result);
+		return result;
+	}
+	
+	public static Set<Class<?>> GetDescendantClasses(Set<Class<?>> classes, Class<?> spec) {
+		Set<Class<?>> result = new HashSet<Class<?>>();
+		for (Class<?> cls : classes) {
+			if (spec.isAssignableFrom(cls)) {
+				result.add(cls);
+			}
+		}
 		return result;
 	}
 	

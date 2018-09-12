@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
+import randoop.generation.date.DateGenerator;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 import randoop.types.Type;
@@ -203,12 +204,13 @@ public class PseudoSequence {
 		return copy_version;
 	}
 
-	public void ReplacePseudoVariableInCitesAndCiters(PseudoSequence self, PseudoVariable be_replaced,
+	public void ReplacePseudoVariableInDependency(DateGenerator dg, PseudoVariable be_replaced,
 			PseudoVariable the_replace) {
+		PseudoSequence be_replaced_self = dg.pseudo_variable_headed_sequence.get(be_replaced);
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
 		this.BuildDependency(encountered);
 		for (PseudoSequence ps : encountered) {
-			if (ps == self) {
+			if (ps == be_replaced_self) {
 				continue;
 			}
 			for (PseudoStatement stmt : ps.statements) {
