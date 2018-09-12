@@ -82,11 +82,11 @@ public abstract class ParameterizedType extends ClassOrInterfaceType {
    */
   @Override
   public String getName() {
-    return super.getName() + "<" + UtilPlume.join(this.getTypeArguments(), ",") + ">";
+    return super.getName();// + "<" + UtilPlume.join(this.getTypeArguments(), ",") + ">";
   }
 
   @Override
   public String getUnqualifiedName() {
-    return this.getSimpleName() + "<" + UtilPlume.join(this.getTypeArguments(), ",") + ">";
+    return this.getSimpleName();// + "<" + UtilPlume.join(this.getTypeArguments(), ",") + ">";
   }
 }

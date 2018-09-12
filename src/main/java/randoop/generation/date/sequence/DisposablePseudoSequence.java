@@ -9,13 +9,14 @@ import randoop.operation.TypedOperation;
 
 public class DisposablePseudoSequence extends PseudoSequence {
 
-	public DisposablePseudoSequence(ArrayList<TypedOperation> operations) {
-		super(operations);
+	// ArrayList<TypedOperation> operations
+	public DisposablePseudoSequence() {
+//		super(operations);
 	}
 	
-	public DisposablePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
-		super(pv, operations);
-	}
+//	public DisposablePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
+//		super(pv, operations);
+//	}
 	
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,

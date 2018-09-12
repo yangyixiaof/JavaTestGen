@@ -10,53 +10,41 @@ import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
-import randoop.generation.date.influence.Influence;
-import randoop.generation.date.influence.Penalizable;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
-public class PseudoSequence implements Penalizable {
-
+public class PseudoSequence {
+	
+	PseudoSequenceContainer container = null;
+	
 	PseudoVariable headed_variable = null;
 
-	ArrayList<TypedOperation> operations = null;// these operations only contain object modify operations.
-	Map<TypedOperation, Integer> operation_use_count = new HashMap<TypedOperation, Integer>();
+//	ArrayList<TypedOperation> operations = null;// these operations only contain object modify operations.
 
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
 
 	PseudoSequence previous = null;
 
-	Map<String, Influence> all_branches_influences_compared_to_previous = null;
+//	Map<String, Influence> all_branches_influences_compared_to_previous = null;
 
-	String headed_variable_string = null;
-
-	public PseudoSequence(ArrayList<TypedOperation> operations) {
-		this.operations = operations;
+	public PseudoSequence() {// ArrayList<TypedOperation> operations
+//		this.operations = operations;
+	}
+	
+	public void SetContainer(PseudoSequenceContainer container) {
+		this.container = container;
 	}
 
 	public void SetHeadedVariable(PseudoVariable headed_variable) {
 		this.headed_variable = headed_variable;
 	}
 
-	public void SetHeadedVariableString(String headed_variable_string) {
-		if (headed_variable_string == null) {
-			Assert.isTrue(this.headed_variable_string == null);
-		} else {
-			if (this.headed_variable_string == null) {
-				this.headed_variable_string = headed_variable_string;
-			} else {
-				Assert.isTrue(headed_variable_string.equals(this.headed_variable_string));
-			}
-		}
-
-	}
-
-	public PseudoSequence(PseudoVariable headed_variable, ArrayList<TypedOperation> operations) {
-		this.headed_variable = headed_variable;
-		this.operations = operations;
-	}
+//	public PseudoSequence(PseudoVariable headed_variable, ArrayList<TypedOperation> operations) {
+//		this.headed_variable = headed_variable;
+//		this.operations = operations;
+//	}
 
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, 
 			ArrayList<String> interested_branch, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
@@ -79,16 +67,13 @@ public class PseudoSequence implements Penalizable {
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
 			ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
-			result = new BeforeAfterLinkedSequence(selected_to, ps.headed_variable, ps, before_linked_sequence,
+			// ps.headed_variable, ps, 
+			result = new BeforeAfterLinkedSequence(selected_to, before_linked_sequence,
 					after_linked_sequence);
 		}
 		if (result != null) {
-			Integer count = operation_use_count.get(selected_to);
-			if (count == null) {
-				count = 0;
-			}
-			count++;
-			operation_use_count.put(selected_to, count);
+			Assert.isTrue(headed_variable != null);
+			headed_variable.OperationApplied(selected_to);
 		}
 		return result;
 	}
@@ -97,10 +82,10 @@ public class PseudoSequence implements Penalizable {
 		this.previous = pseudo_sequence;
 	}
 
-	public void SetAllBranchesInfluencesComparedToPrevious(
-			Map<String, Influence> all_branches_influences_compared_to_previous) {
-		this.all_branches_influences_compared_to_previous = all_branches_influences_compared_to_previous;
-	}
+//	public void SetAllBranchesInfluencesComparedToPrevious(
+//			Map<String, Influence> all_branches_influences_compared_to_previous) {
+//		this.all_branches_influences_compared_to_previous = all_branches_influences_compared_to_previous;
+//	}
 
 	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
@@ -158,7 +143,7 @@ public class PseudoSequence implements Penalizable {
 		}
 		PseudoSequence copy_version = null;
 		try {
-			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance(operations);
+			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -184,7 +169,7 @@ public class PseudoSequence implements Penalizable {
 		}
 		PseudoSequence copy_version = null;
 		try {
-			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance(operations);
+			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -238,8 +223,24 @@ public class PseudoSequence implements Penalizable {
 			}
 		}
 	}
+	
+	public void BuildDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered) {
+		if (encountered.contains(this)) {
+			return;
+		}
+		encountered.add(this);
+		for (PseudoStatement stmt : this.statements) {
+			for (PseudoVariable pv : stmt.inputVariables) {
+				if (!variables.contains(pv)) {
+					variables.add(pv);
+					PseudoSequence pv_sequence = pv.sequence;
+					pv_sequence.BuildDependantPseudoVariables(variables, encountered);
+				}
+			}
+		}
+	}
 
-	private void BuildDependency(HashSet<PseudoSequence> encountered) {
+	protected void BuildDependency(HashSet<PseudoSequence> encountered) {
 		if (encountered.contains(this)) {
 			return;
 		}
@@ -250,6 +251,9 @@ public class PseudoSequence implements Penalizable {
 				pv_sequence.BuildDependency(encountered);
 			}
 		}
+	}
+	
+	protected void BuildUsage(HashSet<PseudoSequence> encountered) {
 		if (headed_variable == null) {
 			Assert.isTrue(statements.size() == 0);
 		} else {
@@ -260,6 +264,36 @@ public class PseudoSequence implements Penalizable {
 		}
 	}
 
+	// private Map<TypedOperation, InfluenceOfBranchChange>
+	// EnsureTypedOperationBranchInfluence(Map<TypedOperation,
+	// InfluenceOfBranchChange> typed_operation_branch_influence) {
+	// Map<TypedOperation, InfluenceOfBranchChange>
+	// real_use_typed_operation_branch_influence = new HashMap<TypedOperation,
+	// InfluenceOfBranchChange>();
+	// for (TypedOperation op : operations) {
+	// InfluenceOfBranchChange branch_influence =
+	// typed_operation_branch_influence.get(op);
+	// if (branch_influence == null) {
+	// branch_influence = new InfluenceOfBranchChange();
+	// }
+	// real_use_typed_operation_branch_influence.put(op, branch_influence);
+	// }
+	// return real_use_typed_operation_branch_influence;
+	// }
+
+	public int Size() {
+		return statements.size();
+	}
+
+//	@Override
+//	public double GetPunishment(TypedOperation selected_op) {
+//		Integer count = operation_use_count.get(selected_op);
+//		if (count != null) {
+//			return -(count * 1.0);
+//		}
+//		return 0.0;
+//	}
+	
 	public LinkedSequence GenerateLinkedSequence() {
 		SequenceWrapper sw = new SequenceWrapper();
 		ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence = new ArrayList<PseudoVariable>();
@@ -335,36 +369,6 @@ public class PseudoSequence implements Penalizable {
 			return true;
 		}
 		return false;
-	}
-
-	// private Map<TypedOperation, InfluenceOfBranchChange>
-	// EnsureTypedOperationBranchInfluence(Map<TypedOperation,
-	// InfluenceOfBranchChange> typed_operation_branch_influence) {
-	// Map<TypedOperation, InfluenceOfBranchChange>
-	// real_use_typed_operation_branch_influence = new HashMap<TypedOperation,
-	// InfluenceOfBranchChange>();
-	// for (TypedOperation op : operations) {
-	// InfluenceOfBranchChange branch_influence =
-	// typed_operation_branch_influence.get(op);
-	// if (branch_influence == null) {
-	// branch_influence = new InfluenceOfBranchChange();
-	// }
-	// real_use_typed_operation_branch_influence.put(op, branch_influence);
-	// }
-	// return real_use_typed_operation_branch_influence;
-	// }
-
-	public int Size() {
-		return statements.size();
-	}
-
-	@Override
-	public double GetPunishment(TypedOperation selected_op) {
-		Integer count = operation_use_count.get(selected_op);
-		if (count != null) {
-			return -(count * 1.0);
-		}
-		return 0.0;
 	}
 
 }

@@ -1,6 +1,7 @@
 package randoop.generation.date.random;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -76,6 +77,29 @@ public class RandomSelect {
 	public static <T> T RandomKeyFromMapByValue(Map<T, Double> wait_select) {
 		// sort, big first
 		return RandomKeyFromAlignedResult(GenerateTotalAlignedMap(wait_select));
+	}
+	
+	public static Object RandomKeyFromSetByRewardableElement(Collection<? extends Rewardable> wait_select,
+			ArrayList<String> interested_branch, SelectFileter<?> filter) {
+		Map<Object, Double> final_wait_select = new HashMap<Object, Double>();
+		Iterator<? extends Rewardable> kitr = wait_select.iterator();
+		while (kitr.hasNext()) {
+			Rewardable t = kitr.next();
+//			if (filter == null || filter.Retain(t))
+			{
+				double reward = 0.0;
+				reward += t.GetReward(interested_branch);
+//				Rewardable to_branch_influence = wait_select.get(t);
+//				if (to_branch_influence != null) {
+//					reward += to_branch_influence.GetReward(interested_branch);
+//				}
+				final_wait_select.put(t, reward);
+			}
+		}
+		if (final_wait_select.size() == 0) {
+			return null;
+		}
+		return RandomKeyFromMapByValue(final_wait_select);
 	}
 
 	public static <T> T RandomKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
