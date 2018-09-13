@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 
+import randoop.generation.date.DateGenerator;
 import randoop.operation.TypedOperation;
 
 public class DisposablePseudoSequence extends PseudoSequence {
@@ -20,8 +21,7 @@ public class DisposablePseudoSequence extends PseudoSequence {
 	
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
-			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+			DateGenerator dg) {
 		new Exception("This mutate should not be invoked!").printStackTrace();
 		System.exit(1);
 		return null;

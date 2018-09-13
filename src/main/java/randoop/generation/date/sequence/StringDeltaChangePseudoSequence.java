@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.operation.TypedOperation;
@@ -15,27 +16,27 @@ import randoop.util.Randomness;
 
 public class StringDeltaChangePseudoSequence extends PseudoSequence {
 	
-	int position = 0;
-	double delta = 0.0;
+//	int position = 0;
+//	double delta = 0.0;
+//	
+//	Map<Integer, HashSet<Double>> have_tried_delta_for_position = new TreeMap<Integer, HashSet<Double>>();
+//	
+//	Random random = new Random();
 	
-	Map<Integer, HashSet<Double>> have_tried_delta_for_position = new TreeMap<Integer, HashSet<Double>>();
-	
-	Random random = new Random();
-	
-	public StringDeltaChangePseudoSequence(ArrayList<TypedOperation> operations) {
-		super(operations);
+	public StringDeltaChangePseudoSequence() {// ArrayList<TypedOperation> operations
+		super();// operations
 	}
 	
-	public StringDeltaChangePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
-		super(pv, operations);
-	}
+//	public StringDeltaChangePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
+//		super(pv, operations);
+//	}
 	
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
-			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+			DateGenerator dg) {
+		// Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable, Map<PseudoVariable, PseudoSequence> class_object_headed_sequence
 		if (selected_to.getInputTypes().size() == 1) {
-			return super.Mutate(selected_to, interested_branch, class_pseudo_variable, class_object_headed_sequence);
+			return super.Mutate(selected_to, interested_branch, dg);
 		} else {
 			int next_position = 0;
 			double next_delta = 1.0;
@@ -113,12 +114,12 @@ public class StringDeltaChangePseudoSequence extends PseudoSequence {
 		}
 	}
 	
-	@Override
-	public double GetPunishment(TypedOperation selected_op) {
-		if (selected_op.getInputTypes().size() == 1) { // refer to randoop.generation.date.runtime.DateRuntimeSupport.AppendString
-			return super.GetPunishment(selected_op);
-		}
-		return 0.0;
-	}
+//	@Override
+//	public double GetPunishment(TypedOperation selected_op) {
+//		if (selected_op.getInputTypes().size() == 1) { // refer to randoop.generation.date.runtime.DateRuntimeSupport.AppendString
+//			return super.GetPunishment(selected_op);
+//		}
+//		return 0.0;
+//	}
 
 }

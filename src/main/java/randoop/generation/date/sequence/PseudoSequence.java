@@ -52,25 +52,24 @@ public class PseudoSequence {
 	// }
 
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
-			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+			DateGenerator dg) {
 		BeforeAfterLinkedSequence result = null;
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		// add parameters.
 		TypeTuple input_types = selected_to.getInputTypes();
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(input_types);
 		List<Type> r_type_list = type_list.subList(1, type_list.size());
-		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, class_pseudo_variable,
-				class_object_headed_sequence);
+		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, dg.class_pseudo_variable,
+				dg.pseudo_variable_headed_sequence);
 		// initialize candidates.
 		if (input_pseudo_variables.size() == r_type_list.size()) {
 			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 			PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
-					class_object_headed_sequence);
+					dg.pseudo_variable_headed_sequence);
 			ps.SetPreviousSequence(this);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
-			ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
+			ps.Append(selected_to, input_pseudo_variables, dg.pseudo_variable_headed_sequence);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
@@ -140,6 +139,7 @@ public class PseudoSequence {
 
 	public PseudoSequence CopySelfInDeepCloneWay(Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+		// TODO 记得考虑container
 		if (origin_copied_sequence_map.containsKey(this)) {
 			return origin_copied_sequence_map.get(this);
 		}
@@ -166,6 +166,7 @@ public class PseudoSequence {
 	public PseudoSequence CopySelfAndCitersInDeepCloneWay(
 			Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+		// TODO 记得考虑container
 		if (origin_copied_sequence_map.containsKey(this)) {
 			return origin_copied_sequence_map.get(this);
 		}

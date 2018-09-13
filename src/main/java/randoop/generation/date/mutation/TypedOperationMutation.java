@@ -44,8 +44,7 @@ public class TypedOperationMutation extends Mutation {
 			PseudoSequence selected_pv_headed_sequence = dg.pseudo_variable_headed_sequence.get(selected_pv);
 //			String content = pseudo_variable_content.get(selected_pv);
 //			selected_pv_headed_sequence.SetHeadedVariableString(content);
-			return selected_pv_headed_sequence.Mutate(to, interested_branch, dg.class_pseudo_variable,
-					dg.pseudo_variable_headed_sequence);
+			return selected_pv_headed_sequence.Mutate(to, interested_branch, dg);
 		}
 		return null;
 	}
