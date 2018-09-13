@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation;
+package randoop.generation.date.mutation.operation;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -6,16 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import randoop.generation.date.mutation.operation.Insert;
-import randoop.generation.date.mutation.operation.MutationOperation;
-import randoop.generation.date.mutation.operation.PrimitiveBooleanModify;
-import randoop.generation.date.mutation.operation.PrimitiveIntegralModify;
-import randoop.generation.date.mutation.operation.PrimitiveRealModify;
-import randoop.generation.date.mutation.operation.ReferenceModify;
-import randoop.generation.date.mutation.operation.Remove;
-import randoop.generation.date.mutation.operation.StringAlterModify;
-import randoop.generation.date.mutation.operation.StringInsertModify;
-import randoop.generation.date.mutation.operation.StringRemoveModify;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.sequence.StatementWithIndex;
 import randoop.generation.date.sequence.TraceableSequenceFilteredIterator;
@@ -93,7 +83,6 @@ public class MutationAnalyzer {
 				TypedOperation optr = citr.next();
 				if (optr.isGeneric() || optr.hasWildcardTypes()) {
 					if ((optr = instantiateGenericType(optr)) == null) {
-						// TODO 鎬庢牱鎶ラ敊濂斤紵
 						// throw new DateWtfException();
 						continue; // hmmmmmm
 					}

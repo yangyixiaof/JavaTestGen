@@ -2,7 +2,7 @@ package randoop.generation.date.sequence.constraint;
 
 import randoop.generation.date.sequence.PseudoVariable;
 
-public class PseudoSequenceTypeConstraint {
+public class PseudoSequenceTypeConstraint extends PseudoSequenceConstraint {
 
 	PseudoVariable pv = null;
 	Class<?> type = null;

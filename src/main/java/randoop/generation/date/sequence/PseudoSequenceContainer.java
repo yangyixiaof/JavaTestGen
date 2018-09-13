@@ -22,9 +22,11 @@ import randoop.generation.date.mutation.ObligatoryObjectConstraintMutation;
 import randoop.generation.date.mutation.TypedOperationMutation;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.constraint.PseudoSequenceAddressConstraint;
+import randoop.generation.date.sequence.constraint.PseudoSequenceConstraint;
 import randoop.generation.date.sequence.constraint.PseudoSequenceTypeConstraint;
 import randoop.generation.date.util.ClassUtil;
 import randoop.operation.TypedOperation;
+import randoop.util.Randomness;
 
 public class PseudoSequenceContainer implements Rewardable {
 	
@@ -38,9 +40,11 @@ public class PseudoSequenceContainer implements Rewardable {
 	BranchValueState val_state = null;
 
 	// must satisfied constraint in next generation
-	boolean obligatory_constraint_solved = false;
-	HashSet<PseudoSequenceAddressConstraint> acs = new HashSet<PseudoSequenceAddressConstraint>();
-	HashSet<PseudoSequenceTypeConstraint> tcs = new HashSet<PseudoSequenceTypeConstraint>();
+//	HashSet<PseudoSequenceAddressConstraint> acs = new HashSet<PseudoSequenceAddressConstraint>();
+//	HashSet<PseudoSequenceTypeConstraint> tcs = new HashSet<PseudoSequenceTypeConstraint>();
+
+	HashSet<PseudoSequenceConstraint> solved_obligatory_tcs = new HashSet<PseudoSequenceConstraint>();
+	HashSet<PseudoSequenceConstraint> obligatory_tcs = new HashSet<PseudoSequenceConstraint>();
 
 	// optional satisfied constraint
 	HashSet<PseudoSequenceTypeConstraint> solved_optional_tcs = new HashSet<PseudoSequenceTypeConstraint>();
@@ -108,29 +112,36 @@ public class PseudoSequenceContainer implements Rewardable {
 		return copied_end.container;
 	}
 	
-	public boolean ObligatoryConstraintSolved() {
-		return obligatory_constraint_solved;
+	public boolean HasUnsolvedObligatoryConstraint() {
+		return obligatory_tcs.size() > 0;
 	}
 	
 	public PseudoSequenceContainer MutateByApplyingObligatoryConstraint(DateGenerator dg) {
-		// TODO
-		
-		obligatory_constraint_solved = true;
+		PseudoSequenceConstraint oc = Randomness.randomSetMember(obligatory_tcs);
+		obligatory_tcs.remove(oc);
+		solved_obligatory_tcs.add(oc);
+		if (oc instanceof PseudoSequenceAddressConstraint) {
+			return MutateByApplyingObjectAddressConstraint(dg, (PseudoSequenceAddressConstraint)oc);
+		}
+		if (oc instanceof PseudoSequenceTypeConstraint) {
+			return MutateByApplyingObjectTypeConstraint(dg, (PseudoSequenceTypeConstraint)oc);
+		}
 		return null;
 	}
 	
-	public ObligatoryObjectConstraintMutation GenerateObligatoryObjectConstraintMutation() {
-		return new ObligatoryObjectConstraintMutation(null, this);
+	public ObligatoryObjectConstraintMutation GenerateObligatoryObjectConstraintMutation(InfluenceOfBranchChange object_constraint_branch_influence) {
+		return new ObligatoryObjectConstraintMutation(object_constraint_branch_influence, this);
 	}
 	
 	public boolean HasUnsolvedConstraint() {
 		return optional_tcs.size() > 0;
 	}
 	
-	public PseudoSequenceContainer MutateByApplyingOneRandomUnsolvedConstraint() {
-		// TODO Auto-generated method stub
-		
-		return null;
+	public PseudoSequenceContainer MutateByApplyingOptionalConstraint(DateGenerator dg) {
+		PseudoSequenceTypeConstraint tc = Randomness.randomSetMember(optional_tcs);
+		optional_tcs.remove(tc);
+		solved_optional_tcs.add(tc);
+		return MutateByApplyingObjectTypeConstraint(dg, tc);
 	}
 	
 	public ObjectConstraintMutation GenerateObjectConstraintMutation(InfluenceOfBranchChange object_constraint_branch_influence) {

@@ -2,7 +2,7 @@ package randoop.generation.date.sequence.constraint;
 
 import randoop.generation.date.sequence.PseudoVariable;
 
-public class PseudoSequenceAddressConstraint {
+public class PseudoSequenceAddressConstraint extends PseudoSequenceConstraint {
 
 	PseudoVariable pv1 = null;
 	PseudoVariable pv2 = null;
@@ -13,7 +13,7 @@ public class PseudoSequenceAddressConstraint {
 	}
 
 	public PseudoVariable GetShouldBeSamePseudoVariableOne() {
-		if (pv1.SizeOfUsers() >= pv2.SizeOfUsers()) {
+		if (pv1.sequence.SizeOfUsers() >= pv2.sequence.SizeOfUsers()) {
 			return pv1;
 		} else {
 			return pv2;
@@ -21,7 +21,7 @@ public class PseudoSequenceAddressConstraint {
 	}
 
 	public PseudoVariable GetShouldBeSamePseudoVariableTwo() {
-		if (pv1.SizeOfUsers() >= pv2.SizeOfUsers()) {
+		if (pv1.sequence.SizeOfUsers() >= pv2.sequence.SizeOfUsers()) {
 			return pv2;
 		} else {
 			return pv1;

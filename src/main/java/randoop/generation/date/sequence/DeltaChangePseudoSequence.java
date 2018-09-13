@@ -12,7 +12,7 @@ import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.operation.TypedOperation;
 import randoop.types.JavaTypes;
 
-public class NumberDeltaChangePseudoSequence extends PseudoSequence {
+public class DeltaChangePseudoSequence extends PseudoSequence {
 	
 	double delta = 0.0;
 	
@@ -20,12 +20,23 @@ public class NumberDeltaChangePseudoSequence extends PseudoSequence {
 	
 	Random random = new Random();
 	
-	public NumberDeltaChangePseudoSequence(ArrayList<TypedOperation> operations) {
-		super(operations);
+	Map<String, Influence> to_previous_branches_influences = null;
+	
+	// ArrayList<TypedOperation> operations
+	public DeltaChangePseudoSequence() {
+		super();// operations
 	}
 	
-	public NumberDeltaChangePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
-		super(pv, operations);
+//	public NumberDeltaChangePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
+//		super(pv, operations);
+//	}
+	
+	@Override
+	public PseudoSequence CopySelfAndCitersInDeepCloneWay(
+			Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map,
+			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+		// TODO 记得复制 delta 和 to_previous_branches_influences
+		return super.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
 	}
 	
 	@Override
@@ -36,36 +47,36 @@ public class NumberDeltaChangePseudoSequence extends PseudoSequence {
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		// initialize candidates.
 		HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-		NumberDeltaChangePseudoSequence ps = (NumberDeltaChangePseudoSequence)this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
+		DeltaChangePseudoSequence ps = (DeltaChangePseudoSequence)this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
 				class_object_headed_sequence);
 		ps.SetPreviousSequence(this);
 		ArrayList<TypedOperation> dp_operations = new ArrayList<TypedOperation>();
 		double next_delta = 0.0;
 		double in_use_delta = 0.0;
-		Map<String, Influence> in_use_influence = null;
+//		Map<String, Influence> in_use_influence = null;
 		if (delta != 0) {
 			in_use_delta = delta;
-			in_use_influence = all_branches_influences_compared_to_previous;
+//			in_use_influence = all_branches_influences_compared_to_previous;
 		} else {
 			PseudoSequence headed_variable_sequence = this.headed_variable.sequence;
-			if (headed_variable_sequence instanceof NumberDeltaChangePseudoSequence) {
-				NumberDeltaChangePseudoSequence ndcps = (NumberDeltaChangePseudoSequence)headed_variable_sequence;
+			if (headed_variable_sequence instanceof DeltaChangePseudoSequence) {
+				DeltaChangePseudoSequence ndcps = (DeltaChangePseudoSequence)headed_variable_sequence;
 				double headed_variable_sequence_delta = ndcps.delta;
 				if (headed_variable_sequence_delta != 0) {
 					in_use_delta = headed_variable_sequence_delta;
-					in_use_influence = ndcps.all_branches_influences_compared_to_previous;
+//					in_use_influence = ndcps.all_branches_influences_compared_to_previous;
 				}
 			}
 		}
-		double influence = 0.0;
-		if (in_use_influence != null) {
-			influence = SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch, in_use_influence);
-		}
+//		double influence = 0.0;
+//		if (in_use_influence != null) {
+//			influence = SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch, in_use_influence);
+//		}
 		next_delta = SequenceGeneratorHelper.ComputeDelta(in_use_delta, influence, have_tried_delta);
 		ps.delta = next_delta;
 		TypedOperation dp_op = TypedOperation.createPrimitiveInitialization(JavaTypes.DOUBLE_TYPE, next_delta);
 		dp_operations.add(dp_op);
-		DisposablePseudoSequence dps = new DisposablePseudoSequence(dp_operations);
+		DisposablePseudoSequence dps = new DisposablePseudoSequence();// dp_operations
 		PseudoVariable dpv = dps.Append(dp_op, new ArrayList<PseudoVariable>(), class_object_headed_sequence);
 		dps.SetHeadedVariable(dpv);
 		input_pseudo_variables.add(0, ps.headed_variable);
@@ -74,14 +85,19 @@ public class NumberDeltaChangePseudoSequence extends PseudoSequence {
 		PseudoVariable pv = ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
 		ps.ReplacePseudoVariableInCitesAndCiters(ps, headed_variable, pv);
 		LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
-		result = new BeforeAfterLinkedSequence(selected_to, ps.headed_variable, ps, before_linked_sequence,
-					after_linked_sequence);
+		// ps.headed_variable, ps, 
+		result = new BeforeAfterLinkedSequence(selected_to, before_linked_sequence, after_linked_sequence);
 		return result;
 	}
 	
-	@Override
-	public double GetPunishment(TypedOperation selected_op) {
-		return 0.0;
+	public void SetAllBranchesInfluencesComparedToPrevious(
+			Map<String, Influence> all_branches_influences_compared_to_previous) {
+		this.to_previous_branches_influences = all_branches_influences_compared_to_previous;
 	}
+	
+//	@Override
+//	public double GetPunishment(TypedOperation selected_op) {
+//		return 0.0;
+//	}
 	
 }

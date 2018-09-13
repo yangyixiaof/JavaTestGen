@@ -1,7 +1,6 @@
 package randoop.generation.date.mutation;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Set;
 
 import randoop.generation.date.DateGenerator;
@@ -30,8 +29,6 @@ public class TypedOperationMutation extends Mutation {
 
 	@Override
 	public BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg) {
-		Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = dg.class_pseudo_variable;
-		Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = dg.pseudo_variable_headed_sequence;
 		PseudoVariable pv = Randomness.randomSetMember(pvs);
 		System.out.println("selected_to:" + to);
 		// mutate existing sequence
@@ -43,16 +40,12 @@ public class TypedOperationMutation extends Mutation {
 		PseudoVariable selected_pv = pv;
 		System.out.println("selected_pv:" + selected_pv);
 		if (selected_pv != null) {
-			Class<?> sequence_type = dg.GetSequenceTypeFromTypedOperation(to);
-			PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(selected_pv);
-			if (selected_pv_headed_sequence == null) {
-				selected_pv_headed_sequence = dg.CreatePseudoSequence(sequence_type);
-				selected_pv_headed_sequence.SetHeadedVariable(selected_pv);
-			}
+//			Class<?> sequence_type = dg.GetSequenceTypeFromTypedOperation(to);
+			PseudoSequence selected_pv_headed_sequence = dg.pseudo_variable_headed_sequence.get(selected_pv);
 //			String content = pseudo_variable_content.get(selected_pv);
 //			selected_pv_headed_sequence.SetHeadedVariableString(content);
-			return selected_pv_headed_sequence.Mutate(to, interested_branch, class_pseudo_variable,
-					pseudo_variable_headed_sequence);
+			return selected_pv_headed_sequence.Mutate(to, interested_branch, dg.class_pseudo_variable,
+					dg.pseudo_variable_headed_sequence);
 		}
 		return null;
 	}

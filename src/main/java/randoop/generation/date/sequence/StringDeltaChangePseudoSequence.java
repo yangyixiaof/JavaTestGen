@@ -58,7 +58,7 @@ public class StringDeltaChangePseudoSequence extends PseudoSequence {
 			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 			// initialize candidates.
 			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-			NumberDeltaChangePseudoSequence ps = (NumberDeltaChangePseudoSequence)this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
+			DeltaChangePseudoSequence ps = (DeltaChangePseudoSequence)this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
 					class_object_headed_sequence);
 			ps.SetPreviousSequence(this);
 			
@@ -74,8 +74,8 @@ public class StringDeltaChangePseudoSequence extends PseudoSequence {
 				in_use_influence = all_branches_influences_compared_to_previous;
 			} else {
 				PseudoSequence headed_variable_sequence = this.headed_variable.sequence;
-				if (headed_variable_sequence instanceof NumberDeltaChangePseudoSequence) {
-					NumberDeltaChangePseudoSequence ndcps = (NumberDeltaChangePseudoSequence)headed_variable_sequence;
+				if (headed_variable_sequence instanceof DeltaChangePseudoSequence) {
+					DeltaChangePseudoSequence ndcps = (DeltaChangePseudoSequence)headed_variable_sequence;
 					double headed_variable_sequence_delta = ndcps.delta;
 					if (headed_variable_sequence_delta != 0) {
 						in_use_delta = headed_variable_sequence_delta;

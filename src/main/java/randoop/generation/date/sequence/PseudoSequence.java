@@ -11,29 +11,32 @@ import java.util.TreeMap;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.mutation.TypedOperationMutated;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
 public class PseudoSequence {
-	
+
 	PseudoSequenceContainer container = null;
-	
+
 	PseudoVariable headed_variable = null;
 
-//	ArrayList<TypedOperation> operations = null;// these operations only contain object modify operations.
+	// ArrayList<TypedOperation> operations = null;// these operations only contain
+	// object modify operations.
+	Map<TypedOperation, Integer> operation_use_count = new HashMap<TypedOperation, Integer>();
 
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
 
+	HashSet<PseudoSequence> sequences_which_use_headed_variable = new HashSet<PseudoSequence>();
+
 	PseudoSequence previous = null;
 
-//	Map<String, Influence> all_branches_influences_compared_to_previous = null;
-
 	public PseudoSequence() {// ArrayList<TypedOperation> operations
-//		this.operations = operations;
+		// this.operations = operations;
 	}
-	
+
 	public void SetContainer(PseudoSequenceContainer container) {
 		this.container = container;
 	}
@@ -42,13 +45,14 @@ public class PseudoSequence {
 		this.headed_variable = headed_variable;
 	}
 
-//	public PseudoSequence(PseudoVariable headed_variable, ArrayList<TypedOperation> operations) {
-//		this.headed_variable = headed_variable;
-//		this.operations = operations;
-//	}
+	// public PseudoSequence(PseudoVariable headed_variable,
+	// ArrayList<TypedOperation> operations) {
+	// this.headed_variable = headed_variable;
+	// this.operations = operations;
+	// }
 
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, 
-			ArrayList<String> interested_branch, Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
+			Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
 		BeforeAfterLinkedSequence result = null;
 		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
@@ -68,13 +72,15 @@ public class PseudoSequence {
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
 			ps.Append(selected_to, input_pseudo_variables, class_object_headed_sequence);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
-			// ps.headed_variable, ps, 
-			result = new BeforeAfterLinkedSequence(selected_to, before_linked_sequence,
-					after_linked_sequence);
+			boolean has_return_value = !selected_to.getOutputType().isVoid();
+			result = new BeforeAfterLinkedSequence(selected_to,
+					new TypedOperationMutated(ps, has_return_value,
+							has_return_value ? new PseudoVariable(ps, ps.Size() - 1) : null),
+					before_linked_sequence, after_linked_sequence);
 		}
 		if (result != null) {
 			Assert.isTrue(headed_variable != null);
-			headed_variable.OperationApplied(selected_to);
+			OperationApplied(selected_to);
 		}
 		return result;
 	}
@@ -82,11 +88,6 @@ public class PseudoSequence {
 	public void SetPreviousSequence(PseudoSequence pseudo_sequence) {
 		this.previous = pseudo_sequence;
 	}
-
-//	public void SetAllBranchesInfluencesComparedToPrevious(
-//			Map<String, Influence> all_branches_influences_compared_to_previous) {
-//		this.all_branches_influences_compared_to_previous = all_branches_influences_compared_to_previous;
-//	}
 
 	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables,
 			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
@@ -133,7 +134,7 @@ public class PseudoSequence {
 
 	private void AddReferenceForAllVariables(List<PseudoVariable> inputVariables) {
 		for (PseudoVariable pv : inputVariables) {
-			pv.sequences_which_use_this_variable.add(this);
+			pv.sequence.sequences_which_use_headed_variable.add(this);
 		}
 	}
 
@@ -187,9 +188,9 @@ public class PseudoSequence {
 		}
 		// clone citer sequences
 		Assert.isTrue(headed_variable != null);
-		HashSet<PseudoSequence> sequences_which_use_this_headed_variable = headed_variable.sequences_which_use_this_variable;
+		HashSet<PseudoSequence> sequences_which_use_this_headed_variable = sequences_which_use_headed_variable;
 		for (PseudoSequence citer : sequences_which_use_this_headed_variable) {
-			copied_headed_variable.sequences_which_use_this_variable.add(
+			sequences_which_use_headed_variable.add(
 					citer.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence));
 		}
 		// clone influences
@@ -225,7 +226,7 @@ public class PseudoSequence {
 			}
 		}
 	}
-	
+
 	public void BuildDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered) {
 		if (encountered.contains(this)) {
 			return;
@@ -254,13 +255,12 @@ public class PseudoSequence {
 			}
 		}
 	}
-	
+
 	protected void BuildUsage(HashSet<PseudoSequence> encountered) {
 		if (headed_variable == null) {
 			Assert.isTrue(statements.size() == 0);
 		} else {
-			HashSet<PseudoSequence> sequences_which_use_this_headed_variable = headed_variable.sequences_which_use_this_variable;
-			for (PseudoSequence ps_which_uses_this : sequences_which_use_this_headed_variable) {
+			for (PseudoSequence ps_which_uses_this : sequences_which_use_headed_variable) {
 				ps_which_uses_this.BuildDependency(encountered);
 			}
 		}
@@ -287,15 +287,15 @@ public class PseudoSequence {
 		return statements.size();
 	}
 
-//	@Override
-//	public double GetPunishment(TypedOperation selected_op) {
-//		Integer count = operation_use_count.get(selected_op);
-//		if (count != null) {
-//			return -(count * 1.0);
-//		}
-//		return 0.0;
-//	}
-	
+	// @Override
+	// public double GetPunishment(TypedOperation selected_op) {
+	// Integer count = operation_use_count.get(selected_op);
+	// if (count != null) {
+	// return -(count * 1.0);
+	// }
+	// return 0.0;
+	// }
+
 	public LinkedSequence GenerateLinkedSequence() {
 		SequenceWrapper sw = new SequenceWrapper();
 		ArrayList<PseudoVariable> pseudo_sequence_with_index_for_each_statement_in_sequence = new ArrayList<PseudoVariable>();
@@ -371,6 +371,16 @@ public class PseudoSequence {
 			return true;
 		}
 		return false;
+	}
+
+	public void OperationApplied(TypedOperation to) {
+		Integer count = operation_use_count.get(to);
+		count = (count == null ? 0 : count) + 1;
+		operation_use_count.put(to, count);
+	}
+
+	public int SizeOfUsers() {
+		return sequences_which_use_headed_variable.size();
 	}
 
 }

@@ -17,17 +17,17 @@ public class ObjectConstraintMutation extends Mutation {
 		this.container = container;
 	}
 	
-	protected PseudoSequenceContainer GeneratedMutatedNewContainer() {
-		PseudoSequenceContainer new_container = container.MutateByApplyingOneRandomUnsolvedConstraint();
+	protected PseudoSequenceContainer GeneratedMutatedNewContainer(DateGenerator dg) {
+		PseudoSequenceContainer new_container = container.MutateByApplyingOptionalConstraint(dg);
 		return new_container;
 	}
 
 	@Override
 	public BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg) {
-		PseudoSequenceContainer new_container = GeneratedMutatedNewContainer();
+		PseudoSequenceContainer new_container = GeneratedMutatedNewContainer(dg);
 		LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
 		LinkedSequence after_linked_sequence = new_container.GenerateLinkedSequence();
-		return new BeforeAfterLinkedSequence(null, before_linked_sequence, after_linked_sequence);
+		return new BeforeAfterLinkedSequence(null, new ObjectConstraintMutated(container), before_linked_sequence, after_linked_sequence);
 	}
 	
 }
