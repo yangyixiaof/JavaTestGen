@@ -101,6 +101,13 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		this.to_previous_branches_influences = all_branches_influences_compared_to_previous;
 	}
 	
+	@Override
+	public void OperationApplied(TypedOperation to) {
+		if (to.getInputTypes().size() == 1) {
+			super.OperationApplied(to);
+		}
+	}
+	
 //	@Override
 //	public double GetPunishment(TypedOperation selected_op) {
 //		return 0.0;
