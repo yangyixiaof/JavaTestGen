@@ -41,6 +41,11 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		return super.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
 	}
 	
+	public BeforeAfterLinkedSequence SuperMutate(TypedOperation selected_to, ArrayList<String> interested_branch,
+			DateGenerator dg) {
+		return super.Mutate(selected_to, interested_branch, dg);
+	}
+	
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {

@@ -83,8 +83,14 @@ public class DateRuntimeSupport {
 		return "";
 	}
 	
-	public static String ModifyString(String s, int index, Object delta) {
-		return new StringBuilder(s).replace(index, index+1, (char)(s.charAt(index)+(int)delta) + "").toString();
+//	public static String ModifyString(String s, int index, Object delta) {
+//		return new StringBuilder(s).replace(index, index+1, (char)(s.charAt(index)+(int)delta) + "").toString();
+//	}
+	
+	public static String ModifyString(String str, Object delta) {
+		char[] arr = str.toCharArray();
+		arr[arr.length-1] += (int)delta;
+		return new String(arr);
 	}
 	
 	public static String AppendString(String s) {
