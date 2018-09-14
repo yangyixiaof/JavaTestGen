@@ -2,12 +2,12 @@ package randoop.generation.date.sequence.constraint;
 
 import randoop.generation.date.sequence.PseudoVariable;
 
-public class PseudoSequenceAddressConstraint extends PseudoSequenceConstraint {
+public class PseudoVariableAddressSameConstraint extends PseudoVariableConstraint {
 
 	PseudoVariable pv1 = null;
 	PseudoVariable pv2 = null;
 
-	public PseudoSequenceAddressConstraint(PseudoVariable pv1, PseudoVariable pv2) {
+	public PseudoVariableAddressSameConstraint(PseudoVariable pv1, PseudoVariable pv2) {
 		this.pv1 = pv1;
 		this.pv1 = pv1;
 	}

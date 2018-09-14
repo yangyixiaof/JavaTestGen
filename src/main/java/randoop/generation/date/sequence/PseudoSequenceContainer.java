@@ -21,9 +21,9 @@ import randoop.generation.date.mutation.ObjectConstraintMutation;
 import randoop.generation.date.mutation.ObligatoryObjectConstraintMutation;
 import randoop.generation.date.mutation.TypedOperationMutation;
 import randoop.generation.date.random.RandomSelect;
-import randoop.generation.date.sequence.constraint.PseudoSequenceAddressConstraint;
-import randoop.generation.date.sequence.constraint.PseudoSequenceConstraint;
-import randoop.generation.date.sequence.constraint.PseudoSequenceTypeConstraint;
+import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
+import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
+import randoop.generation.date.sequence.constraint.PseudoVariableTypeConstraint;
 import randoop.generation.date.util.ClassUtil;
 import randoop.operation.TypedOperation;
 import randoop.util.Randomness;
@@ -43,12 +43,12 @@ public class PseudoSequenceContainer implements Rewardable {
 //	HashSet<PseudoSequenceAddressConstraint> acs = new HashSet<PseudoSequenceAddressConstraint>();
 //	HashSet<PseudoSequenceTypeConstraint> tcs = new HashSet<PseudoSequenceTypeConstraint>();
 
-	HashSet<PseudoSequenceConstraint> solved_obligatory_tcs = new HashSet<PseudoSequenceConstraint>();
-	HashSet<PseudoSequenceConstraint> obligatory_tcs = new HashSet<PseudoSequenceConstraint>();
+	HashSet<PseudoVariableConstraint> solved_obligatory_tcs = new HashSet<PseudoVariableConstraint>();
+	HashSet<PseudoVariableConstraint> obligatory_tcs = new HashSet<PseudoVariableConstraint>();
 
 	// optional satisfied constraint
-	HashSet<PseudoSequenceTypeConstraint> solved_optional_tcs = new HashSet<PseudoSequenceTypeConstraint>();
-	HashSet<PseudoSequenceTypeConstraint> optional_tcs = new HashSet<PseudoSequenceTypeConstraint>();
+	HashSet<PseudoVariableTypeConstraint> solved_optional_tcs = new HashSet<PseudoVariableTypeConstraint>();
+	HashSet<PseudoVariableTypeConstraint> optional_tcs = new HashSet<PseudoVariableTypeConstraint>();
 
 	public PseudoSequenceContainer() {
 	}
@@ -78,14 +78,14 @@ public class PseudoSequenceContainer implements Rewardable {
 		return end.GenerateLinkedSequence();
 	}
 	
-	private PseudoSequenceContainer MutateByApplyingObjectAddressConstraint(DateGenerator dg, PseudoSequenceAddressConstraint psac) {
+	private PseudoSequenceContainer MutateByApplyingObjectAddressConstraint(DateGenerator dg, PseudoVariableAddressSameConstraint psac) {
 		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 		PseudoSequence copied_end = (PseudoSequence)end.CopySelfInDeepCloneWay(origin_copied_sequence_map, dg.pseudo_variable_headed_sequence);
 		copied_end.ReplacePseudoVariableInDependency(dg, psac.GetShouldBeSamePseudoVariableOne(), psac.GetShouldBeSamePseudoVariableTwo());
 		return copied_end.container;
 	}
 	
-	private PseudoSequenceContainer MutateByApplyingObjectTypeConstraint(DateGenerator dg, PseudoSequenceTypeConstraint pstc) {
+	private PseudoSequenceContainer MutateByApplyingObjectTypeConstraint(DateGenerator dg, PseudoVariableTypeConstraint pstc) {
 		PseudoVariable pv = pstc.GetPseudoVariable();
 		Class<?> st = pstc.GetSpecifiedType();
 		boolean is_to_same = pstc.IsToSame();
@@ -117,14 +117,14 @@ public class PseudoSequenceContainer implements Rewardable {
 	}
 	
 	public PseudoSequenceContainer MutateByApplyingObligatoryConstraint(DateGenerator dg) {
-		PseudoSequenceConstraint oc = Randomness.randomSetMember(obligatory_tcs);
+		PseudoVariableConstraint oc = Randomness.randomSetMember(obligatory_tcs);
 		obligatory_tcs.remove(oc);
 		solved_obligatory_tcs.add(oc);
-		if (oc instanceof PseudoSequenceAddressConstraint) {
-			return MutateByApplyingObjectAddressConstraint(dg, (PseudoSequenceAddressConstraint)oc);
+		if (oc instanceof PseudoVariableAddressSameConstraint) {
+			return MutateByApplyingObjectAddressConstraint(dg, (PseudoVariableAddressSameConstraint)oc);
 		}
-		if (oc instanceof PseudoSequenceTypeConstraint) {
-			return MutateByApplyingObjectTypeConstraint(dg, (PseudoSequenceTypeConstraint)oc);
+		if (oc instanceof PseudoVariableTypeConstraint) {
+			return MutateByApplyingObjectTypeConstraint(dg, (PseudoVariableTypeConstraint)oc);
 		}
 		return null;
 	}
@@ -138,7 +138,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	}
 	
 	public PseudoSequenceContainer MutateByApplyingOptionalConstraint(DateGenerator dg) {
-		PseudoSequenceTypeConstraint tc = Randomness.randomSetMember(optional_tcs);
+		PseudoVariableTypeConstraint tc = Randomness.randomSetMember(optional_tcs);
 		optional_tcs.remove(tc);
 		solved_optional_tcs.add(tc);
 		return MutateByApplyingObjectTypeConstraint(dg, tc);

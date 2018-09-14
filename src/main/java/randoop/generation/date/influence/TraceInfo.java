@@ -15,7 +15,10 @@ public class TraceInfo {
 	Map<String, Integer> branch_state = new HashMap<String, Integer>();
 	
 	// this is just an internal data structure.
-	List<Integer> ordered_address = new LinkedList<Integer>();
+	private List<Integer> ordered_address = new LinkedList<Integer>();
+	
+	LinkedList<ObjectAddressConstraint> obligatory_constraint = new LinkedList<ObjectAddressConstraint>();
+	LinkedList<ObjectAddressConstraint> optional_constraint = new LinkedList<ObjectAddressConstraint>();
 	
 	public TraceInfo() {
 	}
@@ -43,6 +46,20 @@ public class TraceInfo {
 		}
 		ordered_address.add(0, object_address);
 	}
+
+	public void AddObjectSameConstraint(int object_address1, int object_address2) {
+		ObjectAddressSameConstraint oasc = new ObjectAddressSameConstraint(object_address1, object_address2);
+		obligatory_constraint.add(oasc);
+	}
+
+	public void AddObjectTypeConstraint(boolean obligatory, Class<?> cls, int object_address) {
+		ObjectAddressTypeConstraint oatc = new ObjectAddressTypeConstraint(obligatory, object_address, cls);
+		if (obligatory) {
+			obligatory_constraint.add(oatc);
+		} else {
+			optional_constraint.add(oatc);
+		}
+	}
 	
 	public Map<String, LinkedList<ValuesOfBranch>> GetValuesOfBranches() {
 		return vobs;
@@ -62,7 +79,7 @@ public class TraceInfo {
 	public Integer GetBranchState(String sig) {
 		return branch_state.get(sig);
 	}
-	
+
 //	public double Fitness(Map<String, Double> branch_priority, Map<String, Integer> branch_current_interest_state) {
 //		Map<String, Integer> branch_priority_regular = new TreeMap<String, Integer>();
 //		Set<String> bp_ks = branch_priority.keySet();

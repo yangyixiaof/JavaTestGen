@@ -163,6 +163,8 @@ public class DateGenerator extends AbstractGenerator {
 		while (n_cmp_sequence == null) {
 			n_cmp_sequence = CreateNewCompareSequence();
 		}
+		PseudoSequenceContainer newly_created_container = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer();
+		pseudo_sequence_containers.add(newly_created_container);
 		// System.out.println("Before ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
@@ -237,10 +239,12 @@ public class DateGenerator extends AbstractGenerator {
 			ExecutionOutcome e_result = eSeq.getResult(i);
 			TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
 			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
-			if (e_result instanceof NormalExecution) {
-				NormalExecution ne = (NormalExecution) e_result;
-				if (!e_op.getOutputType().isVoid()) {
+			if (!e_op.getOutputType().isVoid()) {
+				if (e_result instanceof NormalExecution) {
+					NormalExecution ne = (NormalExecution) e_result;
 					Object out_obj = ne.getRuntimeValue();
+					int out_obj_address = System.identityHashCode(out_obj);
+					// TODO
 					Class<?> out_class = out_obj.getClass();
 					// System.out.println("out_obj:" + out_obj);
 					// System.out.println("out_class:" + out_class);
@@ -425,7 +429,7 @@ public class DateGenerator extends AbstractGenerator {
 			PseudoSequenceContainer container = new PseudoSequenceContainer();
 			PseudoSequence ps = CreatePseudoSequence(sequence_type);
 			container.AddPseudoSequence(ps);
-			LinkedSequence before_linked_sequence = new LinkedSequence(empty_statements, null);
+			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
 			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables, pseudo_variable_headed_sequence);
 			ps.SetHeadedVariable(created_pv);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();

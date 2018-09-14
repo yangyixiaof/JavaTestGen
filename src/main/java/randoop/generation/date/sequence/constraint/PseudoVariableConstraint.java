@@ -1,5 +1,5 @@
 package randoop.generation.date.sequence.constraint;
 
-public class PseudoSequenceConstraint {
+public class PseudoVariableConstraint {
 	
 }

@@ -78,11 +78,11 @@ public class TraceReader {
 					if (parts[0].equals("@Object-Type")) {
 						try {
 							String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
-							int relativeOffset = Integer.parseInt(parts[4]);
-							String type_str = parts[5];
+							int relativeOffset = Integer.parseInt(parts[5]);
+							String type_str = parts[6];
 							Class<?> cls = Class.forName(type_str);
-							int object_address = Integer.parseInt(parts[6]);
-							ProcessObjectType(operandSig, relativeOffset, cls, object_address, ti);
+							int object_address = Integer.parseInt(parts[7]);
+							ProcessObjectType(operandSig, relativeOffset, parts[4].equals("checkcast"), cls, object_address, ti);
 						} catch (Exception e) {
 							e.printStackTrace();
 							System.exit(1);
@@ -160,14 +160,16 @@ public class TraceReader {
 	}
 	
 	// the following two constraints must be applied immediately. 
-	private static void ProcessObjectType(String operandSig, int relativeOffset, Class<?> cls, int object_address,
+	private static void ProcessObjectType(String operandSig, int relativeOffset, boolean obligatory, Class<?> cls, int object_address,
 			TraceInfo ti) {
-		// TODO
+		ti.AddObjectTypeConstraint(obligatory, cls, object_address);
 	}
 	
 	private static void ProcessObjectAddressSameConstraint(String operandSig, int relativeOffset, int object_address1, int object_address2,
 			TraceInfo ti) {
-		// TODO
+		if (object_address1 != object_address2) {
+			ti.AddObjectSameConstraint(object_address1, object_address2);
+		}
 	}
 	
 }
