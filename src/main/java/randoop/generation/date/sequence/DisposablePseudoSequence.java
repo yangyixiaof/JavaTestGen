@@ -1,7 +1,6 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -12,13 +11,14 @@ public class DisposablePseudoSequence extends PseudoSequence {
 
 	// ArrayList<TypedOperation> operations
 	public DisposablePseudoSequence() {
-//		super(operations);
+		// super(operations);
 	}
-	
-//	public DisposablePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation> operations) {
-//		super(pv, operations);
-//	}
-	
+
+	// public DisposablePseudoSequence(PseudoVariable pv, ArrayList<TypedOperation>
+	// operations) {
+	// super(pv, operations);
+	// }
+
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {
@@ -26,10 +26,12 @@ public class DisposablePseudoSequence extends PseudoSequence {
 		System.exit(1);
 		return null;
 	}
-	
+
 	@Override
-	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {// ,
+																										// Map<PseudoVariable,
+																										// PseudoSequence>
+																										// class_object_headed_sequence
 		Assert.isTrue(inputVariables.size() == 0);
 		Assert.isTrue(statements.size() == 0);
 		statements.add(new PseudoStatement(operation, inputVariables));

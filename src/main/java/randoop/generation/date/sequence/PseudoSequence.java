@@ -54,22 +54,24 @@ public class PseudoSequence {
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {
 		BeforeAfterLinkedSequence result = null;
-		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		// add parameters.
 		TypeTuple input_types = selected_to.getInputTypes();
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(input_types);
 		List<Type> r_type_list = type_list.subList(1, type_list.size());
-		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, r_type_list, dg.class_pseudo_variable,
-				dg.pseudo_variable_headed_sequence);
 		// initialize candidates.
-		if (input_pseudo_variables.size() == r_type_list.size()) {
-			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-			PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
-					dg.pseudo_variable_headed_sequence);
+		ArrayList<ArrayList<PseudoVariable>> candidates = SequenceGeneratorHelper.GetMatchedPseudoVariables(r_type_list,
+				dg);
+		if (candidates.size() == r_type_list.size()) {
+			// HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new
+			// HashMap<PseudoSequence, PseudoSequence>();
+			PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(dg);// origin_copied_sequence_map,
 			ps.SetPreviousSequence(this);
+			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
+			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, ps.container, input_pseudo_variables,
+					r_type_list, dg);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
-			ps.Append(selected_to, input_pseudo_variables, dg.pseudo_variable_headed_sequence);
+			ps.Append(selected_to, input_pseudo_variables);// , dg.pseudo_variable_headed_sequence
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
@@ -88,16 +90,16 @@ public class PseudoSequence {
 		this.previous = pseudo_sequence;
 	}
 
-	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
+		// Map<PseudoVariable, PseudoSequence> class_object_headed_sequence
 		PseudoVariable pv = null;
 		if (!operation.getOutputType().isVoid()) {
 			int soon_be_added_variable_index_of_statement = statements.size();
 			pv = new PseudoVariable(this, soon_be_added_variable_index_of_statement);
-			PseudoSequence ps = class_object_headed_sequence.get(pv);
+			// PseudoSequence ps = class_object_headed_sequence.get(pv);
 			// Assert.isTrue(ps == null);
 			// ps = new PseudoSequence();
-			class_object_headed_sequence.put(pv, ps);
+			// class_object_headed_sequence.put(pv, ps);
 		}
 		statements.add(new PseudoStatement(operation, inputVariables));
 		AddReferenceForAllVariables(inputVariables);
@@ -137,63 +139,82 @@ public class PseudoSequence {
 		}
 	}
 
-	public PseudoSequence CopySelfInDeepCloneWay(Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
-		// TODO 记得考虑container
+	public PseudoSequence CopySelfInDeepCloneWay(PseudoSequenceContainer container,
+			Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map, DateGenerator dg) {// Map<PseudoVariable,
+																								// PseudoSequence>
+																								// class_object_headed_sequence
 		if (origin_copied_sequence_map.containsKey(this)) {
 			return origin_copied_sequence_map.get(this);
 		}
+		boolean container_created = false;
+		if (container == null) {
+			container = new PseudoSequenceContainer();
+			container_created = true;
+		}
 		PseudoSequence copy_version = null;
 		try {
-			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance();
+			copy_version = this.getClass().getConstructor().newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		if (container_created) {
+			container.SetEndPseudoSequence(copy_version);
+		}
+		copy_version.SetContainer(container);
+		container.AddPseudoSequence(copy_version);
 		origin_copied_sequence_map.put(this, copy_version);
-		PseudoVariable copied_headed_variable = headed_variable.CopySelfInDeepCloneWay(origin_copied_sequence_map,
-				class_object_headed_sequence);
+		PseudoVariable copied_headed_variable = headed_variable.CopySelfInDeepCloneWay(container,
+				origin_copied_sequence_map, dg);
 		copy_version.SetHeadedVariable(copied_headed_variable);
+		dg.pseudo_variable_headed_sequence.put(copied_headed_variable, copy_version);
 		// clone statements
 		for (PseudoStatement stmt : statements) {
-			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(origin_copied_sequence_map,
-					class_object_headed_sequence);
-			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, class_object_headed_sequence);
+			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
+			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);// , class_object_headed_sequence
 		}
 		return copy_version;
 	}
 
-	public PseudoSequence CopySelfAndCitersInDeepCloneWay(
-			Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map,
-			Map<PseudoVariable, PseudoSequence> class_object_headed_sequence) {
-		// TODO 记得考虑container
-		if (origin_copied_sequence_map.containsKey(this)) {
-			return origin_copied_sequence_map.get(this);
-		}
-		PseudoSequence copy_version = null;
-		try {
-			copy_version = this.getClass().getConstructor(ArrayList.class).newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		origin_copied_sequence_map.put(this, copy_version);
-		PseudoVariable copied_headed_variable = headed_variable
-				.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence);
-		copy_version.SetHeadedVariable(copied_headed_variable);
-		// clone statements
-		for (PseudoStatement stmt : statements) {
-			PseudoStatement copy_stmt = stmt.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
-					class_object_headed_sequence);
-			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, class_object_headed_sequence);
-		}
-		// clone citer sequences
-		Assert.isTrue(headed_variable != null);
-		HashSet<PseudoSequence> sequences_which_use_this_headed_variable = sequences_which_use_headed_variable;
-		for (PseudoSequence citer : sequences_which_use_this_headed_variable) {
-			sequences_which_use_headed_variable.add(
-					citer.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map, class_object_headed_sequence));
-		}
+	public PseudoSequence CopySelfAndCitersInDeepCloneWay(DateGenerator dg) {// Map<PseudoVariable, PseudoSequence>
+																				// class_object_headed_sequence
+		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+		// PseudoSequence new_end =
+		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
+		// PseudoSequenceContainer new_container = new_end.container;
+		return origin_copied_sequence_map.get(this);
+		// if (origin_copied_sequence_map.containsKey(this)) {
+		// return origin_copied_sequence_map.get(this);
+		// }
+		// PseudoSequence copy_version = null;
+		// try {
+		// copy_version = this.getClass().getConstructor(ArrayList.class).newInstance();
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// System.exit(1);
+		// }
+		// origin_copied_sequence_map.put(this, copy_version);
+		// PseudoVariable copied_headed_variable = headed_variable
+		// .CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
+		// class_object_headed_sequence);
+		// copy_version.SetHeadedVariable(copied_headed_variable);
+		// // clone statements
+		// for (PseudoStatement stmt : statements) {
+		// PseudoStatement copy_stmt =
+		// stmt.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
+		// class_object_headed_sequence);
+		// copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);// ,
+		// class_object_headed_sequence
+		// }
+		// // clone citer sequences
+		// Assert.isTrue(headed_variable != null);
+		// HashSet<PseudoSequence> sequences_which_use_this_headed_variable =
+		// sequences_which_use_headed_variable;
+		// for (PseudoSequence citer : sequences_which_use_this_headed_variable) {
+		// sequences_which_use_headed_variable.add(
+		// citer.CopySelfAndCitersInDeepCloneWay(origin_copied_sequence_map,
+		// class_object_headed_sequence));
+		// }
 		// clone influences
 		// Set<TypedOperation> tobi_keys = typed_operation_branch_influence.keySet();
 		// Iterator<TypedOperation> tobi_itr = tobi_keys.iterator();
@@ -203,7 +224,7 @@ public class PseudoSequence {
 		// typed_operation_branch_influence.get(to).CopySelfInDeepCloneWay();
 		// copy_version.typed_operation_branch_influence.put(to, copied_influence);
 		// }
-		return copy_version;
+		// return copy_version;
 	}
 
 	public void ReplacePseudoVariableInDependency(DateGenerator dg, PseudoVariable be_replaced,
@@ -324,7 +345,8 @@ public class PseudoSequence {
 		}
 		// System.out.println("sequence_size:" + sw.sequence.size() + "#sequence:" +
 		// sw.sequence);
-		return new LinkedSequence(container, sw.sequence.statements, pseudo_sequence_with_index_for_each_statement_in_sequence);
+		return new LinkedSequence(container, sw.sequence.statements,
+				pseudo_sequence_with_index_for_each_statement_in_sequence);
 	}
 
 	private static boolean HandleOneSequenceAsFar(SequenceWrapper sw, PseudoSequence ps,

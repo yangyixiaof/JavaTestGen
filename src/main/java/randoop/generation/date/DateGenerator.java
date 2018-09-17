@@ -170,8 +170,9 @@ public class DateGenerator extends AbstractGenerator {
 		while (n_cmp_sequence == null) {
 			n_cmp_sequence = CreateNewCompareSequence();
 		}
-		PseudoSequenceContainer newly_created_container = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer();
-		pseudo_sequence_containers.add(newly_created_container);
+		PseudoSequenceContainer newly_created_container = n_cmp_sequence.GetAfterLinkedSequence()
+				.GetPseudoSequenceContainer();
+		// pseudo_sequence_containers.add(newly_created_container);
 		// System.out.println("Before ------eSeq.execute(executionVisitor,
 		// checkGenerator);");
 		// System.out.println(eSeq);
@@ -210,7 +211,7 @@ public class DateGenerator extends AbstractGenerator {
 		if (!branch_state_representation_before.equals(branch_state_representation_after)) {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
 		}
-		
+
 		TypedOperation applied_to = n_cmp_sequence.GetTypedOperation();
 		// set up influence of the modified TypedOperation
 		if (applied_to == null) {
@@ -274,14 +275,14 @@ public class DateGenerator extends AbstractGenerator {
 				}
 			}
 		}
-		
+
 		// set up influence for this operation
 		Mutated mutated = n_cmp_sequence.GetMutated();
 		if (mutated instanceof ObjectConstraintMutated) {
 			// do nothing now.
 		}
 		if (mutated instanceof TypedOperationMutated) {
-			TypedOperationMutated tom = (TypedOperationMutated)mutated;
+			TypedOperationMutated tom = (TypedOperationMutated) mutated;
 			if (tom.HasReturnedPseudoVariable()) {
 				PseudoVariable pv = tom.GetReturnedPseudoVariable();
 				Class<?> cls = pseudo_variable_class.get(pv);
@@ -298,14 +299,16 @@ public class DateGenerator extends AbstractGenerator {
 						selected_pv_headed_sequence.SetHeadedVariable(pv);
 					}
 					if (tom instanceof DeltaChangeTypedOperationMutated) {
-						((DeltaChangePseudoSequence)selected_pv_headed_sequence).SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+						((DeltaChangePseudoSequence) selected_pv_headed_sequence)
+								.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
 					}
 				}
 			}
 		}
-		
-		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container, address_variable_map);
-		
+
+		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
+				address_variable_map);
+
 		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		// System.exit(1);
 
@@ -341,8 +344,9 @@ public class DateGenerator extends AbstractGenerator {
 		eSeq.gentime = System.nanoTime() - startTime;
 		return eSeq;
 	}
-	
-	private void ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info, PseudoSequenceContainer container, Map<Integer, PseudoVariable> address_variable_map) {
+
+	private void ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info,
+			PseudoSequenceContainer container, Map<Integer, PseudoVariable> address_variable_map) {
 		LinkedList<ObjectAddressConstraint> obcs = info.GetObligatoryConstraint();
 		for (ObjectAddressConstraint oac : obcs) {
 			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
@@ -358,10 +362,11 @@ public class DateGenerator extends AbstractGenerator {
 			}
 		}
 	}
-	
-	private PseudoVariableConstraint HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable> address_variable_map, ObjectAddressConstraint oac) {
+
+	private PseudoVariableConstraint HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable> address_variable_map,
+			ObjectAddressConstraint oac) {
 		if (oac instanceof ObjectAddressTypeConstraint) {
-			ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint)oac;
+			ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint) oac;
 			int ad = oatc.GetObjectAddress();
 			Class<?> spec_type = oatc.GetType();
 			PseudoVariable pv = address_variable_map.get(ad);
@@ -378,7 +383,7 @@ public class DateGenerator extends AbstractGenerator {
 			}
 		}
 		if (oac instanceof ObjectAddressSameConstraint) {
-			ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint)oac;
+			ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint) oac;
 			int ad1 = oasc.GetAddressOne();
 			int ad2 = oasc.GetAddressTwo();
 			PseudoVariable pv1 = address_variable_map.get(ad1);
@@ -479,16 +484,21 @@ public class DateGenerator extends AbstractGenerator {
 
 	private BeforeAfterLinkedSequence CreatePseudoSequenceWithCreateOperation(Class<?> sequence_type,
 			TypedOperation selected_to) {
-		ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(selected_to.getInputTypes());
-		SequenceGeneratorHelper.GenerateInputPseudoVariables(input_pseudo_variables, type_list, class_pseudo_variable,
-				pseudo_variable_headed_sequence);
-		if (input_pseudo_variables.size() == type_list.size()) {
+		ArrayList<ArrayList<PseudoVariable>> candidates = SequenceGeneratorHelper.GetMatchedPseudoVariables(type_list,
+				this);
+		if (candidates.size() == type_list.size()) {
 			PseudoSequenceContainer container = new PseudoSequenceContainer();
+			pseudo_sequence_containers.add(container);
+			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
+			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, container, input_pseudo_variables,
+					type_list, this);
 			PseudoSequence ps = CreatePseudoSequence(sequence_type);
 			container.AddPseudoSequence(ps);
+			container.SetEndPseudoSequence(ps);
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
-			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables, pseudo_variable_headed_sequence);
+			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables);// ,
+																						// pseudo_variable_headed_sequence
 			ps.SetHeadedVariable(created_pv);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
 			return new BeforeAfterLinkedSequence(selected_to, new TypedOperationMutated(ps, true, created_pv),
