@@ -106,4 +106,12 @@ public class TraceInfo {
 //		return fitness;
 //	}
 	
+	public LinkedList<ObjectAddressConstraint> GetObligatoryConstraint() {
+		return obligatory_constraint;
+	}
+	
+	public LinkedList<ObjectAddressConstraint> GetOptionalConstraint() {
+		return optional_constraint;
+	}
+	
 }

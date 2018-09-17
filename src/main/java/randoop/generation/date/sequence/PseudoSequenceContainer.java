@@ -47,8 +47,8 @@ public class PseudoSequenceContainer implements Rewardable {
 	HashSet<PseudoVariableConstraint> obligatory_tcs = new HashSet<PseudoVariableConstraint>();
 
 	// optional satisfied constraint
-	HashSet<PseudoVariableTypeConstraint> solved_optional_tcs = new HashSet<PseudoVariableTypeConstraint>();
-	HashSet<PseudoVariableTypeConstraint> optional_tcs = new HashSet<PseudoVariableTypeConstraint>();
+	HashSet<PseudoVariableConstraint> solved_optional_tcs = new HashSet<PseudoVariableConstraint>();
+	HashSet<PseudoVariableConstraint> optional_tcs = new HashSet<PseudoVariableConstraint>();
 
 	public PseudoSequenceContainer() {
 	}
@@ -138,7 +138,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	}
 	
 	public PseudoSequenceContainer MutateByApplyingOptionalConstraint(DateGenerator dg) {
-		PseudoVariableTypeConstraint tc = Randomness.randomSetMember(optional_tcs);
+		PseudoVariableTypeConstraint tc = (PseudoVariableTypeConstraint) Randomness.randomSetMember(optional_tcs);
 		optional_tcs.remove(tc);
 		solved_optional_tcs.add(tc);
 		return MutateByApplyingObjectTypeConstraint(dg, tc);
@@ -188,6 +188,14 @@ public class PseudoSequenceContainer implements Rewardable {
 			}
 		}
 		return mutations;
+	}
+	
+	public void AddObligatoryConstraint(PseudoVariableConstraint pvc) {
+		obligatory_tcs.add(pvc);
+	}
+	
+	public void AddOptionalConstraint(PseudoVariableConstraint pvc) {
+		optional_tcs.add(pvc);
 	}
 
 }

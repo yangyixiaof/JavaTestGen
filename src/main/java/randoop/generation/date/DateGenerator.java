@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -22,6 +23,9 @@ import randoop.generation.date.execution.TracePrintController;
 import randoop.generation.date.influence.BranchNodesState;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.influence.ObjectAddressConstraint;
+import randoop.generation.date.influence.ObjectAddressSameConstraint;
+import randoop.generation.date.influence.ObjectAddressTypeConstraint;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.influence.TraceReader;
@@ -39,6 +43,9 @@ import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.sequence.SequenceGeneratorHelper;
 import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
+import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
+import randoop.generation.date.sequence.constraint.PseudoVariableTypeConstraint;
 import randoop.generation.date.test.SequenceGenerator;
 import randoop.generation.date.util.ClassUtil;
 import randoop.generation.date.util.MapUtil;
@@ -234,6 +241,7 @@ public class DateGenerator extends AbstractGenerator {
 		// branch_v_stat);
 
 		// set up execution outcome.
+		Map<Integer, PseudoVariable> address_variable_map = new HashMap<Integer, PseudoVariable>();
 		int e_size = eSeq.size();
 		for (int i = 0; i < e_size; i++) {
 			ExecutionOutcome e_result = eSeq.getResult(i);
@@ -244,7 +252,7 @@ public class DateGenerator extends AbstractGenerator {
 					NormalExecution ne = (NormalExecution) e_result;
 					Object out_obj = ne.getRuntimeValue();
 					int out_obj_address = System.identityHashCode(out_obj);
-					// TODO
+					address_variable_map.put(out_obj_address, e_pv);
 					Class<?> out_class = out_obj.getClass();
 					// System.out.println("out_obj:" + out_obj);
 					// System.out.println("out_class:" + out_class);
@@ -296,6 +304,8 @@ public class DateGenerator extends AbstractGenerator {
 			}
 		}
 		
+		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container, address_variable_map);
+		
 		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		// System.exit(1);
 
@@ -330,6 +340,54 @@ public class DateGenerator extends AbstractGenerator {
 
 		eSeq.gentime = System.nanoTime() - startTime;
 		return eSeq;
+	}
+	
+	private void ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info, PseudoSequenceContainer container, Map<Integer, PseudoVariable> address_variable_map) {
+		LinkedList<ObjectAddressConstraint> obcs = info.GetObligatoryConstraint();
+		for (ObjectAddressConstraint oac : obcs) {
+			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
+			if (pvc != null) {
+				container.AddObligatoryConstraint(pvc);
+			}
+		}
+		LinkedList<ObjectAddressConstraint> opcs = info.GetOptionalConstraint();
+		for (ObjectAddressConstraint oac : opcs) {
+			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
+			if (pvc != null) {
+				container.AddOptionalConstraint(pvc);
+			}
+		}
+	}
+	
+	private PseudoVariableConstraint HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable> address_variable_map, ObjectAddressConstraint oac) {
+		if (oac instanceof ObjectAddressTypeConstraint) {
+			ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint)oac;
+			int ad = oatc.GetObjectAddress();
+			Class<?> spec_type = oatc.GetType();
+			PseudoVariable pv = address_variable_map.get(ad);
+			if (pv != null) {
+				Class<?> pv_cls = pseudo_variable_class.get(pv);
+				if (pv_cls != null) {
+					boolean type_match = spec_type.isAssignableFrom(pv_cls);
+					if (oatc.IsObligatory() && type_match) {
+						// do nothing.
+					} else {
+						return new PseudoVariableTypeConstraint(pv, spec_type, !type_match);
+					}
+				}
+			}
+		}
+		if (oac instanceof ObjectAddressSameConstraint) {
+			ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint)oac;
+			int ad1 = oasc.GetAddressOne();
+			int ad2 = oasc.GetAddressTwo();
+			PseudoVariable pv1 = address_variable_map.get(ad1);
+			PseudoVariable pv2 = address_variable_map.get(ad2);
+			if (pv1 != null && pv2 != null) {
+				return new PseudoVariableAddressSameConstraint(pv1, pv2);
+			}
+		}
+		return null;
 	}
 
 	private BeforeAfterLinkedSequence CreateNewCompareSequence() {
