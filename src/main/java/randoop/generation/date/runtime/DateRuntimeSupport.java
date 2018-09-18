@@ -1,10 +1,8 @@
 package randoop.generation.date.runtime;
 
-import java.util.Random;
-
 public class DateRuntimeSupport {
 
-	private static Random random = new Random();
+//	private static Random random = new Random();
 	
 	public static void ExampleTest() {
 		int i=0;
@@ -14,7 +12,8 @@ public class DateRuntimeSupport {
 	}
 
 	public static Boolean CreateBoolean() {
-		return random.nextBoolean();
+//		return random.nextBoolean();
+		return false;
 	}
 
 	public static Boolean not(Boolean b) {
@@ -22,7 +21,8 @@ public class DateRuntimeSupport {
 	}
 
 	public static Character CreateCharacter() {
-		return getRandomCharacter('\u0000','\uFFFF');
+//		return getRandomCharacter('\u0000','\uFFFF');
+		return ' ';
 	}
 
 	public static Character add(Character x, Object delta) {
@@ -30,9 +30,10 @@ public class DateRuntimeSupport {
 	}
 	
 	public static Byte CreateByte() {
-		byte[] bytes = new byte[1];
-		random.nextBytes(bytes);
-		return (Byte)bytes[0];
+//		byte[] bytes = new byte[1];
+//		random.nextBytes(bytes);
+//		return (Byte)bytes[0];
+		return 0;
 	}
 
 	public static Byte add(Byte x, Object delta) {
@@ -40,7 +41,8 @@ public class DateRuntimeSupport {
 	}
 	
 	public static Short CreateShort() {
-		return (Short)(short)random.nextInt();
+//		return (Short)(short)random.nextInt();
+		return 0;
 	}
 
 	public static Short add(Short x, Object delta) {
@@ -48,7 +50,8 @@ public class DateRuntimeSupport {
 	}
 	
 	public static Integer CreateInteger() {
-		return random.nextInt();
+//		return random.nextInt();
+		return 0;
 	}
 
 	public static Integer add(Integer x, Object delta) {
@@ -56,7 +59,8 @@ public class DateRuntimeSupport {
 	}
 	
 	public static Long CreateLong() {
-		return random.nextLong();
+//		return random.nextLong();
+		return 0L;
 	}
 
 	public static Long add(Long x, Object delta) {
@@ -64,7 +68,8 @@ public class DateRuntimeSupport {
 	}
 	
 	public static Float CreateFloat() {
-		return random.nextFloat();
+//		return random.nextFloat();
+		return 0.0f;
 	}
 
 	public static Float add(Float x, Object delta) {
@@ -72,7 +77,8 @@ public class DateRuntimeSupport {
 	}
 	
 	public static Double CreateDouble() {
-		return random.nextDouble();
+//		return random.nextDouble();
+		return 0.0;
 	}
 
 	public static Double add(Double x, Object delta) {
@@ -97,8 +103,8 @@ public class DateRuntimeSupport {
 		return s + CreateCharacter();
 	}
 
-	private static char getRandomCharacter(char ch1, char ch2) {
-		return (char) (ch1 + Math.random() * (ch2 - ch1 + 1));// 因为random<1.0，所以需要+1，才能取到ch2
-	}
+//	private static char getRandomCharacter(char ch1, char ch2) {
+//		return (char) (ch1 + Math.random() * (ch2 - ch1 + 1));// 因为random<1.0，所以需要+1，才能取到ch2
+//	}
 
 }
