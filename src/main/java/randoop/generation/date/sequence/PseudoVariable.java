@@ -45,6 +45,15 @@ public class PseudoVariable {
 //				class_object_headed_sequence);
 //		return new PseudoVariable(copied_sequence, index);
 //	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + sequence.hashCode();
+		result = prime * result + index;
+		return result;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -55,6 +64,11 @@ public class PseudoVariable {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return "index:" + index + "#sequence:" + sequence;
 	}
 
 }

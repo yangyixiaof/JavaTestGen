@@ -249,10 +249,13 @@ public class DateGenerator extends AbstractGenerator {
 		int e_size = eSeq.size();
 		for (int i = 0; i < e_size; i++) {
 			ExecutionOutcome e_result = eSeq.getResult(i);
+//			System.out.println("e_result:" + e_result);
 			TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
 			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
 			if (!e_op.getOutputType().isVoid()) {
+//				System.out.println("=== executed! ===");
 				if (e_result instanceof NormalExecution) {
+//					System.out.println("=== normally executed! ===");
 					NormalExecution ne = (NormalExecution) e_result;
 					Object out_obj = ne.getRuntimeValue();
 					int out_obj_address = System.identityHashCode(out_obj);
@@ -268,6 +271,7 @@ public class DateGenerator extends AbstractGenerator {
 					}
 					pvs.add(e_pv);
 					pseudo_variable_class.put(e_pv, out_class);
+//					System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
 					pseudo_variable_content.put(e_pv, out_obj.toString());
 					// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
 					// BranchValueState e_pv_branch_value_state =
