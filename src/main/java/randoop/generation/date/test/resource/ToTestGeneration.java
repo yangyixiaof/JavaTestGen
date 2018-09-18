@@ -15,7 +15,7 @@ public class ToTestGeneration {
 		}
 	}
 
-	public static Integer HeiHei(Integer a, List<Integer> content) {
+	public Integer HeiHei(Integer a, List<Integer> content) {
 		if (a == 102) {
 			return 90;
 		} else {
