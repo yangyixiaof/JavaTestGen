@@ -204,6 +204,7 @@ public class DateGenerator extends AbstractGenerator {
 		String after_trace_info = TracePrintController.GetPrintedTrace();
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
+		newly_created_container.SetTraceInfo(after_trace);
 
 		String branch_state_representation_before = branch_state.RepresentationOfUnCoveredBranchWithState();
 		Map<String, Influence> all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
@@ -441,11 +442,12 @@ public class DateGenerator extends AbstractGenerator {
 					// first select a container
 					PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
 							.RandomKeyFromSetByRewardableElement(pseudo_sequence_containers, interested_branch, null);
+//					System.out.println("selected_container:" + selected_container);
 					// second identify mutation operations in that container and select one
 					{
-						List<Mutation> mutations = selected_container.UntriedMutations(operation_class,
-								for_use_object_modify_operations, typed_operation_branch_influence,
-								pseudo_variable_class);
+						List<Mutation> mutations = selected_container.UntriedMutations(this);
+						// operation_class, for_use_object_modify_operations, typed_operation_branch_influence, pseudo_variable_class
+//						System.out.println("mutations:" + mutations);
 						if (selected_container.HasUnsolvedObligatoryConstraint()) {
 							mutations.add(selected_container
 									.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
@@ -456,13 +458,15 @@ public class DateGenerator extends AbstractGenerator {
 						}
 						Mutation one_mutate = (Mutation) RandomSelect.RandomKeyFromSetByRewardableElement(mutations,
 								interested_branch, null);
-						BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
-						return result;
+						if (one_mutate != null) {
+							BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
+							return result;
+						}
 					}
 				}
 			}
 		}
-		// return null;
+		return null;
 	}
 
 	public PseudoSequence CreatePseudoSequence(Class<?> sequence_type) {
@@ -496,6 +500,7 @@ public class DateGenerator extends AbstractGenerator {
 			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, container, input_pseudo_variables,
 					type_list, this);
 			PseudoSequence ps = CreatePseudoSequence(sequence_type);
+			ps.SetContainer(container);
 			container.AddPseudoSequence(ps);
 			container.SetEndPseudoSequence(ps);
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
@@ -750,9 +755,9 @@ public class DateGenerator extends AbstractGenerator {
 		Iterator<TypedOperation> io_itr = inherit_operations.iterator();
 		while (io_itr.hasNext()) {
 			TypedOperation to = io_itr.next();
-			if (!to.isConstructorCall()) {
-				continue;
-			}
+//			if (!to.isConstructorCall()) {
+//				continue;
+//			}
 			System.out.println("operation is generic or wild? " + (to.isGeneric() || to.hasWildcardTypes())
 					+ "#TypedOperation:" + to);
 			// System.out.println("to:" + to + "#to.getOutputType():" +

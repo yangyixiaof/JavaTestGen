@@ -254,6 +254,9 @@ public class PseudoSequence {
 			return;
 		}
 		encountered.add(this);
+		if (!variables.contains(headed_variable)) {
+			variables.add(headed_variable);
+		}
 		for (PseudoStatement stmt : this.statements) {
 			for (PseudoVariable pv : stmt.inputVariables) {
 				if (!variables.contains(pv)) {
