@@ -170,23 +170,29 @@ public class PseudoSequenceContainer implements Rewardable {
 		// Map<PseudoVariable, Class<?>> pseudo_variable_class
 		HashMap<TypedOperation, HashSet<PseudoVariable>> op_vars = new HashMap<TypedOperation, HashSet<PseudoVariable>>();
 		Set<Class<?>> classes = dg.for_use_object_modify_operations.keySet();
+//		System.out.println("===== clses start =====");
+//		for (Class<?> cls : classes) {
+//			System.out.println("b_cls:" + cls);
+//		}
+//		System.out.println("===== clses end =====");
 		HashSet<PseudoVariable> variables = new HashSet<PseudoVariable>();
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
 		end.BuildDependantPseudoVariables(variables, encountered);
 		for (PseudoVariable var : variables) {
-			ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
 			Class<?> var_class = dg.pseudo_variable_class.get(var);
 //			System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
 			Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
-//			System.out.println("===== classes start =====");
-//			System.out.println("var_class:" + var_class);
-//			for (Class<?> cls : could_assign_classes) {
-//				System.out.println("cls:" + cls);
-//			}
-//			System.out.println("===== classes end =====");
+			System.out.println("===== classes start =====");
+			System.out.println("var_class:" + var_class);
+			for (Class<?> cls : could_assign_classes) {
+				System.out.println("cls:" + cls);
+			}
+			System.out.println("===== classes end =====");
+			ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
 			for (Class<?> ca_cls : could_assign_classes) {
 				tos.addAll(dg.for_use_object_modify_operations.get(ca_cls));
 			}
+//			System.out.println("just#tos.size():" + tos.size());
 			for (TypedOperation to : tos) {
 				HashSet<PseudoVariable> pvs = op_vars.get(to);
 				if (pvs == null) {
@@ -198,6 +204,7 @@ public class PseudoSequenceContainer implements Rewardable {
 		}
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		Set<TypedOperation> tos = op_vars.keySet();
+//		System.out.println("tos.size():" + tos.size());
 		for (TypedOperation to : tos) {
 			HashSet<PseudoVariable> pvs = op_vars.get(to);
 			if (pvs.size() > 0) {

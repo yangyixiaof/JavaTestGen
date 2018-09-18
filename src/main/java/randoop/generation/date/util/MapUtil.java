@@ -41,7 +41,7 @@ public class MapUtil {
 				tos = new ArrayList<TypedOperation>();
 				dg.for_use_object_modify_operations.put(op_for_class, tos);
 			}
-			dg.for_use_object_modify_operations.put(op_for_class, tos);
+			tos.add(op);
 			// only modify operations have influence change. 
 			dg.typed_operation_branch_influence.put(op, new InfluenceOfBranchChange());
 		}

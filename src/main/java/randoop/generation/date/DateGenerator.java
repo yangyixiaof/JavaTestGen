@@ -304,6 +304,9 @@ public class DateGenerator extends AbstractGenerator {
 						Class<?> sequence_type = for_use_object_create_sequence_type.get(classes.iterator().next());
 						selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
 						selected_pv_headed_sequence.SetHeadedVariable(pv);
+						selected_pv_headed_sequence.SetContainer(newly_created_container);
+						newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
+						pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
 					}
 					if (tom instanceof DeltaChangeTypedOperationMutated) {
 						((DeltaChangePseudoSequence) selected_pv_headed_sequence)
@@ -451,7 +454,7 @@ public class DateGenerator extends AbstractGenerator {
 					{
 						List<Mutation> mutations = selected_container.UntriedMutations(this);
 						// operation_class, for_use_object_modify_operations, typed_operation_branch_influence, pseudo_variable_class
-//						System.out.println("mutations:" + mutations);
+						System.out.println("mutations:" + mutations);
 						if (selected_container.HasUnsolvedObligatoryConstraint()) {
 							mutations.add(selected_container
 									.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
