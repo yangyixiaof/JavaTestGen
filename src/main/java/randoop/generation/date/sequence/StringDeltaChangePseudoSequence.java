@@ -27,14 +27,11 @@ public class StringDeltaChangePseudoSequence extends DeltaChangePseudoSequence {
 			DateGenerator dg) {
 		String content = dg.pseudo_variable_content.get(headed_variable);
 		if (content.length() == 0) {
-			if (selected_to.getInputTypes().size() == 1) {
-				return super.SuperMutate(selected_to, interested_branch, dg);
-			} else {
+			if (dg.operation_is_delta_change.containsKey(selected_to)) {
 				return null;
 			}
-		} else {
-			return super.Mutate(selected_to, interested_branch, dg);
 		}
+		return super.Mutate(selected_to, interested_branch, dg);
 	}
 	
 //	@Override

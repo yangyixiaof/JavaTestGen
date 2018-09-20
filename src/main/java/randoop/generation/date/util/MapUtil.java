@@ -10,7 +10,7 @@ import randoop.operation.TypedOperation;
 
 public class MapUtil {
 
-	public static void Insert(TypedOperation op, Class<?> op_for_class, Class<?> sequence_type, boolean is_to_create, 
+	public static void Insert(TypedOperation op, Class<?> op_for_class, Class<?> sequence_type, boolean is_to_create, boolean is_delta_change,
 			DateGenerator dg
 //			Map<Class<?>, Class<?>> for_use_object_create_sequence_type,
 //			ArrayList<TypedOperation> create_operations,

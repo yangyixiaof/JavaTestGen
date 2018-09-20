@@ -3,6 +3,8 @@ package randoop.generation.date.mutation;
 import java.util.ArrayList;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
+
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
@@ -42,6 +44,7 @@ public class TypedOperationMutation extends Mutation {
 		if (selected_pv != null) {
 //			Class<?> sequence_type = dg.GetSequenceTypeFromTypedOperation(to);
 			PseudoSequence selected_pv_headed_sequence = dg.pseudo_variable_headed_sequence.get(selected_pv);
+			Assert.isTrue(selected_pv_headed_sequence != null);
 //			String content = pseudo_variable_content.get(selected_pv);
 //			selected_pv_headed_sequence.SetHeadedVariableString(content);
 			return selected_pv_headed_sequence.Mutate(to, interested_branch, dg);
