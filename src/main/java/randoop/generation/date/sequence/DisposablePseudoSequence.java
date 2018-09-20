@@ -28,10 +28,7 @@ public class DisposablePseudoSequence extends PseudoSequence {
 	}
 
 	@Override
-	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {// ,
-																										// Map<PseudoVariable,
-																										// PseudoSequence>
-																										// class_object_headed_sequence
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
 		Assert.isTrue(inputVariables.size() == 0);
 		Assert.isTrue(statements.size() == 0);
 		statements.add(new PseudoStatement(operation, inputVariables));

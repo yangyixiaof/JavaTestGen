@@ -38,6 +38,7 @@ import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
 import randoop.generation.date.sequence.DeltaChangePseudoSequence;
+import randoop.generation.date.sequence.DisposablePseudoSequence;
 import randoop.generation.date.sequence.LinkedSequence;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
@@ -253,7 +254,7 @@ public class DateGenerator extends AbstractGenerator {
 			// System.out.println("e_result:" + e_result);
 			TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
 			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
-			if (!e_op.getOutputType().isVoid()) {
+			if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 				// System.out.println("=== executed! ===");
 				if (e_result instanceof NormalExecution) {
 					// System.out.println("=== normally executed! ===");
