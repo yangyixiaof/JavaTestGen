@@ -254,20 +254,20 @@ public class PseudoSequence {
 		}
 	}
 
-	public void BuildDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered) {
+	public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered) {
 		if (encountered.contains(this)) {
 			return;
 		}
 		encountered.add(this);
-		if (!variables.contains(headed_variable)) {
+		if (!variables.contains(headed_variable) && !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 			variables.add(headed_variable);
 		}
 		for (PseudoStatement stmt : this.statements) {
 			for (PseudoVariable pv : stmt.inputVariables) {
-				if (!variables.contains(pv)) {
+				if (!variables.contains(pv) && !pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 					variables.add(pv);
 					PseudoSequence pv_sequence = pv.sequence;
-					pv_sequence.BuildDependantPseudoVariables(variables, encountered);
+					pv_sequence.BuildValidDependantPseudoVariables(variables, encountered);
 				}
 			}
 		}

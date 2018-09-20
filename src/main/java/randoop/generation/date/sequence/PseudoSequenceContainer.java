@@ -177,7 +177,7 @@ public class PseudoSequenceContainer implements Rewardable {
 //		System.out.println("===== clses end =====");
 		HashSet<PseudoVariable> variables = new HashSet<PseudoVariable>();
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
-		end.BuildDependantPseudoVariables(variables, encountered);
+		end.BuildValidDependantPseudoVariables(variables, encountered);
 		for (PseudoVariable var : variables) {
 			Class<?> var_class = dg.pseudo_variable_class.get(var);
 //			System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
