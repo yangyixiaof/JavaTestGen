@@ -38,7 +38,7 @@ public class PseudoVariable {
 		PseudoVariable copied_pv = new PseudoVariable(copied_sequence, index);
 		if (!dg.pseudo_variable_headed_sequence.containsKey(copied_pv)) {
 			PseudoSequence headed_sequence = dg.pseudo_variable_headed_sequence.get(this);
-			System.out.println("sequence.getClass():" + sequence.getClass());
+//			System.out.println("sequence.getClass():" + sequence.getClass());
 			if (headed_sequence == null) {
 				Assert.isTrue(sequence.getClass().equals(DisposablePseudoSequence.class));
 			} else {

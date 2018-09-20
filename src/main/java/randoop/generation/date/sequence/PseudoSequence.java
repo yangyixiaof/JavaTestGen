@@ -254,20 +254,20 @@ public class PseudoSequence {
 		}
 	}
 
-	public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered) {
+	public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered, DateGenerator dg) {
 		if (encountered.contains(this)) {
 			return;
 		}
 		encountered.add(this);
-		if (!variables.contains(headed_variable) && !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+		if (!variables.contains(headed_variable) && !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class) && dg.pseudo_variable_class.containsKey(headed_variable)) {
 			variables.add(headed_variable);
 		}
 		for (PseudoStatement stmt : this.statements) {
 			for (PseudoVariable pv : stmt.inputVariables) {
-				if (!variables.contains(pv) && !pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+				if (!variables.contains(pv) && !pv.sequence.getClass().equals(DisposablePseudoSequence.class) && dg.pseudo_variable_class.containsKey(pv)) {
 					variables.add(pv);
 					PseudoSequence pv_sequence = pv.sequence;
-					pv_sequence.BuildValidDependantPseudoVariables(variables, encountered);
+					pv_sequence.BuildValidDependantPseudoVariables(variables, encountered, dg);
 				}
 			}
 		}

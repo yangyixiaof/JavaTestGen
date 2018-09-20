@@ -1,5 +1,7 @@
 package randoop.generation.date.runtime;
 
+import java.io.UnsupportedEncodingException;
+
 public class DateRuntimeSupport {
 
 //	private static Random random = new Random();
@@ -21,12 +23,11 @@ public class DateRuntimeSupport {
 	}
 
 	public static Character CreateCharacter() {
-//		return getRandomCharacter('\u0000','\uFFFF');
 		return ' ';
 	}
 
-	public static Character add(Character x, Object delta) {
-		return (char) (x + (int) delta);
+	public static Character add(Character x, Double delta) {
+		return (char) (x + delta.intValue());
 	}
 	
 	public static Byte CreateByte() {
@@ -36,8 +37,8 @@ public class DateRuntimeSupport {
 		return 0;
 	}
 
-	public static Byte add(Byte x, Object delta) {
-		return (byte) (x + (int) delta);
+	public static Byte add(Byte x, Double delta) {
+		return (byte) (x + delta.intValue());
 	}
 	
 	public static Short CreateShort() {
@@ -45,8 +46,8 @@ public class DateRuntimeSupport {
 		return 0;
 	}
 
-	public static Short add(Short x, Object delta) {
-		return (short) (x + (int) delta);
+	public static Short add(Short x, Double delta) {
+		return (short) (x + delta.intValue());
 	}
 	
 	public static Integer CreateInteger() {
@@ -54,8 +55,8 @@ public class DateRuntimeSupport {
 		return 0;
 	}
 
-	public static Integer add(Integer x, Object delta) {
-		return x + (Integer) delta;
+	public static Integer add(Integer x, Double delta) {
+		return x + delta.intValue();
 	}
 	
 	public static Long CreateLong() {
@@ -63,8 +64,8 @@ public class DateRuntimeSupport {
 		return 0L;
 	}
 
-	public static Long add(Long x, Object delta) {
-		return x + (Long) delta;
+	public static Long add(Long x, Double delta) {
+		return x + delta.longValue();
 	}
 	
 	public static Float CreateFloat() {
@@ -72,8 +73,8 @@ public class DateRuntimeSupport {
 		return 0.0f;
 	}
 
-	public static Float add(Float x, Object delta) {
-		return x + (Float) delta;
+	public static Float add(Float x, Double delta) {
+		return x + delta.floatValue();
 	}
 	
 	public static Double CreateDouble() {
@@ -81,8 +82,8 @@ public class DateRuntimeSupport {
 		return 0.0;
 	}
 
-	public static Double add(Double x, Object delta) {
-		return x + (Double) delta;
+	public static Double add(Double x, Double delta) {
+		return x + delta.doubleValue();
 	}
 	
 	public static String CreateString() {
@@ -93,10 +94,23 @@ public class DateRuntimeSupport {
 //		return new StringBuilder(s).replace(index, index+1, (char)(s.charAt(index)+(int)delta) + "").toString();
 //	}
 	
-	public static String ModifyString(String str, Object delta) {
-		char[] arr = str.toCharArray();
-		arr[arr.length-1] += (int)delta;
-		return new String(arr);
+	public static String ModifyString(String str, Double delta) {
+		byte[] arr = str.getBytes();
+		arr[arr.length-1] += delta.byteValue();
+//		return getRandomCharacter('\u0000','\uFFFF');
+//		if (arr[arr.length-1] < '\u0000') {
+//			arr[arr.length-1] = '\u0000';
+//		}
+//		if (arr[arr.length-1] > '\uFFFF') {
+//			arr[arr.length-1] = '\uFFFF';
+//		}
+		try {
+			return new String(arr, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return null;
 	}
 	
 	public static String AppendString(String s) {
