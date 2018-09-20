@@ -32,7 +32,7 @@ public class TypedOperationMutation extends Mutation {
 	@Override
 	public BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg) {
 		PseudoVariable pv = Randomness.randomSetMember(pvs);
-		System.out.println("selected_to:" + to);
+//		System.out.println("selected_to:" + to);
 		// mutate existing sequence
 //		PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class,
 //				pseudo_variable_class);
@@ -40,7 +40,7 @@ public class TypedOperationMutation extends Mutation {
 //				pseudo_variable_branch_value_state, pseudo_variable_headed_sequence, interested_branch,
 //				pvsf, selected_to);c
 		PseudoVariable selected_pv = pv;
-		System.out.println("selected_pv:" + selected_pv);
+//		System.out.println("selected_pv:" + selected_pv);
 		if (selected_pv != null) {
 //			Class<?> sequence_type = dg.GetSequenceTypeFromTypedOperation(to);
 			PseudoSequence selected_pv_headed_sequence = dg.pseudo_variable_headed_sequence.get(selected_pv);

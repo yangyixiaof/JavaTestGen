@@ -183,9 +183,8 @@ public class PseudoSequence {
 		// PseudoSequence new_end = 
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
 		
-		// TODO 那些没有内容的sequence没有被复制
-		System.out.println("container.contained_sequences.contains(this):" + container.contained_sequences.contains(this));
-		System.out.println("container.end:" + container.end + "#this:" + this);
+//		System.out.println("container.contained_sequences.contains(this):" + container.contained_sequences.contains(this));
+//		System.out.println("container.end:" + container.end + "#this:" + this);
 		
 		// PseudoSequenceContainer new_container = new_end.container;
 		return origin_copied_sequence_map.get(this);

@@ -456,7 +456,7 @@ public class DateGenerator extends AbstractGenerator {
 						List<Mutation> mutations = selected_container.UntriedMutations(this);
 						// operation_class, for_use_object_modify_operations,
 						// typed_operation_branch_influence, pseudo_variable_class
-						System.out.println("mutations:" + mutations);
+//						System.out.println("mutations:" + mutations);
 						if (selected_container.HasUnsolvedObligatoryConstraint()) {
 							mutations.add(selected_container
 									.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));

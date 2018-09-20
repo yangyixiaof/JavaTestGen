@@ -47,6 +47,7 @@ public class MapUtil {
 		}
 		dg.operation_class.put(op, op_for_class);
 		dg.operation_is_to_create.put(op, is_to_create);
+		dg.operation_is_delta_change.put(op, is_delta_change);
 	}
 	
 }

@@ -27,7 +27,7 @@ public class StringDeltaChangePseudoSequence extends DeltaChangePseudoSequence {
 			DateGenerator dg) {
 		String content = dg.pseudo_variable_content.get(headed_variable);
 		if (content.length() == 0) {
-			if (dg.operation_is_delta_change.containsKey(selected_to)) {
+			if (dg.operation_is_delta_change.get(selected_to)) {
 				return null;
 			}
 		}
