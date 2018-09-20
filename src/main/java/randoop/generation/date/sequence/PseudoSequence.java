@@ -150,6 +150,7 @@ public class PseudoSequence {
 		if (container == null) {
 			container = new PseudoSequenceContainer();
 			container_created = true;
+			dg.pseudo_sequence_containers.add(container);
 		}
 		PseudoSequence copy_version = null;
 		try {
@@ -179,8 +180,13 @@ public class PseudoSequence {
 	public PseudoSequence CopySelfAndCitersInDeepCloneWay(DateGenerator dg) {// Map<PseudoVariable, PseudoSequence>
 																				// class_object_headed_sequence
 		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-		// PseudoSequence new_end =
+		// PseudoSequence new_end = 
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
+		
+		// TODO 那些没有内容的sequence没有被复制
+		System.out.println("container.contained_sequences.contains(this):" + container.contained_sequences.contains(this));
+		System.out.println("container.end:" + container.end + "#this:" + this);
+		
 		// PseudoSequenceContainer new_container = new_end.container;
 		return origin_copied_sequence_map.get(this);
 		// if (origin_copied_sequence_map.containsKey(this)) {
