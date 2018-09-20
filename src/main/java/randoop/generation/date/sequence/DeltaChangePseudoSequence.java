@@ -2,9 +2,7 @@ package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Influence;
@@ -17,7 +15,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 
 	double delta = 0.0;
 
-	Set<Double> have_tried_delta = new HashSet<Double>();
+//	Set<Double> have_tried_delta = new HashSet<Double>();
 
 	// Random random = new Random();
 
@@ -41,7 +39,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		DeltaChangePseudoSequence dcps = (DeltaChangePseudoSequence) super.CopySelfAndCitersInDeepCloneWay(dg);
 		// origin_copied_sequence_map, class_object_headed_sequence
 		dcps.delta = delta;
-		dcps.have_tried_delta.addAll(have_tried_delta);
+//		dcps.have_tried_delta.addAll(have_tried_delta);
 		if (to_previous_branches_influences != null) {
 			dcps.to_previous_branches_influences = new HashMap<String, Influence>();
 			dcps.to_previous_branches_influences.putAll(to_previous_branches_influences);
@@ -86,7 +84,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		if (in_use_influence != null) {
 			influence = SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch, in_use_influence);
 		}
-		next_delta = SequenceGeneratorHelper.ComputeDelta(in_use_delta, influence, have_tried_delta);
+		next_delta = SequenceGeneratorHelper.ComputeDelta(in_use_delta, influence);// , have_tried_delta
 		ps.delta = next_delta;
 		TypedOperation dp_op = TypedOperation.createPrimitiveInitialization(JavaTypes.DOUBLE_TYPE, next_delta);
 		dp_operations.add(dp_op);

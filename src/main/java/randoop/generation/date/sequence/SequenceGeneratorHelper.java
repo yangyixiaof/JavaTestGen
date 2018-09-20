@@ -12,7 +12,6 @@ import randoop.generation.date.DateGenerator;
 import randoop.generation.date.random.RandomSelect;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
-import randoop.util.Randomness;
 
 public class SequenceGeneratorHelper {
 	
@@ -70,35 +69,35 @@ public class SequenceGeneratorHelper {
 	}
 	
 
-	public static double ComputeDelta(double previous_delta, double influence, Set<Double> have_tried_delta) {
+	public static double ComputeDelta(double previous_delta, double influence) {// , Set<Double> have_tried_delta
 		double delta = 1.0;
 		if (previous_delta != 0.0) {
 			if (influence > 0) {
 				delta = previous_delta * 2.0;
 			} else {
 				if (influence == 0) {
-					delta = 1.0;
+					delta = Math.random() * 10000.0; // 1.0
 				} else {
 					delta = - previous_delta / 2.0;
 				}
 			}
 		}
-		int try_times = 0;
-		double computed_delta = delta;
-		while (!have_tried_delta.contains(computed_delta) && try_times < 5) {
-			computed_delta = Randomness.randomSetMember(have_tried_delta) * 2.0;
-			int sig = Randomness.nextRandomInt(2)-1;
-			if (sig == 0) {
-				sig = 1;
-			}
-			computed_delta *= sig;
-			try_times++;
-		}
-		if (have_tried_delta.contains(computed_delta)) {
-			computed_delta = Math.random() * 100000.0;
-		}
-		delta = computed_delta;
-		have_tried_delta.add(delta);
+//		int try_times = 0;
+//		double computed_delta = delta;
+//		while (!have_tried_delta.contains(computed_delta) && try_times < 5) {
+//			computed_delta = Randomness.randomSetMember(have_tried_delta) * 2.0;
+//			int sig = Randomness.nextRandomInt(2)-1;
+//			if (sig == 0) {
+//				sig = 1;
+//			}
+//			computed_delta *= sig;
+//			try_times++;
+//		}
+//		if (have_tried_delta.contains(computed_delta)) {
+//			computed_delta = Math.random() * 100000.0;
+//		}
+//		delta = computed_delta;
+//		have_tried_delta.add(delta);
 		return delta;
 	}
 	
