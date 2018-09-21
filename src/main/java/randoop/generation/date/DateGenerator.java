@@ -260,27 +260,29 @@ public class DateGenerator extends AbstractGenerator {
 					// System.out.println("=== normally executed! ===");
 					NormalExecution ne = (NormalExecution) e_result;
 					Object out_obj = ne.getRuntimeValue();
-					int out_obj_address = System.identityHashCode(out_obj);
-					address_variable_map.put(out_obj_address, e_pv);
-					Class<?> out_class = out_obj.getClass();
-					// System.out.println("out_obj:" + out_obj);
-					// System.out.println("out_class:" + out_class);
-					// encountered_types.add(Type.forClass(out_class));
-					ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
-					if (pvs == null) {
-						pvs = new ArrayList<PseudoVariable>();
-						class_pseudo_variable.put(out_class, pvs);
+					if (out_obj != null) {
+						int out_obj_address = System.identityHashCode(out_obj);
+						address_variable_map.put(out_obj_address, e_pv);
+						Class<?> out_class = out_obj.getClass();
+						// System.out.println("out_obj:" + out_obj);
+						// System.out.println("out_class:" + out_class);
+						// encountered_types.add(Type.forClass(out_class));
+						ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
+						if (pvs == null) {
+							pvs = new ArrayList<PseudoVariable>();
+							class_pseudo_variable.put(out_class, pvs);
+						}
+						pvs.add(e_pv);
+						pseudo_variable_class.put(e_pv, out_class);
+						// System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
+						pseudo_variable_content.put(e_pv, out_obj.toString());
+						// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
+						// BranchValueState e_pv_branch_value_state =
+						// pseudo_variable_branch_value_state.get(e_pv);
+						// Assert.isTrue(e_pv_branch_value_state == null);
+						// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
+						// }
 					}
-					pvs.add(e_pv);
-					pseudo_variable_class.put(e_pv, out_class);
-					// System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
-					pseudo_variable_content.put(e_pv, out_obj.toString());
-					// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
-					// BranchValueState e_pv_branch_value_state =
-					// pseudo_variable_branch_value_state.get(e_pv);
-					// Assert.isTrue(e_pv_branch_value_state == null);
-					// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
-					// }
 				}
 			}
 		}
