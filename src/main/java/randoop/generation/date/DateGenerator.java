@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
+import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
 import randoop.NormalExecution;
 import randoop.generation.AbstractGenerator;
@@ -65,6 +66,7 @@ public class DateGenerator extends AbstractGenerator {
 
 	Random random = new Random();
 
+	// meta data
 	public Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
 	public ArrayList<TypedOperation> create_operations = new ArrayList<TypedOperation>();
 	public Map<Class<?>, ArrayList<TypedOperation>> for_use_object_create_operations = new HashMap<Class<?>, ArrayList<TypedOperation>>();
@@ -74,9 +76,12 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<TypedOperation, Boolean> operation_is_to_create = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_is_delta_change = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
+	
+	// influence for typed operation
 	public Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
 	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
 
+	// runtime information
 	public Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = new HashMap<PseudoVariable, PseudoSequence>();
 	public Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
 	public Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>();
@@ -186,8 +191,16 @@ public class DateGenerator extends AbstractGenerator {
 		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
 				+ n_cmp_sequence.GetAfterLinkedSequence());
 		ExecutableSequence eSeq = new ExecutableSequence(n_cmp_sequence.GetAfterLinkedSequence());
+		
+//		try {
+			// execute sequence
 		eSeq.execute(executionVisitor, checkGenerator);
-
+//		} catch (Exception e) {
+//			System.err.println("=== not flaky ===");
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+		
 		// System.out.println("==== execution outcome begin ====");
 		// int e_size = eSeq.size();
 		// for (int i = 0; i < e_size; i++) {
@@ -245,10 +258,10 @@ public class DateGenerator extends AbstractGenerator {
 		// SimpleInfluenceComputer.CreateBranchValueState(after_trace);
 		// pseudo_variable_branch_value_state.put(n_cmp_sequence.GetPseudoVariable(),
 		// branch_v_stat);
-
-		// set up execution outcome.
-		Map<Integer, PseudoVariable> address_variable_map = new HashMap<Integer, PseudoVariable>();
+		
+		// check whether the outcome has exception.
 		int e_size = eSeq.size();
+		boolean running_with_exception = false;
 		for (int i = 0; i < e_size; i++) {
 			ExecutionOutcome e_result = eSeq.getResult(i);
 			// System.out.println("e_result:" + e_result);
@@ -256,73 +269,102 @@ public class DateGenerator extends AbstractGenerator {
 			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
 			if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 				// System.out.println("=== executed! ===");
-				if (e_result instanceof NormalExecution) {
-					// System.out.println("=== normally executed! ===");
-					NormalExecution ne = (NormalExecution) e_result;
-					Object out_obj = ne.getRuntimeValue();
-					if (out_obj != null) {
-						int out_obj_address = System.identityHashCode(out_obj);
-						address_variable_map.put(out_obj_address, e_pv);
-						Class<?> out_class = out_obj.getClass();
-						// System.out.println("out_obj:" + out_obj);
-						// System.out.println("out_class:" + out_class);
-						// encountered_types.add(Type.forClass(out_class));
-						ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
-						if (pvs == null) {
-							pvs = new ArrayList<PseudoVariable>();
-							class_pseudo_variable.put(out_class, pvs);
-						}
-						pvs.add(e_pv);
-						pseudo_variable_class.put(e_pv, out_class);
-						// System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
-						pseudo_variable_content.put(e_pv, out_obj.toString());
-						// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
-						// BranchValueState e_pv_branch_value_state =
-						// pseudo_variable_branch_value_state.get(e_pv);
-						// Assert.isTrue(e_pv_branch_value_state == null);
-						// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
-						// }
-					}
+				if (e_result instanceof ExceptionalExecution) {
+//					ExceptionalExecution ee = (ExceptionalExecution)e_result;
+					running_with_exception = true;
+//					System.out.println("Encountering exceptional execution! The system will stop!");
+//					System.exit(1);
 				}
 			}
 		}
-
-		// set up influence for this operation
-		Mutated mutated = n_cmp_sequence.GetMutated();
-		if (mutated instanceof ObjectConstraintMutated) {
-			// do nothing now.
-		}
-		if (mutated instanceof TypedOperationMutated) {
-			TypedOperationMutated tom = (TypedOperationMutated) mutated;
-			if (tom.HasReturnedPseudoVariable()) {
-				PseudoVariable pv = tom.GetReturnedPseudoVariable();
-				Class<?> cls = pseudo_variable_class.get(pv);
-				if (cls != null) {
-					PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(pv);
-					if (selected_pv_headed_sequence == null) {
-						Set<Class<?>> base_classes = for_use_object_create_sequence_type.keySet();
-						Set<Class<?>> classes = ClassUtil.GetSuperClasses(base_classes, cls);
-						if (classes.size() > 1) {
-							classes.remove(Object.class);
+		
+		if (running_with_exception) {
+			// remove all necessary created objects
+			pseudo_sequence_containers.remove(newly_created_container);
+			for (int i = 0; i < e_size; i++) {
+				TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
+				PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
+				if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+					pseudo_variable_headed_sequence.remove(e_pv);
+				}
+			}
+		} else {
+			// set up execution outcome.
+			Map<Integer, PseudoVariable> address_variable_map = new HashMap<Integer, PseudoVariable>();
+			for (int i = 0; i < e_size; i++) {
+				ExecutionOutcome e_result = eSeq.getResult(i);
+				// System.out.println("e_result:" + e_result);
+				TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
+				PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
+				if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+					if (e_result instanceof NormalExecution) {
+						// System.out.println("=== normally executed! ===");
+						NormalExecution ne = (NormalExecution) e_result;
+						Object out_obj = ne.getRuntimeValue();
+						if (out_obj != null) {
+							int out_obj_address = System.identityHashCode(out_obj);
+							address_variable_map.put(out_obj_address, e_pv);
+							Class<?> out_class = out_obj.getClass();
+							// System.out.println("out_obj:" + out_obj);
+							// System.out.println("out_class:" + out_class);
+							// encountered_types.add(Type.forClass(out_class));
+							ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
+							if (pvs == null) {
+								pvs = new ArrayList<PseudoVariable>();
+								class_pseudo_variable.put(out_class, pvs);
+							}
+							pvs.add(e_pv);
+							pseudo_variable_class.put(e_pv, out_class);
+							// System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
+							pseudo_variable_content.put(e_pv, out_obj.toString());
+							// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
+							// BranchValueState e_pv_branch_value_state =
+							// pseudo_variable_branch_value_state.get(e_pv);
+							// Assert.isTrue(e_pv_branch_value_state == null);
+							// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
+							// }
 						}
-						Class<?> sequence_type = for_use_object_create_sequence_type.get(classes.iterator().next());
-						selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
-						selected_pv_headed_sequence.SetHeadedVariable(pv);
-						selected_pv_headed_sequence.SetContainer(newly_created_container);
-						newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
-						pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
-					}
-					if (tom instanceof DeltaChangeTypedOperationMutated) {
-						((DeltaChangePseudoSequence) selected_pv_headed_sequence)
-								.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
 					}
 				}
 			}
+		
+			// set up influence for this operation
+			Mutated mutated = n_cmp_sequence.GetMutated();
+			if (mutated instanceof ObjectConstraintMutated) {
+				// do nothing now.
+			}
+			if (mutated instanceof TypedOperationMutated) {
+				TypedOperationMutated tom = (TypedOperationMutated) mutated;
+				if (tom.HasReturnedPseudoVariable()) {
+					PseudoVariable pv = tom.GetReturnedPseudoVariable();
+					Class<?> cls = pseudo_variable_class.get(pv);
+					if (cls != null) {
+						PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(pv);
+						if (selected_pv_headed_sequence == null) {
+							Set<Class<?>> base_classes = for_use_object_create_sequence_type.keySet();
+							Set<Class<?>> classes = ClassUtil.GetSuperClasses(base_classes, cls);
+							if (classes.size() > 1) {
+								classes.remove(Object.class);
+							}
+							Class<?> sequence_type = for_use_object_create_sequence_type.get(classes.iterator().next());
+							selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
+							selected_pv_headed_sequence.SetHeadedVariable(pv);
+							selected_pv_headed_sequence.SetContainer(newly_created_container);
+							newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
+							pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
+						}
+						if (tom instanceof DeltaChangeTypedOperationMutated) {
+							((DeltaChangePseudoSequence) selected_pv_headed_sequence)
+									.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+						}
+					}
+				}
+			}
+			// process object address related  constraints
+			ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
+					address_variable_map);
 		}
-
-		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
-				address_variable_map);
-
+		
 		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		// System.exit(1);
 

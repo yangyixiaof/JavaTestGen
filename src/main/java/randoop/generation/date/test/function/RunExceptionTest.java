@@ -8,6 +8,13 @@ public class RunExceptionTest {
 		int int1 = linkedList0.size();
 		Object e2 = linkedList0.peekFirst();
 		System.out.println(e2);
+		
+		try {
+			java.util.LinkedList linkedList10 = new java.util.LinkedList();
+			java.lang.Object etv1 = linkedList10.element();
+		} catch (Exception e) {
+			System.err.println("An exception occurred!");
+		}
 	}
 	
 }
