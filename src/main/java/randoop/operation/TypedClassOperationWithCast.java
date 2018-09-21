@@ -58,6 +58,7 @@ public class TypedClassOperationWithCast extends TypedClassOperation {
       NormalExecution execution = (NormalExecution) outcome;
       Object result = null;
       try {
+    	System.out.println("getOutputType().getClass():" + getOutputType().getClass());
         result = getOutputType().getRuntimeClass().cast(execution.getRuntimeValue());
       } catch (ClassCastException e) {
         return new ExceptionalExecution(e, 0);

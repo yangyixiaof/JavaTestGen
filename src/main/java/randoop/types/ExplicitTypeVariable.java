@@ -43,17 +43,29 @@ class ExplicitTypeVariable extends TypeVariable {
 
   @Override
   public String toString() {
-    return variable.toString();
+	// framework changed.
+	return Object.class.getName();
+//    return variable.toString();
   }
 
   @Override
   public String getName() {
-    return variable.getName();
+	// framework changed.
+	return Object.class.getName();
+//    return variable.getName();
+  }
+  
+  @Override
+  public Class<?> getRuntimeClass() {
+	// framework changed (newly added).
+    return Object.class;
   }
 
   @Override
   public String getSimpleName() {
-    return this.getName();
+	// framework changed.
+	return "etv";
+//    return this.getName();
   }
 
   java.lang.reflect.TypeVariable<?> getReflectionTypeVariable() {
