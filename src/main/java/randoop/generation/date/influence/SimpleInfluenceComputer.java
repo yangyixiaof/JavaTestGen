@@ -1,6 +1,5 @@
 package randoop.generation.date.influence;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -108,22 +107,22 @@ public class SimpleInfluenceComputer {
 		return bvs;
 	}
 
-	public static double ComputeAveragedInfluence(ArrayList<String> interested_branch,
-			Map<String, Influence> branch_influence) {
-		double average_influence = 0.0;
-		double max_w = 5.0;
-		double min_w = 0.0;
-		double gap_w = (max_w - min_w) / ((interested_branch.size() + 1) * 1.0);
-		double w = max_w;
-		Iterator<String> ib_itr = interested_branch.iterator();
-		while (ib_itr.hasNext()) {
-			String ib = ib_itr.next();
-			double influence = branch_influence.get(ib).GetInfluence();
-			average_influence += w * influence;
-			w -= gap_w;
-		}
-		return average_influence;
-	}
+//	public static double ComputeAveragedInfluence(ArrayList<String> interested_branch,
+//			Map<String, Influence> branch_influence) {
+//		double average_influence = 0.0;
+//		double max_w = 5.0;
+//		double min_w = 0.0;
+//		double gap_w = (max_w - min_w) / ((interested_branch.size() + 1) * 1.0);
+//		double w = max_w;
+//		Iterator<String> ib_itr = interested_branch.iterator();
+//		while (ib_itr.hasNext()) {
+//			String ib = ib_itr.next();
+//			double influence = branch_influence.get(ib).GetInfluence();
+//			average_influence += w * influence;
+//			w -= gap_w;
+//		}
+//		return average_influence;
+//	}
 	
 	public static Integer IdentifyBranchState(LinkedList<ValuesOfBranch> vobs) {
 		Integer state = null;

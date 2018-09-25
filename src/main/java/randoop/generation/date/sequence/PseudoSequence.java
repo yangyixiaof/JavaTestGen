@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.Influence;
+import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.mutation.TypedOperationMutated;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
@@ -32,6 +34,8 @@ public class PseudoSequence {
 	HashSet<PseudoSequence> sequences_which_use_headed_variable = new HashSet<PseudoSequence>();
 
 	PseudoSequence previous = null;
+	
+	InfluenceOfBranchChange headed_variable_branch_influence = new InfluenceOfBranchChange();
 
 	public PseudoSequence() {// ArrayList<TypedOperation> operations
 		// this.operations = operations;
@@ -182,12 +186,15 @@ public class PseudoSequence {
 		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 		// PseudoSequence new_end = 
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
-		
+		PseudoSequence copied_this = origin_copied_sequence_map.get(this);
+		if (headed_variable_branch_influence != null) {
+			copied_this.headed_variable_branch_influence = headed_variable_branch_influence.CopySelfInDeepCloneWay();
+		}
 //		System.out.println("container.contained_sequences.contains(this):" + container.contained_sequences.contains(this));
 //		System.out.println("container.end:" + container.end + "#this:" + this);
 		
 		// PseudoSequenceContainer new_container = new_end.container;
-		return origin_copied_sequence_map.get(this);
+		return copied_this;
 		// if (origin_copied_sequence_map.containsKey(this)) {
 		// return origin_copied_sequence_map.get(this);
 		// }
@@ -412,6 +419,10 @@ public class PseudoSequence {
 
 	public int SizeOfUsers() {
 		return sequences_which_use_headed_variable.size();
+	}
+
+	public void AddInfluenceOfBranchesForHeadedVariable(Map<String, Influence> all_branches_influences) {
+		headed_variable_branch_influence.AddInfluenceOfBranches(all_branches_influences);
 	}
 
 }

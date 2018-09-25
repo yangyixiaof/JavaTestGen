@@ -30,7 +30,6 @@ import randoop.generation.date.influence.ObjectAddressTypeConstraint;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.influence.TraceReader;
-import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
 import randoop.generation.date.mutation.Mutated;
 import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.ObjectConstraintMutated;
@@ -356,11 +355,19 @@ public class DateGenerator extends AbstractGenerator {
 							newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
 							pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
 						}
-						if (tom instanceof DeltaChangeTypedOperationMutated) {
-							((DeltaChangePseudoSequence) selected_pv_headed_sequence)
-									.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
-						}
-
+//						if (tom instanceof DeltaChangeTypedOperationMutated) {
+//							((DeltaChangePseudoSequence) selected_pv_headed_sequence)
+//									.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+//						}
+					}
+				}
+				if (tom.IsMutatingVariable()) {
+					PseudoVariable in_use_var = tom.GetInUseMutatedPseudoVariable();
+					Class<?> in_use_var_cls = pseudo_variable_class.get(in_use_var);
+					if (in_use_var_cls != null) {
+						PseudoSequence in_use_var_headed_sequence = pseudo_variable_headed_sequence.get(in_use_var);
+						Assert.isTrue(in_use_var_headed_sequence != null);
+						in_use_var_headed_sequence.AddInfluenceOfBranchesForHeadedVariable(all_branches_influences);
 					}
 				}
 			}

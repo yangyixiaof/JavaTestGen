@@ -1,12 +1,9 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import randoop.generation.date.DateGenerator;
-import randoop.generation.date.influence.Influence;
-import randoop.generation.date.influence.SimpleInfluenceComputer;
+import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
 import randoop.operation.TypedOperation;
 import randoop.types.JavaTypes;
@@ -18,8 +15,6 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 //	Set<Double> have_tried_delta = new HashSet<Double>();
 
 	// Random random = new Random();
-
-	Map<String, Influence> to_previous_branches_influences = null;
 
 	// ArrayList<TypedOperation> operations
 	public DeltaChangePseudoSequence() {
@@ -40,10 +35,6 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		// origin_copied_sequence_map, class_object_headed_sequence
 		dcps.delta = delta;
 //		dcps.have_tried_delta.addAll(have_tried_delta);
-		if (to_previous_branches_influences != null) {
-			dcps.to_previous_branches_influences = new HashMap<String, Influence>();
-			dcps.to_previous_branches_influences.putAll(to_previous_branches_influences);
-		}
 		return dcps;
 	}
 
@@ -61,10 +52,10 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			ArrayList<TypedOperation> dp_operations = new ArrayList<TypedOperation>();
 			double next_delta = 0.0;
 			double in_use_delta = 0.0;
-			Map<String, Influence> in_use_influence = null;
+			InfluenceOfBranchChange in_use_influence = null;
 			if (delta != 0) {
 				in_use_delta = delta;
-				in_use_influence = to_previous_branches_influences;
+				in_use_influence = headed_variable_branch_influence;
 			} else {
 				PseudoSequence headed_variable_sequence = this.headed_variable.sequence;
 				if (headed_variable_sequence instanceof DeltaChangePseudoSequence) {
@@ -72,13 +63,14 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 					double headed_variable_sequence_delta = ndcps.delta;
 					if (headed_variable_sequence_delta != 0) {
 						in_use_delta = headed_variable_sequence_delta;
-						in_use_influence = ndcps.to_previous_branches_influences;
+						in_use_influence = ndcps.headed_variable_branch_influence;
 					}
 				}
 			}
 			double influence = 0.0;
 			if (in_use_influence != null) {
-				influence = SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch, in_use_influence);
+				influence = in_use_influence.GetReward(interested_branch);
+//				influence = SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch, in_use_influence);
 			}
 			next_delta = SequenceGeneratorHelper.ComputeDelta(in_use_delta, influence);// , have_tried_delta
 			ps.delta = next_delta;
@@ -103,10 +95,10 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		}
 	}
 
-	public void SetAllBranchesInfluencesComparedToPrevious(
-			Map<String, Influence> all_branches_influences_compared_to_previous) {
-		this.to_previous_branches_influences = all_branches_influences_compared_to_previous;
-	}
+//	public void SetAllBranchesInfluencesComparedToPrevious(
+//			Map<String, Influence> all_branches_influences_compared_to_previous) {
+//		this.to_previous_branches_influences = all_branches_influences_compared_to_previous;
+//	}
 
 	@Override
 	public void OperationApplied(TypedOperation to) {
