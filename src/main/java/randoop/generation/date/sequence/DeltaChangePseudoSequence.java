@@ -95,7 +95,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			// ps.headed_variable, ps,
 			result = new BeforeAfterLinkedSequence(selected_to,
-					new DeltaChangeTypedOperationMutated(ps, true, new PseudoVariable(ps, ps.Size() - 1)),
+					new DeltaChangeTypedOperationMutated(ps, true, new PseudoVariable(ps, ps.Size() - 1), true, pv),
 					before_linked_sequence, after_linked_sequence);
 			return result;
 		} else {

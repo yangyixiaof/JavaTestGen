@@ -76,7 +76,7 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<TypedOperation, Boolean> operation_is_to_create = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_is_delta_change = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
-	
+
 	// influence for typed operation
 	public Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
 	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
@@ -191,16 +191,16 @@ public class DateGenerator extends AbstractGenerator {
 		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
 				+ n_cmp_sequence.GetAfterLinkedSequence());
 		ExecutableSequence eSeq = new ExecutableSequence(n_cmp_sequence.GetAfterLinkedSequence());
-		
-//		try {
-			// execute sequence
+
+		// try {
+		// execute sequence
 		eSeq.execute(executionVisitor, checkGenerator);
-//		} catch (Exception e) {
-//			System.err.println("=== not flaky ===");
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-		
+		// } catch (Exception e) {
+		// System.err.println("=== not flaky ===");
+		// e.printStackTrace();
+		// System.exit(1);
+		// }
+
 		// System.out.println("==== execution outcome begin ====");
 		// int e_size = eSeq.size();
 		// for (int i = 0; i < e_size; i++) {
@@ -258,7 +258,7 @@ public class DateGenerator extends AbstractGenerator {
 		// SimpleInfluenceComputer.CreateBranchValueState(after_trace);
 		// pseudo_variable_branch_value_state.put(n_cmp_sequence.GetPseudoVariable(),
 		// branch_v_stat);
-		
+
 		// check whether the outcome has exception.
 		int e_size = eSeq.size();
 		boolean running_with_exception = false;
@@ -270,21 +270,23 @@ public class DateGenerator extends AbstractGenerator {
 			if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 				// System.out.println("=== executed! ===");
 				if (e_result instanceof ExceptionalExecution) {
-//					ExceptionalExecution ee = (ExceptionalExecution)e_result;
+					// ExceptionalExecution ee = (ExceptionalExecution)e_result;
 					running_with_exception = true;
-//					System.out.println("Encountering exceptional execution! The system will stop!");
-//					System.exit(1);
+					// System.out.println("Encountering exceptional execution! The system will
+					// stop!");
+					// System.exit(1);
 				}
 			}
 		}
-		
+
 		if (running_with_exception) {
 			// remove all necessary created objects
 			pseudo_sequence_containers.remove(newly_created_container);
 			for (int i = 0; i < e_size; i++) {
 				TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
 				PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
-				if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+				if (!e_op.getOutputType().isVoid()
+						&& !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 					pseudo_variable_headed_sequence.remove(e_pv);
 				}
 			}
@@ -296,7 +298,8 @@ public class DateGenerator extends AbstractGenerator {
 				// System.out.println("e_result:" + e_result);
 				TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
 				PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
-				if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+				if (!e_op.getOutputType().isVoid()
+						&& !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 					if (e_result instanceof NormalExecution) {
 						// System.out.println("=== normally executed! ===");
 						NormalExecution ne = (NormalExecution) e_result;
@@ -327,7 +330,7 @@ public class DateGenerator extends AbstractGenerator {
 					}
 				}
 			}
-		
+
 			// set up influence for this operation
 			Mutated mutated = n_cmp_sequence.GetMutated();
 			if (mutated instanceof ObjectConstraintMutated) {
@@ -357,14 +360,15 @@ public class DateGenerator extends AbstractGenerator {
 							((DeltaChangePseudoSequence) selected_pv_headed_sequence)
 									.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
 						}
+
 					}
 				}
 			}
-			// process object address related  constraints
+			// process object address related constraints
 			ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
 					address_variable_map);
 		}
-		
+
 		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		// System.exit(1);
 
@@ -501,7 +505,7 @@ public class DateGenerator extends AbstractGenerator {
 						List<Mutation> mutations = selected_container.UntriedMutations(this);
 						// operation_class, for_use_object_modify_operations,
 						// typed_operation_branch_influence, pseudo_variable_class
-//						System.out.println("mutations:" + mutations);
+						// System.out.println("mutations:" + mutations);
 						if (selected_container.HasUnsolvedObligatoryConstraint()) {
 							mutations.add(selected_container
 									.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
@@ -562,7 +566,7 @@ public class DateGenerator extends AbstractGenerator {
 			ps.SetHeadedVariable(created_pv);
 			pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to, new TypedOperationMutated(ps, true, created_pv),
+			return new BeforeAfterLinkedSequence(selected_to, new TypedOperationMutated(ps, true, created_pv, true, created_pv),
 					before_linked_sequence, after_linked_sequence);
 		}
 		return null;

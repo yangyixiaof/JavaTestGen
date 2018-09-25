@@ -76,7 +76,7 @@ public class PseudoSequence {
 			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
 					new TypedOperationMutated(ps, has_return_value,
-							has_return_value ? new PseudoVariable(ps, ps.Size() - 1) : null),
+							has_return_value ? new PseudoVariable(ps, ps.Size() - 1) : null, true, ps.headed_variable),
 					before_linked_sequence, after_linked_sequence);
 		}
 		if (result != null) {
