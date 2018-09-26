@@ -5,13 +5,6 @@ import java.io.UnsupportedEncodingException;
 public class DateRuntimeSupport {
 
 //	private static Random random = new Random();
-	
-	public static void ExampleTest() {
-		int i=0;
-		if (i < 100) {
-			System.out.println("Heihei, executed!");
-		}
-	}
 
 	public static Boolean CreateBoolean() {
 //		return random.nextBoolean();

@@ -8,8 +8,9 @@ public class TracePrintController {
 		try {
 			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
 			Field f = c.getDeclaredField("now_record");
-//			Boolean f_v1 = (Boolean)f.get(null);
 			f.set(null, Boolean.TRUE);
+//			Boolean f_v = (Boolean)f.get(null);
+//			System.out.println("open setted f_v:" + f_v);
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -19,8 +20,9 @@ public class TracePrintController {
 		try {
 			Class<?> c = Class.forName("cn.yyx.research.trace_recorder.TraceRecorder");
 			Field f = c.getDeclaredField("now_record");
-//			Boolean f_v2 = (Boolean)f.get(null);
 			f.set(null, Boolean.FALSE);
+//			Boolean f_v = (Boolean)f.get(null);
+//			System.out.println("close setted f_v:" + f_v);
 		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

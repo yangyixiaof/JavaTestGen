@@ -87,6 +87,8 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<PseudoVariable, String> pseudo_variable_content = new HashMap<PseudoVariable, String>();
 	// Map<PseudoVariable, BranchValueState> pseudo_variable_branch_value_state =
 	// new HashMap<PseudoVariable, BranchValueState>();
+	public HashSet<PseudoSequenceContainer> pseudo_sequence_obligatory_constraint_containers = new HashSet<PseudoSequenceContainer>();
+	public HashSet<PseudoSequenceContainer> pseudo_sequence_optional_constraint_containers = new HashSet<PseudoSequenceContainer>();
 	public HashSet<PseudoSequenceContainer> pseudo_sequence_containers = new HashSet<PseudoSequenceContainer>();
 
 	public Map<String, TraceInfo> recorded_traces = new HashMap<String, TraceInfo>();
@@ -148,6 +150,15 @@ public class DateGenerator extends AbstractGenerator {
 	@Override
 	public ExecutableSequence step() {
 		long startTime = System.nanoTime();
+
+		// ExecutableSequence test_eSeq = new
+		// ExecutableSequence(allSequences.iterator().next());
+		// test_eSeq.execute(executionVisitor, checkGenerator);
+		// String test_after_trace_info = TracePrintController.GetPrintedTrace();
+		// System.out.println();
+		// System.out.println("test_after_trace_info:" + test_after_trace_info);
+		// System.exit(1);
+
 		// ExecutableSequence eSeq = new ExecutableSequence(lSeq);
 		// ExecutableSequence eSeq = createNewUniqueSequence(); // make it!
 		// QTransition transition = null;
@@ -186,6 +197,7 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println(eSeq);
 
 		TraceInfo before_trace = recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
+		Assert.isTrue(before_trace != null);
 
 		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
 				+ n_cmp_sequence.GetAfterLinkedSequence());
@@ -216,6 +228,13 @@ public class DateGenerator extends AbstractGenerator {
 
 		// analyze trace and compute influence.
 		String after_trace_info = TracePrintController.GetPrintedTrace();
+
+		// TODO 记得删除
+		System.out.println("one trace:" + after_trace_info);
+		if (!after_trace_info.equals("")) {
+			System.exit(1);
+		}
+
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
 		newly_created_container.SetTraceInfo(after_trace);
@@ -355,10 +374,10 @@ public class DateGenerator extends AbstractGenerator {
 							newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
 							pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
 						}
-//						if (tom instanceof DeltaChangeTypedOperationMutated) {
-//							((DeltaChangePseudoSequence) selected_pv_headed_sequence)
-//									.SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
-//						}
+						// if (tom instanceof DeltaChangeTypedOperationMutated) {
+						// ((DeltaChangePseudoSequence) selected_pv_headed_sequence)
+						// .SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+						// }
 					}
 				}
 				if (tom.IsMutatingVariable()) {
@@ -374,6 +393,14 @@ public class DateGenerator extends AbstractGenerator {
 			// process object address related constraints
 			ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
 					address_variable_map);
+			if (newly_created_container.HasUnsolvedObligatoryConstraint()) {
+				pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
+				pseudo_sequence_containers.remove(newly_created_container);
+			}
+			if (newly_created_container.HasUnsolvedConstraint()) {
+				pseudo_sequence_optional_constraint_containers.add(newly_created_container);
+				pseudo_sequence_containers.remove(newly_created_container);
+			}
 		}
 
 		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
@@ -494,39 +521,73 @@ public class DateGenerator extends AbstractGenerator {
 			// System.exit(1);
 			// }
 			ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
+			// TODO 记得删除
+			System.out.println("interested branch size:" + interested_branch.size());
+			for (String ib : interested_branch) {
+				System.out.println("interested branch:" + ib);
+			}
+			if (interested_branch.size() > 0) {
+				System.out.println("encountering interested branch");
+				System.exit(1);
+			}
 			// if () {
 			//
 			// } else
 			{
 				// if (selected_to.isStatic()) {
 				// TODO 两个选择: create a new one, append to last, if implemented, add the
-				// mechanism for .
+				// mechanism for API sequence (object state).
 				// } else
 				{
-					// first select a container
-					PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
-							.RandomKeyFromSetByRewardableElement(pseudo_sequence_containers, interested_branch, null);
-					// System.out.println("selected_container:" + selected_container);
-					// second identify mutation operations in that container and select one
-					{
-						List<Mutation> mutations = selected_container.UntriedMutations(this);
+					List<Mutation> mutations = new LinkedList<Mutation>();
+					if (mutations.size() == 0) {
+						if (Math.random() > 0.6) {
+							// handle obligatory constraint
+							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
+									.RandomKeyFromSetByRewardableElement(
+											pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
+							if (selected_container.HasUnsolvedObligatoryConstraint()) {
+								mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
+										object_constraint_branch_influence));
+							} else {
+								pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
+							}
+						}
+					}
+					if (mutations.size() == 0) {
+						if (Math.random() > 0.6) {
+							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
+									.RandomKeyFromSetByRewardableElement(pseudo_sequence_optional_constraint_containers,
+											interested_branch, null);
+							if (selected_container.HasUnsolvedConstraint()) {
+								mutations.add(selected_container
+										.GenerateObjectConstraintMutation(object_constraint_branch_influence));
+							} else {
+								pseudo_sequence_optional_constraint_containers.remove(selected_container);
+							}
+						}
+					}
+					if (mutations.size() == 0) {
+						// handle non obligatory constraint and typed operation
+						// first select a container
+						// System.out.println("selected_container:" + selected_container);
+						// second identify mutation operations in that container and select one
+						TypedOperation best_op = RandomSelect.GetBestKeyFromMapByRewardableValue(typed_operation_branch_influence, interested_branch);
+						
+						mutations.addAll(selected_container.UntriedMutations(this));
 						// operation_class, for_use_object_modify_operations,
 						// typed_operation_branch_influence, pseudo_variable_class
 						// System.out.println("mutations:" + mutations);
-						if (selected_container.HasUnsolvedObligatoryConstraint()) {
-							mutations.add(selected_container
-									.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
-						}
-						if (selected_container.HasUnsolvedConstraint()) {
-							mutations.add(selected_container
-									.GenerateObjectConstraintMutation(object_constraint_branch_influence));
-						}
-						Mutation one_mutate = (Mutation) RandomSelect.RandomKeyFromSetByRewardableElement(mutations,
-								interested_branch, null);
-						if (one_mutate != null) {
-							BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
-							return result;
-						}
+						// if (selected_container.HasUnsolvedObligatoryConstraint()) {
+						// mutations.add(selected_container
+						// .GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
+						// }
+					}
+					Mutation one_mutate = (Mutation) RandomSelect.RandomKeyFromSetByRewardableElement(mutations,
+							interested_branch, null);
+					if (one_mutate != null) {
+						BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
+						return result;
 					}
 				}
 			}
@@ -573,8 +634,9 @@ public class DateGenerator extends AbstractGenerator {
 			ps.SetHeadedVariable(created_pv);
 			pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to, new TypedOperationMutated(ps, true, created_pv, true, created_pv),
-					before_linked_sequence, after_linked_sequence);
+			return new BeforeAfterLinkedSequence(selected_to,
+					new TypedOperationMutated(ps, true, created_pv, true, created_pv), before_linked_sequence,
+					after_linked_sequence);
 		}
 		return null;
 	}

@@ -7,8 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import randoop.generation.date.influence.TraceInfo;
-import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.TraceableSequence;
+import randoop.generation.date.test.runtime.RunTest;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.types.InstantiatedType;
@@ -146,10 +146,13 @@ public class SequenceGenerator {
 	}
 
 	public static TraceableSequence GenerateTraceTestExampleSequence() {
+		// java.lang.Integer int0 = randoop.generation.date.runtime.DateRuntimeSupport.CreateInteger();
+		// randoop.generation.date.test.resource.ToTestGeneration toTestGeneration1 = new randoop.generation.date.test.resource.ToTestGeneration();
+		// java.lang.String str2 = toTestGeneration1.HeiHei((int)int0);
 		TraceableSequence ts = null;
 		try {
 			TypedOperation test_trace_simple_branch_invoke = TypedOperation
-					.forMethod(DateRuntimeSupport.class.getMethod("ExampleTest"));
+					.forMethod(RunTest.class.getMethod("ExampleTest"));
 			Sequence s = new Sequence();
 			ts = new TraceableSequence(s.extend(test_trace_simple_branch_invoke).statements, new TraceableSequence(s),
 					null);

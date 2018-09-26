@@ -223,5 +223,10 @@ public class PseudoSequenceContainer implements Rewardable {
 	public void AddOptionalConstraint(PseudoVariableConstraint pvc) {
 		optional_tcs.add(pvc);
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + end.GenerateLinkedSequence().toCodeString();
+	}
 
 }

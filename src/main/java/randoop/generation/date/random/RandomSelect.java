@@ -74,32 +74,66 @@ public class RandomSelect {
 		return t;
 	}
 
-	public static <T> T RandomKeyFromMapByValue(Map<T, Double> wait_select) {
-		// sort, big first
-		return RandomKeyFromAlignedResult(GenerateTotalAlignedMap(wait_select));
-	}
-	
 	public static Object RandomKeyFromSetByRewardableElement(Collection<? extends Rewardable> wait_select,
 			ArrayList<String> interested_branch, SelectFileter<?> filter) {
 		Map<Object, Double> final_wait_select = new HashMap<Object, Double>();
 		Iterator<? extends Rewardable> kitr = wait_select.iterator();
 		while (kitr.hasNext()) {
 			Rewardable t = kitr.next();
-//			if (filter == null || filter.Retain(t))
+			// if (filter == null || filter.Retain(t))
 			{
 				double reward = 0.0;
 				reward += t.GetReward(interested_branch);
-//				Rewardable to_branch_influence = wait_select.get(t);
-//				if (to_branch_influence != null) {
-//					reward += to_branch_influence.GetReward(interested_branch);
-//				}
+				// Rewardable to_branch_influence = wait_select.get(t);
+				// if (to_branch_influence != null) {
+				// reward += to_branch_influence.GetReward(interested_branch);
+				// }
 				final_wait_select.put(t, reward);
+				// TODO º«µ√ÃÌº”
+				// if (t instanceof PseudoSequenceContainer) {
+				// System.out.println("===== reward:" + reward + " =====");
+				// System.out.println(t);
+				// }
 			}
 		}
 		if (final_wait_select.size() == 0) {
 			return null;
 		}
 		return RandomKeyFromMapByValue(final_wait_select);
+	}
+
+	public static <T> T RandomKeyFromMapByValue(Map<T, Double> wait_select) {
+		// sort, big first
+		return RandomKeyFromAlignedResult(GenerateTotalAlignedMap(wait_select));
+	}
+
+	public static <T> T GetBestKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
+			ArrayList<String> interested_branch) {
+		Map<T, Double> final_wait_select = new HashMap<T, Double>();
+		Set<T> w_keys = wait_select.keySet();
+		Iterator<T> kitr = w_keys.iterator();
+		while (kitr.hasNext()) {
+			T k = kitr.next();
+			Rewardable t = wait_select.get(k);
+			double reward = 0.0;
+			reward += t.GetReward(interested_branch);
+			final_wait_select.put(k, reward);
+		}
+		if (final_wait_select.size() == 0) {
+			return null;
+		}
+		return MaxValueKey(final_wait_select);
+	}
+
+	public static <T> T MaxValueKey(Map<T, Double> wait_select) {
+		List<Map.Entry<T, Double>> list = new LinkedList<>(wait_select.entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<T, Double>>() {
+			@Override
+			public int compare(Map.Entry<T, Double> o1, Map.Entry<T, Double> o2) {
+				return -(o1.getValue()).compareTo(o2.getValue());
+			}
+		});
+		return list.get(0).getKey();
 	}
 
 	public static <T> T RandomKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
