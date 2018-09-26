@@ -10,6 +10,7 @@ import java.util.Set;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.random.RandomSelect;
+import randoop.generation.date.util.ClassUtil;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
@@ -32,7 +33,7 @@ public class SequenceGeneratorHelper {
 			Iterator<Class<?>> citr = class_set.iterator();
 			while (citr.hasNext()) {
 				Class<?> cls = citr.next();
-				if (tp.isAssignableFrom(Type.forClass(cls))) {
+				if (ClassUtil.TypeOneIsAssignableFromTypeTwo(tp, Type.forClass(cls))) {
 					selected_classes.add(cls);
 //					candidates.addAll(class_pseudo_variable.get(cls));
 				}
