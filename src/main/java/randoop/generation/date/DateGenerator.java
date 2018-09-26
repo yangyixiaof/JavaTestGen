@@ -534,8 +534,8 @@ public class DateGenerator extends AbstractGenerator {
 				System.out.println("interested branch:" + ib);
 			}
 			if (interested_branch.size() > 0) {
-				System.out.println("encountering interested branch");
-				System.exit(1);
+				System.out.println("encountering interested branch!");
+//				System.exit(1);
 			}
 			// if () {
 			//

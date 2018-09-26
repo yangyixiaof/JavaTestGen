@@ -29,14 +29,11 @@ public class BranchValueState implements Rewardable {
 		while (ib_itr.hasNext()) {
 			String ib = ib_itr.next();
 			Double gap = branch_average_gap.get(ib);
-			Assert.isTrue(gap >= 0.0);
-			double r_gap = 0.0;
 			if (gap != null) {
-				r_gap += 1.0 / (1.0 + gap);
+				Assert.isTrue(gap >= 0.0);
+				total_reward += (1.0 / (1.0 + gap) * w);
 			}
-			r_gap *= w;
 			w -= gap_w;
-			total_reward += r_gap;
 		}
 		Assert.isTrue(total_reward >= 0);
 		return total_reward;

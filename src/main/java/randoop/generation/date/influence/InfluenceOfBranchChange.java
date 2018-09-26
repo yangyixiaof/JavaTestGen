@@ -59,7 +59,7 @@ public class InfluenceOfBranchChange implements Rewardable {
 	@Override
 	public double GetReward(ArrayList<String> interested_branch) {
 		double weights_max = 1.0;
-		double weights_min = 0.4;
+		double weights_min = 0.2;
 		double weight_gap = (weights_max - weights_min) / (interested_branch.size() * 1.0);
 		double all_reward = 0.0;
 		double weight = weights_max;
@@ -76,7 +76,7 @@ public class InfluenceOfBranchChange implements Rewardable {
 //				double value_change = ((pvcc + nvcc + rbc + lbc)) / (ac);
 //				double positive_value_change = (pvcc + rbc) / (pvcc + nvcc + rbc + lbc);
 //				all_reward += weight * (0.6 * value_change + 0.4 * positive_value_change);
-				all_reward += ((pvcc - ac) * 1.0) / weight;
+				all_reward += (1.0 / (1.0 + ac - pvcc) * weight);
 			}
 			weight -= weight_gap;
 		}
