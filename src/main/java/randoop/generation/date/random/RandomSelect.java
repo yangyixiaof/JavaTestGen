@@ -124,6 +124,29 @@ public class RandomSelect {
 		}
 		return MaxValueKey(final_wait_select);
 	}
+	
+	public static Object GetBestElementFromSetByRewardableElement(Collection<? extends Rewardable> wait_select,
+			ArrayList<String> interested_branch, SelectFileter<Object> filter) {
+		Map<Object, Double> final_wait_select = new HashMap<Object, Double>();
+		Iterator<? extends Rewardable> kitr = wait_select.iterator();
+		while (kitr.hasNext()) {
+			Rewardable t = kitr.next();
+			if (filter == null || filter.Retain((Object)t))
+			{
+				double reward = 0.0;
+				reward += t.GetReward(interested_branch);
+				final_wait_select.put(t, reward);
+				// if (t instanceof PseudoSequenceContainer) {
+				// System.out.println("===== reward:" + reward + " =====");
+				// System.out.println(t);
+				// }
+			}
+		}
+		if (final_wait_select.size() == 0) {
+			return null;
+		}
+		return MaxValueKey(final_wait_select);
+	}
 
 	public static <T> T MaxValueKey(Map<T, Double> wait_select) {
 		List<Map.Entry<T, Double>> list = new LinkedList<>(wait_select.entrySet());

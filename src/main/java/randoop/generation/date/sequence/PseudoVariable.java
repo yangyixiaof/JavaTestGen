@@ -1,12 +1,14 @@
 package randoop.generation.date.sequence;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.Rewardable;
 
-public class PseudoVariable {
+public class PseudoVariable implements Rewardable {
 
 	public PseudoSequence sequence = null;
 	public int index = -1;
@@ -85,6 +87,11 @@ public class PseudoVariable {
 	@Override
 	public String toString() {
 		return "index:" + index + "#sequence:" + sequence;
+	}
+
+	@Override
+	public double GetReward(ArrayList<String> interested_branch) {
+		return sequence.GetReward(interested_branch) + sequence.container.GetReward(interested_branch);
 	}
 
 }

@@ -34,6 +34,7 @@ import randoop.generation.date.mutation.Mutated;
 import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.ObjectConstraintMutated;
 import randoop.generation.date.mutation.TypedOperationMutated;
+import randoop.generation.date.mutation.TypedOperationMutation;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
@@ -229,11 +230,11 @@ public class DateGenerator extends AbstractGenerator {
 		// analyze trace and compute influence.
 		String after_trace_info = TracePrintController.GetPrintedTrace();
 
-		// TODO 记得删除
-		System.out.println("one trace:" + after_trace_info);
-		if (!after_trace_info.equals("")) {
-			System.exit(1);
-		}
+		// TODO 记得添加
+//		System.out.println("one trace:" + after_trace_info);
+//		if (!after_trace_info.equals("")) {
+//			System.exit(1);
+//		}
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
@@ -573,8 +574,28 @@ public class DateGenerator extends AbstractGenerator {
 						// System.out.println("selected_container:" + selected_container);
 						// second identify mutation operations in that container and select one
 						TypedOperation best_op = RandomSelect.GetBestKeyFromMapByRewardableValue(typed_operation_branch_influence, interested_branch);
-						
-						mutations.addAll(selected_container.UntriedMutations(this));
+						Class<?> best_op_cls = operation_class.get(best_op);
+						Set<Class<?>> candidates = class_pseudo_variable.keySet();
+						Set<Class<?>> selected_candidates = ClassUtil.GetDescendantClasses(candidates, best_op_cls);
+						ArrayList<PseudoVariable> candidate_pvs = new ArrayList<PseudoVariable>();
+						for (Class<?> selected : selected_candidates) {
+							candidate_pvs.addAll(class_pseudo_variable.get(selected));
+						}
+						ArrayList<PseudoVariable> remove_pvs = new ArrayList<PseudoVariable>();
+						Iterator<PseudoVariable> cpv_itr = candidate_pvs.iterator();
+						while (cpv_itr.hasNext()) {
+							PseudoVariable cpv = cpv_itr.next();
+							PseudoSequence pv_ps = pseudo_variable_headed_sequence.get(cpv);
+							if (pv_ps.OperationHasBeenApplied(best_op)) {
+								remove_pvs.add(cpv);
+							}
+						}
+						candidate_pvs.removeAll(remove_pvs);
+						PseudoVariable selected_var = (PseudoVariable) RandomSelect
+								.GetBestElementFromSetByRewardableElement(candidate_pvs, interested_branch, null);
+						HashSet<PseudoVariable> selected_vars = new HashSet<>();
+						selected_vars.add(selected_var);
+						mutations.add(new TypedOperationMutation(typed_operation_branch_influence.get(best_op), best_op, selected_vars));
 						// operation_class, for_use_object_modify_operations,
 						// typed_operation_branch_influence, pseudo_variable_class
 						// System.out.println("mutations:" + mutations);

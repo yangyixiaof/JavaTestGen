@@ -13,13 +13,14 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.mutation.TypedOperationMutated;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
-public class PseudoSequence {
+public class PseudoSequence implements Rewardable {
 
 	PseudoSequenceContainer container = null;
 
@@ -416,6 +417,10 @@ public class PseudoSequence {
 		count = (count == null ? 0 : count) + 1;
 		operation_use_count.put(to, count);
 	}
+	
+	public boolean OperationHasBeenApplied(TypedOperation to) {
+		return operation_use_count.containsKey(to);
+	}
 
 	public int SizeOfUsers() {
 		return sequences_which_use_headed_variable.size();
@@ -423,6 +428,11 @@ public class PseudoSequence {
 
 	public void AddInfluenceOfBranchesForHeadedVariable(Map<String, Influence> all_branches_influences) {
 		headed_variable_branch_influence.AddInfluenceOfBranches(all_branches_influences);
+	}
+
+	@Override
+	public double GetReward(ArrayList<String> interested_branch) {
+		return headed_variable_branch_influence.GetReward(interested_branch);
 	}
 
 }
