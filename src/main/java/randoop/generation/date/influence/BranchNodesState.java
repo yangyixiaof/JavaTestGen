@@ -58,6 +58,7 @@ public class BranchNodesState {
 		TreeMap<Integer, Integer> state_sig_times = map_map.get(sig);
 		if (state_sig_times == null) {
 			state_sig_times = new TreeMap<Integer, Integer>();
+			map_map.put(sig, state_sig_times);
 		}
 		Integer u_times = state_sig_times.get(state);
 		if (u_times == null) {
