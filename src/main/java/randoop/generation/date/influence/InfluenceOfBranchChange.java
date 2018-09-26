@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
+
 public class InfluenceOfBranchChange implements Rewardable {
 
 	Map<String, Double> all_count = new HashMap<String, Double>();
@@ -66,13 +68,15 @@ public class InfluenceOfBranchChange implements Rewardable {
 			String branch = a_itr.next();
 			Double ac = all_count.get(branch);
 			Double pvcc = positive_value_change_count.get(branch);
-			Double nvcc = negative_value_change_count.get(branch);
-			Double rbc = reach_branch_count.get(branch);
-			Double lbc = lose_branch_count.get(branch);
+//			Double nvcc = negative_value_change_count.get(branch);
+//			Double rbc = reach_branch_count.get(branch);
+//			Double lbc = lose_branch_count.get(branch);
 			if (ac != null) {
-				double value_change = ((pvcc + nvcc + rbc + lbc)) / (ac);
-				double positive_value_change = (pvcc + rbc) / (pvcc + nvcc + rbc + lbc);
-				all_reward += weight * (0.6 * value_change + 0.4 * positive_value_change);
+				Assert.isTrue(pvcc <= ac);
+//				double value_change = ((pvcc + nvcc + rbc + lbc)) / (ac);
+//				double positive_value_change = (pvcc + rbc) / (pvcc + nvcc + rbc + lbc);
+//				all_reward += weight * (0.6 * value_change + 0.4 * positive_value_change);
+				all_reward += ((pvcc - ac) * 1.0) / weight;
 			}
 			weight -= weight_gap;
 		}
