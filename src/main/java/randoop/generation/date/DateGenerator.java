@@ -150,6 +150,13 @@ public class DateGenerator extends AbstractGenerator {
 
 	@Override
 	public ExecutableSequence step() {
+		
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	
 		long startTime = System.nanoTime();
 
 		// ExecutableSequence test_eSeq = new
@@ -198,7 +205,6 @@ public class DateGenerator extends AbstractGenerator {
 		// System.out.println(eSeq);
 
 		TraceInfo before_trace = recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
-		Assert.isTrue(before_trace != null);
 
 		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
 				+ n_cmp_sequence.GetAfterLinkedSequence());
@@ -547,11 +553,13 @@ public class DateGenerator extends AbstractGenerator {
 							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
 									.RandomKeyFromSetByRewardableElement(
 											pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
-							if (selected_container.HasUnsolvedObligatoryConstraint()) {
-								mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
-										object_constraint_branch_influence));
-							} else {
-								pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
+							if (selected_container != null) {
+								if (selected_container.HasUnsolvedObligatoryConstraint()) {
+									mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
+											object_constraint_branch_influence));
+								} else {
+									pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
+								}
 							}
 						}
 					}
@@ -560,11 +568,13 @@ public class DateGenerator extends AbstractGenerator {
 							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
 									.RandomKeyFromSetByRewardableElement(pseudo_sequence_optional_constraint_containers,
 											interested_branch, null);
-							if (selected_container.HasUnsolvedConstraint()) {
-								mutations.add(selected_container
-										.GenerateObjectConstraintMutation(object_constraint_branch_influence));
-							} else {
-								pseudo_sequence_optional_constraint_containers.remove(selected_container);
+							if (selected_container != null) {
+								if (selected_container.HasUnsolvedConstraint()) {
+									mutations.add(selected_container
+											.GenerateObjectConstraintMutation(object_constraint_branch_influence));
+								} else {
+									pseudo_sequence_optional_constraint_containers.remove(selected_container);
+								}
 							}
 						}
 					}
