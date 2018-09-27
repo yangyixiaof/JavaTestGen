@@ -58,11 +58,11 @@ public class InfluenceOfBranchChange implements Rewardable {
 
 	@Override
 	public Reward GetReward(ArrayList<String> interested_branch) {
-//		double weights_max = 1.0;
-//		double weights_min = 0.2;
-//		double weight_gap = (weights_max - weights_min) / (interested_branch.size() * 1.0);
+		double weights_max = 1.0;
+		double weights_min = 0.2;
+		double weight_gap = (weights_max - weights_min) / (interested_branch.size() * 1.0);
 		double all_reward = 0.0;
-//		double weight = weights_max;
+		double weight = weights_min;
 		Iterator<String> a_itr = interested_branch.iterator();
 		while (a_itr.hasNext()) {
 			String branch = a_itr.next();
@@ -78,10 +78,10 @@ public class InfluenceOfBranchChange implements Rewardable {
 //				double positive_value_change = (pvcc + rbc) / (pvcc + nvcc + rbc + lbc);
 //				all_reward += weight * (0.6 * value_change + 0.4 * positive_value_change);
 //				all_reward += (1.0 / (1.0 + ac - pvcc) * weight);
-				one_reward = (pvcc - ac) / ac;// * weight
+				one_reward = (pvcc - ac) / ac * weight;
 			}
 			all_reward += one_reward;
-//			weight -= weight_gap;
+			weight += weight_gap;
 		}
 		return new Reward(all_reward);
 	}
