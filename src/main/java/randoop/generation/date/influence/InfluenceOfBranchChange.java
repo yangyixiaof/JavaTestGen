@@ -72,11 +72,12 @@ public class InfluenceOfBranchChange implements Rewardable {
 //			Double rbc = reach_branch_count.get(branch);
 //			Double lbc = lose_branch_count.get(branch);
 			if (ac != null) {
-				Assert.isTrue(pvcc <= ac);
+				Assert.isTrue(pvcc <= ac && ac > 0);
 //				double value_change = ((pvcc + nvcc + rbc + lbc)) / (ac);
 //				double positive_value_change = (pvcc + rbc) / (pvcc + nvcc + rbc + lbc);
 //				all_reward += weight * (0.6 * value_change + 0.4 * positive_value_change);
-				all_reward += (1.0 / (1.0 + ac - pvcc) * weight);
+//				all_reward += (1.0 / (1.0 + ac - pvcc) * weight);
+				all_reward += ((pvcc - ac) / ac * weight);
 			}
 			weight -= weight_gap;
 		}
