@@ -57,7 +57,7 @@ public class InfluenceOfBranchChange implements Rewardable {
 	}
 
 	@Override
-	public double GetReward(ArrayList<String> interested_branch) {
+	public Reward GetReward(ArrayList<String> interested_branch) {
 		double weights_max = 1.0;
 		double weights_min = 0.2;
 		double weight_gap = (weights_max - weights_min) / (interested_branch.size() * 1.0);
@@ -80,7 +80,7 @@ public class InfluenceOfBranchChange implements Rewardable {
 			}
 			weight -= weight_gap;
 		}
-		return all_reward;
+		return new Reward(all_reward);
 	}
 
 	public InfluenceOfBranchChange CopySelfInDeepCloneWay() {

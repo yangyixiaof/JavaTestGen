@@ -19,7 +19,7 @@ public class BranchValueState implements Rewardable {
 	}
 
 	@Override
-	public double GetReward(ArrayList<String> interested_branch) {
+	public Reward GetReward(ArrayList<String> interested_branch) {
 		double total_reward = 0.0;
 		double max_w = 1.0;
 		double min_w = 0.2;
@@ -36,7 +36,7 @@ public class BranchValueState implements Rewardable {
 			w -= gap_w;
 		}
 		Assert.isTrue(total_reward >= 0);
-		return total_reward;
+		return new Reward(total_reward);
 	}
 
 }

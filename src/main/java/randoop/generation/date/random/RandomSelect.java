@@ -12,11 +12,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import randoop.generation.date.influence.Penalizable;
+import org.eclipse.core.runtime.Assert;
+
+import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.random.filter.SelectFileter;
 import randoop.generation.date.sequence.PseudoVariable;
-import randoop.operation.TypedOperation;
+import randoop.generation.date.util.NormalizeUtil;
+import randoop.generation.date.util.RewardUtil;
 
 public class RandomSelect {
 
@@ -76,20 +79,19 @@ public class RandomSelect {
 
 	public static Object RandomKeyFromSetByRewardableElement(Collection<? extends Rewardable> wait_select,
 			ArrayList<String> interested_branch, SelectFileter<?> filter) {
-		Map<Object, Double> final_wait_select = new HashMap<Object, Double>();
+		Map<Object, Reward> final_wait_select = new HashMap<Object, Reward>();
 		Iterator<? extends Rewardable> kitr = wait_select.iterator();
 		while (kitr.hasNext()) {
 			Rewardable t = kitr.next();
 			// if (filter == null || filter.Retain(t))
 			{
-				double reward = 0.0;
-				reward += t.GetReward(interested_branch);
+				Reward reward = t.GetReward(interested_branch);
+				Reward copied_reward = reward.CopySelf();
 				// Rewardable to_branch_influence = wait_select.get(t);
 				// if (to_branch_influence != null) {
 				// reward += to_branch_influence.GetReward(interested_branch);
 				// }
-				final_wait_select.put(t, reward);
-				// TODO º«µ√ÃÌº”
+				final_wait_select.put(t, copied_reward);
 				// if (t instanceof PseudoSequenceContainer) {
 				// System.out.println("===== reward:" + reward + " =====");
 				// System.out.println(t);
@@ -99,7 +101,9 @@ public class RandomSelect {
 		if (final_wait_select.size() == 0) {
 			return null;
 		}
-		return RandomKeyFromMapByValue(final_wait_select);
+		NormalizeUtil.NormalizeRewards(final_wait_select);
+		Map<Object, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(final_wait_select);
+		return RandomKeyFromMapByValue(r_final_wait_select);
 	}
 
 	public static <T> T RandomKeyFromMapByValue(Map<T, Double> wait_select) {
@@ -109,32 +113,31 @@ public class RandomSelect {
 
 	public static <T> T GetBestKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
 			ArrayList<String> interested_branch) {
-		Map<T, Double> final_wait_select = new HashMap<T, Double>();
+		Map<T, Reward> final_wait_select = new HashMap<T, Reward>();
 		Set<T> w_keys = wait_select.keySet();
 		Iterator<T> kitr = w_keys.iterator();
 		while (kitr.hasNext()) {
 			T k = kitr.next();
 			Rewardable t = wait_select.get(k);
-			double reward = 0.0;
-			reward += t.GetReward(interested_branch);
+			Reward reward = t.GetReward(interested_branch);
 			final_wait_select.put(k, reward);
 		}
 		if (final_wait_select.size() == 0) {
 			return null;
 		}
-		return MaxValueKey(final_wait_select);
+		NormalizeUtil.NormalizeRewards(final_wait_select);
+		Map<T, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(final_wait_select);
+		return MaxValueKey(r_final_wait_select);
 	}
-	
+
 	public static Object GetBestElementFromSetByRewardableElement(Collection<? extends Rewardable> wait_select,
 			ArrayList<String> interested_branch, SelectFileter<Object> filter) {
-		Map<Object, Double> final_wait_select = new HashMap<Object, Double>();
+		Map<Object, Reward> final_wait_select = new HashMap<Object, Reward>();
 		Iterator<? extends Rewardable> kitr = wait_select.iterator();
 		while (kitr.hasNext()) {
 			Rewardable t = kitr.next();
-			if (filter == null || filter.Retain((Object)t))
-			{
-				double reward = 0.0;
-				reward += t.GetReward(interested_branch);
+			if (filter == null || filter.Retain((Object) t)) {
+				Reward reward = t.GetReward(interested_branch);
 				final_wait_select.put(t, reward);
 				// if (t instanceof PseudoSequenceContainer) {
 				// System.out.println("===== reward:" + reward + " =====");
@@ -145,7 +148,9 @@ public class RandomSelect {
 		if (final_wait_select.size() == 0) {
 			return null;
 		}
-		return MaxValueKey(final_wait_select);
+		NormalizeUtil.NormalizeRewards(final_wait_select);
+		Map<Object, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(final_wait_select);
+		return MaxValueKey(r_final_wait_select);
 	}
 
 	public static <T> T MaxValueKey(Map<T, Double> wait_select) {
@@ -161,57 +166,57 @@ public class RandomSelect {
 
 	public static <T> T RandomKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
 			ArrayList<String> interested_branch, SelectFileter<T> filter) {
-		Map<T, Double> final_wait_select = new HashMap<T, Double>();
+		Map<T, Reward> final_wait_select = new HashMap<T, Reward>();
 		Set<T> keys = wait_select.keySet();
 		Iterator<T> kitr = keys.iterator();
 		while (kitr.hasNext()) {
 			T t = kitr.next();
 			if (filter == null || filter.Retain(t)) {
-				double reward = 0.0;
 				Rewardable to_branch_influence = wait_select.get(t);
-				if (to_branch_influence != null) {
-					reward += to_branch_influence.GetReward(interested_branch);
-				}
+				Assert.isTrue(to_branch_influence != null);
+				Reward reward = to_branch_influence.GetReward(interested_branch);
 				final_wait_select.put(t, reward);
 			}
 		}
 		if (final_wait_select.size() == 0) {
 			return null;
 		}
-		return RandomKeyFromMapByValue(final_wait_select);
+		NormalizeUtil.NormalizeRewards(final_wait_select);
+		Map<T, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(final_wait_select);
+		return RandomKeyFromMapByValue(r_final_wait_select);
 	}
 
-	public static <T> T RandomKeyFromMapByRewardableValueWithPenalizableValue(Map<T, ? extends Rewardable> wait_select,
-			Map<T, ? extends Penalizable> punish, ArrayList<String> interested_branch, SelectFileter<T> filter,
-			TypedOperation to) {
-		Map<T, Double> final_wait_select = new HashMap<T, Double>();
-		Set<T> keys = wait_select.keySet();
-		Iterator<T> kitr = keys.iterator();
-		System.out.println("=== start ===");
-		while (kitr.hasNext()) {
-			T t = kitr.next();
-			if (filter == null || filter.Retain(t)) {
-				System.out.println("Retained:" + t);
-				double reward = 0.0;
-				Rewardable to_branch_influence = wait_select.get(t);
-				if (to_branch_influence != null) {
-					reward += to_branch_influence.GetReward(interested_branch);
-				}
-				double punish_v = 0.0;
-				Penalizable punish_val = punish.get(t);
-				if (punish_val != null) {
-					punish_v += punish_val.GetPunishment(to);
-				}
-				if (punish_v >= 0) {
-					final_wait_select.put(t, reward);
-				}
-			}
-		}
-		if (final_wait_select.size() == 0) {
-			return null;
-		}
-		return RandomKeyFromMapByValue(final_wait_select);
-	}
+//	public static <T> T RandomKeyFromMapByRewardableValueWithPenalizableValue(Map<T, ? extends Rewardable> wait_select,
+//			Map<T, ? extends Penalizable> punish, ArrayList<String> interested_branch, SelectFileter<T> filter,
+//			TypedOperation to) {
+//		Map<T, Double> final_wait_select = new HashMap<T, Double>();
+//		Set<T> keys = wait_select.keySet();
+//		Iterator<T> kitr = keys.iterator();
+//		System.out.println("=== start ===");
+//		while (kitr.hasNext()) {
+//			T t = kitr.next();
+//			if (filter == null || filter.Retain(t)) {
+//				System.out.println("Retained:" + t);
+//				double reward = 0.0;
+//				Rewardable to_branch_influence = wait_select.get(t);
+//				if (to_branch_influence != null) {
+//					reward += to_branch_influence.GetReward(interested_branch);
+//				}
+//				double punish_v = 0.0;
+//				Penalizable punish_val = punish.get(t);
+//				if (punish_val != null) {
+//					punish_v += punish_val.GetPunishment(to);
+//				}
+//				if (punish_v >= 0) {
+//					final_wait_select.put(t, reward);
+//				}
+//			}
+//		}
+//		if (final_wait_select.size() == 0) {
+//			return null;
+//		}
+//		return RandomKeyFromMapByValue(final_wait_select);
+//	}
 
 	public static PseudoVariable RandomPseudoVariableListAccordingToLength(ArrayList<PseudoVariable> pvs) {
 		Map<PseudoVariable, Double> wait_select = new HashMap<PseudoVariable, Double>();

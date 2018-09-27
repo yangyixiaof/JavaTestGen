@@ -12,7 +12,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 
 	double delta = 0.0;
 
-//	Set<Double> have_tried_delta = new HashSet<Double>();
+	// Set<Double> have_tried_delta = new HashSet<Double>();
 
 	// Random random = new Random();
 
@@ -34,7 +34,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		DeltaChangePseudoSequence dcps = (DeltaChangePseudoSequence) super.CopySelfAndCitersInDeepCloneWay(dg);
 		// origin_copied_sequence_map, class_object_headed_sequence
 		dcps.delta = delta;
-//		dcps.have_tried_delta.addAll(have_tried_delta);
+		// dcps.have_tried_delta.addAll(have_tried_delta);
 		return dcps;
 	}
 
@@ -69,15 +69,18 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			}
 			double influence = 0.0;
 			if (in_use_influence != null) {
-				influence = in_use_influence.GetReward(interested_branch);
-//				influence = SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch, in_use_influence);
+				influence = in_use_influence.GetReward(interested_branch).GetReward();
+				// influence =
+				// SimpleInfluenceComputer.ComputeAveragedInfluence(interested_branch,
+				// in_use_influence);
 			}
 			next_delta = SequenceGeneratorHelper.ComputeDelta(in_use_delta, influence);// , have_tried_delta
 			ps.delta = next_delta;
 			TypedOperation dp_op = TypedOperation.createPrimitiveInitialization(JavaTypes.DOUBLE_TYPE, next_delta);
 			dp_operations.add(dp_op);
 			DisposablePseudoSequence dps = new DisposablePseudoSequence();// dp_operations
-			PseudoVariable dpv = dps.Append(dp_op, new ArrayList<PseudoVariable>());// , dg.pseudo_variable_headed_sequence
+			PseudoVariable dpv = dps.Append(dp_op, new ArrayList<PseudoVariable>());// ,
+																					// dg.pseudo_variable_headed_sequence
 			dps.SetHeadedVariable(dpv);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			input_pseudo_variables.add(1, dpv);
@@ -95,17 +98,18 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 		}
 	}
 
-//	public void SetAllBranchesInfluencesComparedToPrevious(
-//			Map<String, Influence> all_branches_influences_compared_to_previous) {
-//		this.to_previous_branches_influences = all_branches_influences_compared_to_previous;
-//	}
+	// public void SetAllBranchesInfluencesComparedToPrevious(
+	// Map<String, Influence> all_branches_influences_compared_to_previous) {
+	// this.to_previous_branches_influences =
+	// all_branches_influences_compared_to_previous;
+	// }
 
-//	@Override
-//	public void OperationApplied(TypedOperation to) {
-//		if (to.getInputTypes().size() == 1) {
-//			super.OperationApplied(to);
-//		}
-//	}
+	// @Override
+	// public void OperationApplied(TypedOperation to) {
+	// if (to.getInputTypes().size() == 1) {
+	// super.OperationApplied(to);
+	// }
+	// }
 
 	// @Override
 	// public double GetPunishment(TypedOperation selected_op) {

@@ -25,11 +25,6 @@ public class TypedOperationMutation extends Mutation {
 	}
 
 	@Override
-	public double GetReward(ArrayList<String> interested_branch) {
-		return super.GetReward(interested_branch) + pvs.size() * 0.1;
-	}
-
-	@Override
 	public BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg) {
 		PseudoVariable pv = Randomness.randomSetMember(pvs);
 //		System.out.println("selected_to:" + to);

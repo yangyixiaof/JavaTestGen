@@ -6,6 +6,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 
 public class PseudoVariable implements Rewardable {
@@ -90,8 +91,8 @@ public class PseudoVariable implements Rewardable {
 	}
 
 	@Override
-	public double GetReward(ArrayList<String> interested_branch) {
-		return sequence.GetReward(interested_branch) + sequence.container.GetReward(interested_branch);
+	public Reward GetReward(ArrayList<String> interested_branch) {
+		return new Reward(sequence.GetReward(interested_branch).GetReward(), sequence.container.GetReward(interested_branch).GetReward());
 	}
 
 }

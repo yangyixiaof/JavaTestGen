@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.mutation.TypedOperationMutated;
 import randoop.operation.TypedOperation;
@@ -35,7 +36,7 @@ public class PseudoSequence implements Rewardable {
 	HashSet<PseudoSequence> sequences_which_use_headed_variable = new HashSet<PseudoSequence>();
 
 	PseudoSequence previous = null;
-	
+
 	InfluenceOfBranchChange headed_variable_branch_influence = new InfluenceOfBranchChange();
 
 	public PseudoSequence() {// ArrayList<TypedOperation> operations
@@ -185,15 +186,16 @@ public class PseudoSequence implements Rewardable {
 	public PseudoSequence CopySelfAndCitersInDeepCloneWay(DateGenerator dg) {// Map<PseudoVariable, PseudoSequence>
 																				// class_object_headed_sequence
 		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-		// PseudoSequence new_end = 
+		// PseudoSequence new_end =
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
 		PseudoSequence copied_this = origin_copied_sequence_map.get(this);
 		if (headed_variable_branch_influence != null) {
 			copied_this.headed_variable_branch_influence = headed_variable_branch_influence.CopySelfInDeepCloneWay();
 		}
-//		System.out.println("container.contained_sequences.contains(this):" + container.contained_sequences.contains(this));
-//		System.out.println("container.end:" + container.end + "#this:" + this);
-		
+		// System.out.println("container.contained_sequences.contains(this):" +
+		// container.contained_sequences.contains(this));
+		// System.out.println("container.end:" + container.end + "#this:" + this);
+
 		// PseudoSequenceContainer new_container = new_end.container;
 		return copied_this;
 		// if (origin_copied_sequence_map.containsKey(this)) {
@@ -262,17 +264,21 @@ public class PseudoSequence implements Rewardable {
 		}
 	}
 
-	public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable> variables, HashSet<PseudoSequence> encountered, DateGenerator dg) {
+	public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable> variables,
+			HashSet<PseudoSequence> encountered, DateGenerator dg) {
 		if (encountered.contains(this)) {
 			return;
 		}
 		encountered.add(this);
-		if (!variables.contains(headed_variable) && !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class) && dg.pseudo_variable_class.containsKey(headed_variable)) {
+		if (!variables.contains(headed_variable)
+				&& !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class)
+				&& dg.pseudo_variable_class.containsKey(headed_variable)) {
 			variables.add(headed_variable);
 		}
 		for (PseudoStatement stmt : this.statements) {
 			for (PseudoVariable pv : stmt.inputVariables) {
-				if (!variables.contains(pv) && !pv.sequence.getClass().equals(DisposablePseudoSequence.class) && dg.pseudo_variable_class.containsKey(pv)) {
+				if (!variables.contains(pv) && !pv.sequence.getClass().equals(DisposablePseudoSequence.class)
+						&& dg.pseudo_variable_class.containsKey(pv)) {
 					variables.add(pv);
 					PseudoSequence pv_sequence = pv.sequence;
 					pv_sequence.BuildValidDependantPseudoVariables(variables, encountered, dg);
@@ -417,7 +423,7 @@ public class PseudoSequence implements Rewardable {
 		count = (count == null ? 0 : count) + 1;
 		operation_use_count.put(to, count);
 	}
-	
+
 	public boolean OperationHasBeenApplied(TypedOperation to) {
 		return operation_use_count.containsKey(to);
 	}
@@ -431,7 +437,7 @@ public class PseudoSequence implements Rewardable {
 	}
 
 	@Override
-	public double GetReward(ArrayList<String> interested_branch) {
+	public Reward GetReward(ArrayList<String> interested_branch) {
 		return headed_variable_branch_influence.GetReward(interested_branch);
 	}
 

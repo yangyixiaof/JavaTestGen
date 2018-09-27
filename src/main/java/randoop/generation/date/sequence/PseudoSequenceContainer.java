@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.BranchValueState;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
@@ -158,7 +159,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	}
 
 	@Override
-	public double GetReward(ArrayList<String> interested_branch) {
+	public Reward GetReward(ArrayList<String> interested_branch) {
 		Assert.isTrue(info != null && val_state != null);
 		return val_state.GetReward(interested_branch);
 	}
@@ -166,34 +167,35 @@ public class PseudoSequenceContainer implements Rewardable {
 	public List<Mutation> UntriedMutations(DateGenerator dg) {
 		// Map<TypedOperation, Class<?>> operation_class,
 		// Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations,
-		// Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence,
+		// Map<TypedOperation, InfluenceOfBranchChange>
+		// typed_operation_branch_influence,
 		// Map<PseudoVariable, Class<?>> pseudo_variable_class
 		HashMap<TypedOperation, HashSet<PseudoVariable>> op_vars = new HashMap<TypedOperation, HashSet<PseudoVariable>>();
 		Set<Class<?>> classes = dg.for_use_object_modify_operations.keySet();
-//		System.out.println("===== clses start =====");
-//		for (Class<?> cls : classes) {
-//			System.out.println("b_cls:" + cls);
-//		}
-//		System.out.println("===== clses end =====");
+		// System.out.println("===== clses start =====");
+		// for (Class<?> cls : classes) {
+		// System.out.println("b_cls:" + cls);
+		// }
+		// System.out.println("===== clses end =====");
 		HashSet<PseudoVariable> variables = new HashSet<PseudoVariable>();
 		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
 		end.BuildValidDependantPseudoVariables(variables, encountered, dg);
 		for (PseudoVariable var : variables) {
 			Class<?> var_class = dg.pseudo_variable_class.get(var);
-//			System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
+			// System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
 			System.out.println("var.sequence.getClass():" + var.sequence.getClass());
 			Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
-//			System.out.println("===== classes start =====");
-//			System.out.println("var_class:" + var_class);
-//			for (Class<?> cls : could_assign_classes) {
-//				System.out.println("cls:" + cls);
-//			}
-//			System.out.println("===== classes end =====");
+			// System.out.println("===== classes start =====");
+			// System.out.println("var_class:" + var_class);
+			// for (Class<?> cls : could_assign_classes) {
+			// System.out.println("cls:" + cls);
+			// }
+			// System.out.println("===== classes end =====");
 			ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
 			for (Class<?> ca_cls : could_assign_classes) {
 				tos.addAll(dg.for_use_object_modify_operations.get(ca_cls));
 			}
-//			System.out.println("just#tos.size():" + tos.size());
+			// System.out.println("just#tos.size():" + tos.size());
 			for (TypedOperation to : tos) {
 				HashSet<PseudoVariable> pvs = op_vars.get(to);
 				if (pvs == null) {
@@ -205,11 +207,12 @@ public class PseudoSequenceContainer implements Rewardable {
 		}
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		Set<TypedOperation> tos = op_vars.keySet();
-//		System.out.println("tos.size():" + tos.size());
+		// System.out.println("tos.size():" + tos.size());
 		for (TypedOperation to : tos) {
 			HashSet<PseudoVariable> pvs = op_vars.get(to);
 			if (pvs.size() > 0) {
-				TypedOperationMutation tom = new TypedOperationMutation(dg.typed_operation_branch_influence.get(to), to, pvs);
+				TypedOperationMutation tom = new TypedOperationMutation(dg.typed_operation_branch_influence.get(to), to,
+						pvs);
 				mutations.add(tom);
 			}
 		}
@@ -223,7 +226,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	public void AddOptionalConstraint(PseudoVariableConstraint pvc) {
 		optional_tcs.add(pvc);
 	}
-	
+
 	@Override
 	public String toString() {
 		return super.toString() + end.GenerateLinkedSequence().toCodeString();
