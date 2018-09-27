@@ -2,30 +2,39 @@ package randoop.generation.date.influence;
 
 public class Reward {
 
-	public double[] r = null;
+	public double[] rs = null;
 
-	public Reward(double... r) {
-		this.r = r;
+	public Reward(double... rs) {
+		this.rs = rs;
 	}
 
 	public double GetReward() {
 		double sum = 0.0;
-		for (int i = 0; i < r.length; i++) {
-			sum = sum + r[i];
+		for (int i = 0; i < rs.length; i++) {
+			sum = sum + rs[i];
 		}
 		return sum;
 	}
 	
 	public double[] GetRewards() {
-		return r;
+		return rs;
 	}
 	
 	public int GetNumberOfRewards() {
-		return r.length;
+		return rs.length;
 	}
 
 	public Reward CopySelf() {
-		return new Reward(r.clone());
+		return new Reward(rs.clone());
+	}
+	
+	@Override
+	public String toString() {
+		String s = "";
+		for (double d : rs) {
+			s += d + "#";
+		}
+		return s;
 	}
 
 }
