@@ -77,12 +77,12 @@ public class RandomSelect {
 		}
 		double non_zero_rate = (non_zero_wait_select.size() * 1.0) / (wait_select.size() * 1.0);
 		double real_rate = non_zero_rate;
-		if (real_rate < 0.6) {
-			real_rate = 0.6;
+		if (real_rate < 0.68) {
+			real_rate = 0.68;
 		}
-		if (real_rate > 0.8) {
-			real_rate = 0.8;
-		}
+//		if (real_rate > 0.8) {
+//			real_rate = 0.8;
+//		}
 		boolean sample_from_non_zero = false;
 		if (non_zero_wait_select.size() > 0) {
 			if (Math.random() <= real_rate) {
