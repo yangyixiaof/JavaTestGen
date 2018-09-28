@@ -280,14 +280,14 @@ public class RandomSelect {
 
 }
 
-class TotalAlignedResult<T> {
-
-	double total_rewards;
-	Map<T, Double> aligned_map;
-
-	public TotalAlignedResult(double total, Map<T, Double> aligned_map) {
-		this.total_rewards = total;
-		this.aligned_map = aligned_map;
-	}
-
-}
+//class TotalAlignedResult<T> {
+//
+//	double total_rewards;
+//	Map<T, Double> aligned_map;
+//
+//	public TotalAlignedResult(double total, Map<T, Double> aligned_map) {
+//		this.total_rewards = total;
+//		this.aligned_map = aligned_map;
+//	}
+//
+//}
