@@ -1,7 +1,9 @@
 package randoop.generation.date.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -10,13 +12,63 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.influence.Reward;
 
 public class NormalizeUtil {
-
+	
 	/**
 	 * we assume that the values in Reward could be modified.
 	 * 
 	 * @param wait_select
 	 */
 	public static <T> void NormalizeRewards(Map<T, Reward> wait_select) {
+		Collection<Reward> vals = wait_select.values();
+		int val_size = vals.size();
+		if (val_size > 0) {
+			ArrayList<Double[]> rs = new ArrayList<Double[]>();
+			{
+				Reward r = vals.iterator().next();
+				int r_num = r.GetNumberOfRewards();
+				for (int i = 0; i < r_num; i++) {
+					rs.add(new Double[val_size]);
+				}
+			}
+			{
+				int v_idx = -1;
+				Iterator<Reward> v_itr = vals.iterator();
+				int previous_r_num = -1;
+				while (v_itr.hasNext()) {
+					v_idx++;
+					Reward r = v_itr.next();
+					double[] rewards = r.GetRewards();
+					int r_num = rewards.length;
+					Assert.isTrue(previous_r_num == -1 || previous_r_num == r_num);
+					previous_r_num = r_num;
+					for (int i=0;i<r_num;i++) {
+						rs.get(i)[v_idx] = rewards[i];
+					}
+				}
+			}
+			{
+				for (int i=0;i<rs.size();i++) {
+					Double[] data = rs.get(i);
+					double min = Collections.min(Arrays.asList(data));
+					double max = Collections.max(Arrays.asList(data));
+					double gap = max - min;
+					Iterator<Reward> v_itr = vals.iterator();
+					while (v_itr.hasNext()) {
+						Reward r = v_itr.next();
+						double[] rewards = r.GetRewards();
+						rewards[i] = gap == 0 ? rewards[i] : (rewards[i] - min) / gap;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * we assume that the values in Reward could be modified.
+	 * 
+	 * @param wait_select
+	 */
+	public static <T> void StandardizeRewards(Map<T, Reward> wait_select) {
 		Collection<Reward> vals = wait_select.values();
 		int val_size = vals.size();
 		if (val_size > 0) {
