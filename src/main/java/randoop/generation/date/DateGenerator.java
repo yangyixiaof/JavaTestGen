@@ -551,7 +551,7 @@ public class DateGenerator extends AbstractGenerator {
 						if (Math.random() > 0.6) {
 							// handle obligatory constraint
 							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
-									.RandomKeyFromSetByRewardableElement(
+									.RandomElementFromSetByRewardableElements(
 											pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
 							if (selected_container != null) {
 								if (selected_container.HasUnsolvedObligatoryConstraint()) {
@@ -566,7 +566,7 @@ public class DateGenerator extends AbstractGenerator {
 					if (mutations.size() == 0) {
 						if (Math.random() > 0.6) {
 							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
-									.RandomKeyFromSetByRewardableElement(pseudo_sequence_optional_constraint_containers,
+									.RandomElementFromSetByRewardableElements(pseudo_sequence_optional_constraint_containers,
 											interested_branch, null);
 							if (selected_container != null) {
 								if (selected_container.HasUnsolvedConstraint()) {
@@ -583,7 +583,7 @@ public class DateGenerator extends AbstractGenerator {
 						// first select a container
 						// System.out.println("selected_container:" + selected_container);
 						// second identify mutation operations in that container and select one
-						TypedOperation best_op = RandomSelect.GetBestKeyFromMapByRewardableValue(typed_operation_branch_influence, interested_branch);
+						TypedOperation best_op = RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence, interested_branch, null);
 						Class<?> best_op_cls = operation_class.get(best_op);
 						Set<Class<?>> candidates = class_pseudo_variable.keySet();
 						Set<Class<?>> selected_candidates = ClassUtil.GetDescendantClasses(candidates, best_op_cls);
@@ -602,7 +602,7 @@ public class DateGenerator extends AbstractGenerator {
 						}
 						candidate_pvs.removeAll(remove_pvs);
 						PseudoVariable selected_var = (PseudoVariable) RandomSelect
-								.GetBestElementFromSetByRewardableElement(candidate_pvs, interested_branch, null);
+								.RandomElementFromSetByRewardableElements(candidate_pvs, interested_branch, null);
 						HashSet<PseudoVariable> selected_vars = new HashSet<>();
 						selected_vars.add(selected_var);
 						mutations.add(new TypedOperationMutation(typed_operation_branch_influence.get(best_op), best_op, selected_vars));
@@ -614,7 +614,7 @@ public class DateGenerator extends AbstractGenerator {
 						// .GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
 						// }
 					}
-					Mutation one_mutate = (Mutation) RandomSelect.RandomKeyFromSetByRewardableElement(mutations,
+					Mutation one_mutate = (Mutation) RandomSelect.RandomElementFromSetByRewardableElements(mutations,
 							interested_branch, null);
 					if (one_mutate != null) {
 						BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
