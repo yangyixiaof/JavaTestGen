@@ -182,27 +182,29 @@ public class PseudoSequenceContainer implements Rewardable {
 		end.BuildValidDependantPseudoVariables(variables, encountered, dg);
 		for (PseudoVariable var : variables) {
 			Class<?> var_class = dg.pseudo_variable_class.get(var);
-			// System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
-			System.out.println("var.sequence.getClass():" + var.sequence.getClass());
-			Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
-			// System.out.println("===== classes start =====");
-			// System.out.println("var_class:" + var_class);
-			// for (Class<?> cls : could_assign_classes) {
-			// System.out.println("cls:" + cls);
-			// }
-			// System.out.println("===== classes end =====");
-			ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
-			for (Class<?> ca_cls : could_assign_classes) {
-				tos.addAll(dg.for_use_object_modify_operations.get(ca_cls));
-			}
-			// System.out.println("just#tos.size():" + tos.size());
-			for (TypedOperation to : tos) {
-				HashSet<PseudoVariable> pvs = op_vars.get(to);
-				if (pvs == null) {
-					pvs = new HashSet<PseudoVariable>();
-					op_vars.put(to, pvs);
+			if (var_class != null) {
+				// System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
+				System.out.println("var.sequence.getClass():" + var.sequence.getClass());
+				Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
+				// System.out.println("===== classes start =====");
+				// System.out.println("var_class:" + var_class);
+				// for (Class<?> cls : could_assign_classes) {
+				// System.out.println("cls:" + cls);
+				// }
+				// System.out.println("===== classes end =====");
+				ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
+				for (Class<?> ca_cls : could_assign_classes) {
+					tos.addAll(dg.for_use_object_modify_operations.get(ca_cls));
 				}
-				pvs.add(var);
+				// System.out.println("just#tos.size():" + tos.size());
+				for (TypedOperation to : tos) {
+					HashSet<PseudoVariable> pvs = op_vars.get(to);
+					if (pvs == null) {
+						pvs = new HashSet<PseudoVariable>();
+						op_vars.put(to, pvs);
+					}
+					pvs.add(var);
+				}
 			}
 		}
 		List<Mutation> mutations = new LinkedList<Mutation>();

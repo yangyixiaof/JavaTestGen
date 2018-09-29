@@ -7,11 +7,11 @@ import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.operation.TypedOperation;
-import randoop.util.Randomness;
 
 public class TypedOperationMutation extends Mutation {
 	
@@ -26,7 +26,8 @@ public class TypedOperationMutation extends Mutation {
 
 	@Override
 	public BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg) {
-		PseudoVariable pv = Randomness.randomSetMember(pvs);
+		PseudoVariable selected_pv = (PseudoVariable) RandomSelect.RandomElementFromSetByRewardableElements(pvs, interested_branch, null);
+//		PseudoVariable pv = Randomness.randomSetMember(pvs);
 //		System.out.println("selected_to:" + to);
 		// mutate existing sequence
 //		PseudoVariableSelectFilter pvsf = new PseudoVariableSelectFilter(selected_to_class,
@@ -34,7 +35,6 @@ public class TypedOperationMutation extends Mutation {
 //		PseudoVariable selected_pv = RandomSelect.RandomKeyFromMapByRewardableValueWithPenalizableValue(
 //				pseudo_variable_branch_value_state, pseudo_variable_headed_sequence, interested_branch,
 //				pvsf, selected_to);c
-		PseudoVariable selected_pv = pv;
 //		System.out.println("selected_pv:" + selected_pv);
 		if (selected_pv != null) {
 //			Class<?> sequence_type = dg.GetSequenceTypeFromTypedOperation(to);

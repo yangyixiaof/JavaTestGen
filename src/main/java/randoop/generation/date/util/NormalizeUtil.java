@@ -78,6 +78,19 @@ public class NormalizeUtil {
 		}
 		return cs.r_map;
 	}
+	
+	public static <T> Map<T, Double> ProbabilizeDoubleValues(Map<T, Double> wait_select) {
+		Map<T, Double> f_wait_select = new HashMap<T, Double>();
+		double data_sum = sum((Double[])wait_select.values().toArray());
+		Set<T> w_keys = wait_select.keySet();
+		Iterator<T> w_k_itr = w_keys.iterator();
+		while (w_k_itr.hasNext()) {
+			T t = w_k_itr.next();
+			Double t_val = wait_select.get(t);
+			f_wait_select.put(t, data_sum == 0 ? t_val : t_val / data_sum);
+		}
+		return f_wait_select;
+	}
 
 	// /**
 	// * we assume that the values in Reward could be modified.

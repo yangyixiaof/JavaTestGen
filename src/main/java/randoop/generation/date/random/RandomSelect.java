@@ -157,7 +157,8 @@ public class RandomSelect {
 		}
 		Map<Object, Reward> normal_final_wait_select = NormalizeUtil.ProbabilizeRewards(final_wait_select);
 		Map<Object, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(normal_final_wait_select);
-		return RandomKeyFromMapByValue(r_final_wait_select);
+		Map<Object, Double> n_r_final_wait_select = NormalizeUtil.ProbabilizeDoubleValues(r_final_wait_select);
+		return RandomKeyFromMapByValue(n_r_final_wait_select);
 	}
 
 //	public static <T> T GetBestKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
@@ -234,7 +235,8 @@ public class RandomSelect {
 //		Map<T, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(final_wait_select);
 		Map<T, Reward> normal_final_wait_select = NormalizeUtil.ProbabilizeRewards(final_wait_select);
 		Map<T, Double> r_final_wait_select = RewardUtil.RewardValueToDoubleValueInMap(normal_final_wait_select);
-		return RandomKeyFromMapByValue(r_final_wait_select);
+		Map<T, Double> n_r_final_wait_select = NormalizeUtil.ProbabilizeDoubleValues(r_final_wait_select);
+		return RandomKeyFromMapByValue(n_r_final_wait_select);
 	}
 
 //	public static <T> T RandomKeyFromMapByRewardableValueWithPenalizableValue(Map<T, ? extends Rewardable> wait_select,
