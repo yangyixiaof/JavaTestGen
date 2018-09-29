@@ -1,3 +1,6 @@
 TODO
 PseudoVariable should implement toString method
+checkcast and instanceof should be branches
+address compare should be handled specially in this framework
+especially null
 
