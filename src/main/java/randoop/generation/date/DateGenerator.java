@@ -86,6 +86,7 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
 	public Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>();
 	public Map<PseudoVariable, String> pseudo_variable_content = new HashMap<PseudoVariable, String>();
+	public Set<PseudoVariable> pseudo_variable_with_null_value = new HashSet<PseudoVariable>();
 	// Map<PseudoVariable, BranchValueState> pseudo_variable_branch_value_state =
 	// new HashMap<PseudoVariable, BranchValueState>();
 	public HashSet<PseudoSequenceContainer> pseudo_sequence_obligatory_constraint_containers = new HashSet<PseudoSequenceContainer>();
@@ -351,6 +352,8 @@ public class DateGenerator extends AbstractGenerator {
 							// Assert.isTrue(e_pv_branch_value_state == null);
 							// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
 							// }
+						} else {
+							pseudo_variable_with_null_value.add(e_pv);
 						}
 					}
 				}

@@ -174,11 +174,21 @@ public class PseudoSequence implements Rewardable {
 		PseudoVariable copied_headed_variable = headed_variable.CopySelfInDeepCloneWay(container,
 				origin_copied_sequence_map, dg);
 		copy_version.SetHeadedVariable(copied_headed_variable);
+		copy_version.headed_variable_branch_influence = headed_variable_branch_influence.CopySelfInDeepCloneWay();
 		dg.pseudo_variable_headed_sequence.put(copied_headed_variable, copy_version);
 		// clone statements
+		int stmt_index = -1;
 		for (PseudoStatement stmt : statements) {
+			stmt_index++;
 			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
 			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);// , class_object_headed_sequence
+			if (!stmt.operation.getOutputType().isVoid()) {
+				PseudoVariable stmt_returned_pv = new PseudoVariable(this, stmt_index);
+				if (dg.pseudo_variable_class.containsKey(stmt_returned_pv)) {
+					PseudoVariable copied_stmt_returned_pv = stmt_returned_pv.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
+					Assert.isTrue(copied_stmt_returned_pv != null);
+				}
+			}
 		}
 		return copy_version;
 	}
@@ -189,13 +199,10 @@ public class PseudoSequence implements Rewardable {
 		// PseudoSequence new_end =
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
 		PseudoSequence copied_this = origin_copied_sequence_map.get(this);
-		if (headed_variable_branch_influence != null) {
-			copied_this.headed_variable_branch_influence = headed_variable_branch_influence.CopySelfInDeepCloneWay();
-		}
+		Assert.isTrue(copied_this != null, "copied this is null, but this is not null? " + container.contained_sequences.contains(this) + "#this sequence' content is:" + toString() + "#over!" + "#headed_variable sequence's content is:" + headed_variable.sequence.toString() + "#over!");
 		// System.out.println("container.contained_sequences.contains(this):" +
 		// container.contained_sequences.contains(this));
 		// System.out.println("container.end:" + container.end + "#this:" + this);
-
 		// PseudoSequenceContainer new_container = new_end.container;
 		return copied_this;
 		// if (origin_copied_sequence_map.containsKey(this)) {
@@ -439,6 +446,15 @@ public class PseudoSequence implements Rewardable {
 	@Override
 	public Reward GetReward(ArrayList<String> interested_branch) {
 		return headed_variable_branch_influence.GetReward(interested_branch);
+	}
+	
+	@Override
+	public String toString() {
+		String result = "NoContentYet!";
+		for (PseudoStatement stmt : this.statements) {
+			result += stmt.operation.getName() + "!";
+		}
+		return result;
 	}
 
 }

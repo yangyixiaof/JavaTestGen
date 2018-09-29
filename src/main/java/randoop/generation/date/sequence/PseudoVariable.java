@@ -44,7 +44,7 @@ public class PseudoVariable implements Rewardable {
 			PseudoSequence headed_sequence = dg.pseudo_variable_headed_sequence.get(this);
 //			System.out.println("sequence.getClass():" + sequence.getClass());
 			if (headed_sequence == null) {
-				Assert.isTrue(sequence.getClass().equals(DisposablePseudoSequence.class), "Unexpected sequence.getClass():" + sequence.getClass());
+				Assert.isTrue(sequence.getClass().equals(DisposablePseudoSequence.class) || dg.pseudo_variable_with_null_value.contains(this), "Unexpected sequence.getClass():" + sequence.getClass() + "#variable value is null?" +  dg.pseudo_variable_with_null_value.contains(this));
 			} else {
 				if (origin_copied_sequence_map.containsKey(headed_sequence)) {
 					PseudoSequence copied_headed_sequence = origin_copied_sequence_map.get(headed_sequence);
