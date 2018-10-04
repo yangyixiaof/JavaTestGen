@@ -54,8 +54,10 @@ public class PseudoSequenceContainer implements Rewardable {
 	HashSet<PseudoVariableConstraint> optional_tcs = new HashSet<PseudoVariableConstraint>();
 
 	PseudoSequenceContainer previous = null;
+	Set<PseudoSequenceContainer> nexts = new HashSet<PseudoSequenceContainer>();
 	
 	public PseudoSequenceContainer(PseudoSequenceContainer previous) {
+		previous.nexts.add(this);
 		this.previous = previous;
 	}
 

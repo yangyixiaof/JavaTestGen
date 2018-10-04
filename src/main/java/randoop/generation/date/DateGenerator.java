@@ -34,6 +34,7 @@ import randoop.generation.date.mutation.Mutated;
 import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.ObjectConstraintMutated;
 import randoop.generation.date.mutation.TypedOperationMutated;
+import randoop.generation.date.operation.OperationKind;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
@@ -75,11 +76,14 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<TypedOperation, Boolean> operation_is_to_create = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_is_delta_change = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
-
+	
 	// influence for typed operation
 	public Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
 	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
 
+	// typed operation runtime information
+	public Map<TypedOperation, OperationKind> operation_kind = new HashMap<TypedOperation, OperationKind>();
+	
 	// runtime information
 	public Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = new HashMap<PseudoVariable, PseudoSequence>();
 	public Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
