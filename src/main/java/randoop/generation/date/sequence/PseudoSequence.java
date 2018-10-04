@@ -450,10 +450,11 @@ public class PseudoSequence implements Rewardable {
 	
 	@Override
 	public String toString() {
-		String result = "NoContentYet!";
+		String result = "ContentStart!";
 		for (PseudoStatement stmt : this.statements) {
 			result += stmt.operation.getName() + "!";
 		}
+		result += "ContentOver!";
 		return result;
 	}
 

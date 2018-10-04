@@ -92,7 +92,7 @@ public class DateGenerator extends AbstractGenerator {
 	public HashSet<PseudoSequenceContainer> pseudo_sequence_optional_constraint_containers = new HashSet<PseudoSequenceContainer>();
 	public HashSet<PseudoSequenceContainer> pseudo_sequence_containers = new HashSet<PseudoSequenceContainer>();
 
-	public Map<String, TraceInfo> recorded_traces = new HashMap<String, TraceInfo>();
+//	public Map<String, TraceInfo> recorded_traces = new HashMap<String, TraceInfo>();
 	public BranchNodesState branch_state = new BranchNodesState();
 
 	// Map<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass>
@@ -197,6 +197,7 @@ public class DateGenerator extends AbstractGenerator {
 		while (n_cmp_sequence == null) {
 			n_cmp_sequence = CreateNewCompareSequence();
 		}
+		PseudoSequenceContainer previous_container = n_cmp_sequence.GetBeforeLinkedSequence().GetPseudoSequenceContainer();
 		PseudoSequenceContainer newly_created_container = n_cmp_sequence.GetAfterLinkedSequence()
 				.GetPseudoSequenceContainer();
 		// pseudo_sequence_containers.add(newly_created_container);
@@ -204,7 +205,8 @@ public class DateGenerator extends AbstractGenerator {
 		// checkGenerator);");
 		// System.out.println(eSeq);
 
-		TraceInfo before_trace = recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
+		TraceInfo before_trace = previous_container == null ? null : previous_container.GetTraceInfo();
+//			recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
 
 		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
 				+ n_cmp_sequence.GetAfterLinkedSequence());
@@ -243,7 +245,7 @@ public class DateGenerator extends AbstractGenerator {
 //		}
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
-		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
+//		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
 		newly_created_container.SetTraceInfo(after_trace);
 
 		String branch_state_representation_before = branch_state.RepresentationOfUnCoveredBranchWithState();

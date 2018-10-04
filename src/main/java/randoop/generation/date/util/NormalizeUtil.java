@@ -81,7 +81,7 @@ public class NormalizeUtil {
 	
 	public static <T> Map<T, Double> ProbabilizeDoubleValues(Map<T, Double> wait_select) {
 		Map<T, Double> f_wait_select = new HashMap<T, Double>();
-		double data_sum = sum((Double[])wait_select.values().toArray());
+		double data_sum = sum(wait_select.values().toArray());
 		Set<T> w_keys = wait_select.keySet();
 		Iterator<T> w_k_itr = w_keys.iterator();
 		while (w_k_itr.hasNext()) {
@@ -221,6 +221,15 @@ public class NormalizeUtil {
 	 */
 	public static double standardDeviation(double[] x) {
 		return Math.sqrt(variance(x));
+	}
+	
+	public static double sum(Object[] x) {
+		int m = x.length;
+		double sum = 0;
+		for (int i = 0; i < m; i++) {
+			sum += (double) x[i];
+		}
+		return sum;
 	}
 
 	public static double sum(Double[] x) {
