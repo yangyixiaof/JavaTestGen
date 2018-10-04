@@ -1,8 +1,6 @@
 package randoop.generation.date.execution;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class TracePrintController {
 	
@@ -14,11 +12,11 @@ public class TracePrintController {
 			/**
 			 * print operation start
 			 */
-			Method m = c.getMethod("PrintOperationStartUp");
-			m.invoke(null);
+//			Method m = c.getMethod("PrintOperationStartUp");
+//			m.invoke(null);
 //			Boolean f_v = (Boolean)f.get(null);
 //			System.out.println("open setted f_v:" + f_v);
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 	}
