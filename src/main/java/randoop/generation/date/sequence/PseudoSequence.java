@@ -154,7 +154,7 @@ public class PseudoSequence implements Rewardable {
 		}
 		boolean container_created = false;
 		if (container == null) {
-			container = new PseudoSequenceContainer();
+			container = new PseudoSequenceContainer(this.container);
 			container_created = true;
 			dg.pseudo_sequence_containers.add(container);
 		}

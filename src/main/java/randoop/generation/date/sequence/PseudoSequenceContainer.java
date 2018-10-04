@@ -53,7 +53,10 @@ public class PseudoSequenceContainer implements Rewardable {
 	HashSet<PseudoVariableConstraint> solved_optional_tcs = new HashSet<PseudoVariableConstraint>();
 	HashSet<PseudoVariableConstraint> optional_tcs = new HashSet<PseudoVariableConstraint>();
 
-	public PseudoSequenceContainer() {
+	PseudoSequenceContainer previous = null;
+	
+	public PseudoSequenceContainer(PseudoSequenceContainer previous) {
+		this.previous = previous;
 	}
 
 	public void SetEndPseudoSequence(PseudoSequence end) {

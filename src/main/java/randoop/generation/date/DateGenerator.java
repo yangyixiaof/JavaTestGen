@@ -652,7 +652,7 @@ public class DateGenerator extends AbstractGenerator {
 		ArrayList<ArrayList<PseudoVariable>> candidates = SequenceGeneratorHelper.GetMatchedPseudoVariables(type_list,
 				this);
 		if (candidates.size() == type_list.size()) {
-			PseudoSequenceContainer container = new PseudoSequenceContainer();
+			PseudoSequenceContainer container = new PseudoSequenceContainer(null);
 			pseudo_sequence_containers.add(container);
 			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, container, input_pseudo_variables,
