@@ -1,0 +1,9 @@
+GRT pool
+
+-
+
+SUSHI 比 EvoSuite 多的就是值分析
+（指着 17-issta-sushi.pdf Figure 6: δci (t) 定义 的第三行）
+箫读论文真的很抓关键。
+
+但是 SUSHI 符号执行 实测很慢，AVLtree 几分钟，EvoSuite 十几秒。
