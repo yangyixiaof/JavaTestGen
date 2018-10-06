@@ -79,19 +79,20 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			TypedOperation dp_op = TypedOperation.createPrimitiveInitialization(JavaTypes.DOUBLE_TYPE, next_delta);
 			dp_operations.add(dp_op);
 			DisposablePseudoSequence dps = new DisposablePseudoSequence();// dp_operations
-			PseudoVariable dpv = dps.Append(dp_op, new ArrayList<PseudoVariable>());// ,
+			PseudoVariable dpv = dps.Append(dp_op, new ArrayList<PseudoVariable>(), false);// ,
 																					// dg.pseudo_variable_headed_sequence
 			dps.SetHeadedVariable(dpv);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			input_pseudo_variables.add(1, dpv);
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
-			PseudoVariable pv = ps.Append(selected_to, input_pseudo_variables);// , dg.pseudo_variable_headed_sequence
+			PseudoVariable pv = ps.Append(selected_to, input_pseudo_variables, false);// , dg.pseudo_variable_headed_sequence
 			ps.ReplacePseudoVariableInDependency(dg, headed_variable, pv);
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			// ps.headed_variable, ps,
 			result = new BeforeAfterLinkedSequence(selected_to,
 					new DeltaChangeTypedOperationMutated(ps, true, new PseudoVariable(ps, ps.Size() - 1), true, pv),
 					before_linked_sequence, after_linked_sequence);
+			container.mutated_number++;
 			return result;
 		} else {
 			return super.Mutate(selected_to, interested_branch, dg);

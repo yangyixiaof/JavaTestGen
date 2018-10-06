@@ -3,15 +3,18 @@ package randoop.generation.date.influence;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class TraceReader {
 
-//	private static final String default_trace_file = System.getProperty("user.home") + "/" + "trace.txt";
-//	String specific_file = null;
-	
-//	static int enter = 0, exit = 0, branch_operand = 0; // debug to check whether enter and exit are matched.
-//	static int currentLineFrom1 = 0; // start from 1
-//	static String lastPop = null;
+	// private static final String default_trace_file =
+	// System.getProperty("user.home") + "/" + "trace.txt";
+	// String specific_file = null;
+
+	// static int enter = 0, exit = 0, branch_operand = 0; // debug to check whether
+	// enter and exit are matched.
+	// static int currentLineFrom1 = 0; // start from 1
+	// static String lastPop = null;
 
 	/**
 	 * Main entry of this class.
@@ -19,9 +22,10 @@ public class TraceReader {
 	 * @param specific_file
 	 * @return
 	 */
-	public static TraceInfo ReadFromTraceFile(String specific_file) {
-//		Stack<String> runtime_stack = new Stack<>();
-//		Map<String, LinkedList<ValuesOfBranch>> branch_signature_to_info = new TreeMap<>();
+	public static ArrayList<TraceInfo> ReadFromTraceFile(String specific_file) {
+		// Stack<String> runtime_stack = new Stack<>();
+		// Map<String, LinkedList<ValuesOfBranch>> branch_signature_to_info = new
+		// TreeMap<>();
 		File file = new File(specific_file);
 		String str = "";
 		try {
@@ -35,87 +39,94 @@ public class TraceReader {
 		}
 		return HandleOneTrace(str);
 	}
-	
-	public static TraceInfo HandleOneTrace(String str) {
+
+	public static ArrayList<TraceInfo> HandleOneTrace(String str) {
+		ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
 		String[] lines = str.split("\\r?\\n");
-		TraceInfo ti = new TraceInfo();
 		try {
 			for (String one_line : lines) {
-//				currentLineFrom1++;
+				// currentLineFrom1++;
 				one_line = one_line.trim();
 				if (!one_line.equals("")) {
-//					if (one_line.startsWith("@Method-Enter:")) {
-//						String[] parts = one_line.split(":");
-//						enter++;
-//						ProcessMethodEnter(parts[1], runtime_stack);
-//					}
-//					if (one_line.startsWith("@Method-Exit:")) {
-//						String[] parts = one_line.split(":");
-//						exit++;
-//						ProcessMethodExit(parts[1], runtime_stack);
-//					}
-					String[] parts = one_line.split("#");
-					if (parts[0].equals("@Branch-Operand")) {
-//						branch_operand++;
-						try {
-							String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
-							int relativeOffset = Integer.parseInt(parts[4]);
-							String cmpOperator = parts[5];
-							double op1 = Double.parseDouble(parts[6]);
-							double op2 = Double.parseDouble(parts[7]);
-							if (cmpOperator.equals("A$==") || cmpOperator.equals("A$!=")) {
-								ProcessObjectAddressSameConstraint(operandSig, relativeOffset, (int)op1, (int)op2, ti);
+					// if (one_line.startsWith("@Method-Enter:")) {
+					// String[] parts = one_line.split(":");
+					// enter++;
+					// ProcessMethodEnter(parts[1], runtime_stack);
+					// }
+					// if (one_line.startsWith("@Method-Exit:")) {
+					// String[] parts = one_line.split(":");
+					// exit++;
+					// ProcessMethodExit(parts[1], runtime_stack);
+					// }
+					if (one_line.equals("$OperationStartUp$")) {
+						traces.add(new TraceInfo());
+					} else {
+						TraceInfo ti = traces.get(traces.size() - 1);
+						String[] parts = one_line.split("#");
+						if (parts[0].equals("@Branch-Operand")) {
+							// branch_operand++;
+							try {
+								String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
+								int relativeOffset = Integer.parseInt(parts[4]);
+								String cmpOperator = parts[5];
+								double op1 = Double.parseDouble(parts[6]);
+								double op2 = Double.parseDouble(parts[7]);
+								if (cmpOperator.equals("A$==") || cmpOperator.equals("A$!=")) {
+									ProcessObjectAddressSameConstraint(operandSig, relativeOffset, (int) op1, (int) op2,
+											ti);
+								}
+								// String enclosingMethod = runtime_stack.peek();
+								ProcessBranchOperand(operandSig, relativeOffset, cmpOperator, op1, op2, ti);
+							} catch (Exception e) {
+								// System.out.println("lastPop: " + lastPop);
+								// System.out.println("currentLineFrom1 " + currentLineFrom1);
+								e.printStackTrace();
+								System.exit(1);
 							}
-//							String enclosingMethod = runtime_stack.peek();
-							ProcessBranchOperand(operandSig, relativeOffset, cmpOperator, op1, op2, ti);
-						} catch (Exception e) {
-							// System.out.println("lastPop: " + lastPop);
-							// System.out.println("currentLineFrom1 " + currentLineFrom1);
-							e.printStackTrace();
-							System.exit(1);
 						}
-					}
-					if (parts[0].equals("@Object-Type")) {
-						try {
-							String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
-							int relativeOffset = Integer.parseInt(parts[5]);
-							String type_str = parts[6];
-							Class<?> cls = Class.forName(type_str);
-							int object_address = Integer.parseInt(parts[7]);
-							ProcessObjectType(operandSig, relativeOffset, parts[4].equals("checkcast"), cls, object_address, ti);
-						} catch (Exception e) {
-							e.printStackTrace();
-							System.exit(1);
+						if (parts[0].equals("@Object-Type")) {
+							try {
+								String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
+								int relativeOffset = Integer.parseInt(parts[5]);
+								String type_str = parts[6];
+								Class<?> cls = Class.forName(type_str);
+								int object_address = Integer.parseInt(parts[7]);
+								ProcessObjectType(operandSig, relativeOffset, parts[4].equals("checkcast"), cls,
+										object_address, ti);
+							} catch (Exception e) {
+								e.printStackTrace();
+								System.exit(1);
+							}
 						}
-					}
-//					if (one_line.startsWith("@Var")) {
-//						String[] parts = one_line.split("#");
-//						String var_type = parts[1];
-//						String var_value = parts[2];
-//						Class<?> var_class = Class.forName(var_type);
-//						ti.AddOneReturnOfStatement(new StatementReturn(var_class, var_value));
-//					}
-					if (parts[0].equals("@Object-Address")) {
-//						branch_operand++;
-						try {
-							String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
-							int relativeOffset = Integer.parseInt(parts[4]);
-							int object_address = Integer.parseInt(parts[5]);
-//							String enclosingMethod = runtime_stack.peek();
-							ProcessObjectAddress(operandSig, relativeOffset, object_address, ti);
-						} catch (Exception e) {
-							// System.out.println("lastPop: " + lastPop);
-							// System.out.println("currentLineFrom1 " + currentLineFrom1);
-							e.printStackTrace();
-							System.exit(1);
+						// if (one_line.startsWith("@Var")) {
+						// String[] parts = one_line.split("#");
+						// String var_type = parts[1];
+						// String var_value = parts[2];
+						// Class<?> var_class = Class.forName(var_type);
+						// ti.AddOneReturnOfStatement(new StatementReturn(var_class, var_value));
+						// }
+						if (parts[0].equals("@Object-Address")) {
+							// branch_operand++;
+							try {
+								String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
+								int relativeOffset = Integer.parseInt(parts[4]);
+								int object_address = Integer.parseInt(parts[5]);
+								// String enclosingMethod = runtime_stack.peek();
+								ProcessObjectAddress(operandSig, relativeOffset, object_address, ti);
+							} catch (Exception e) {
+								// System.out.println("lastPop: " + lastPop);
+								// System.out.println("currentLineFrom1 " + currentLineFrom1);
+								e.printStackTrace();
+								System.exit(1);
+							}
 						}
 					}
 				}
 			}
-			
+
 			// TraceSerializer.SerializeByIdentification(current_sequence_identifier,
 			// branch_signature_to_info);
-			
+
 			// @SuppressWarnings("unchecked")
 			// Map<String, ValuesOfBranch> previous_branch_signature =
 			// (Map<String, ValuesOfBranch>)
@@ -126,50 +137,56 @@ public class TraceReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		ti.IdentifyStatesOfBranches();
-		return ti;
+		if (traces.size() > 0) {
+			for (TraceInfo trace : traces) {
+				trace.IdentifyStatesOfBranches();
+			}
+		}
+		return traces;
 	}
 
-//	private void ProcessMethodEnter(String method_name, Stack<String> runtime_stack) {
-//		runtime_stack.push(method_name);
-//	}
-//	
-//	private void ProcessMethodExit(String method_name, Stack<String> runtime_stack) {
-//		String mname = runtime_stack.pop();
-//		// lastPop = mname;
-//		if (!mname.equals(method_name)) {
-//			System.err.println("very strange! stack not valid! Should be the same:");
-//			System.err.println(mname);
-//			System.err.println(method_name);
-//			System.err.println("currentLineFrom1: " + currentLineFrom1);
-//			System.exit(1);
-//		}
-//	}
+	// private void ProcessMethodEnter(String method_name, Stack<String>
+	// runtime_stack) {
+	// runtime_stack.push(method_name);
+	// }
+	//
+	// private void ProcessMethodExit(String method_name, Stack<String>
+	// runtime_stack) {
+	// String mname = runtime_stack.pop();
+	// // lastPop = mname;
+	// if (!mname.equals(method_name)) {
+	// System.err.println("very strange! stack not valid! Should be the same:");
+	// System.err.println(mname);
+	// System.err.println(method_name);
+	// System.err.println("currentLineFrom1: " + currentLineFrom1);
+	// System.exit(1);
+	// }
+	// }
 
 	private static void ProcessBranchOperand(String operand_sig, int relative_offset, String cmp_optr,
 			double branch_value1, double branch_value2, TraceInfo ti) {
-		ValuesOfBranch vob = new ValuesOfBranch(operand_sig, relative_offset, cmp_optr, branch_value1,
-				branch_value2);
+		ValuesOfBranch vob = new ValuesOfBranch(operand_sig, relative_offset, cmp_optr, branch_value1, branch_value2);
 		String catted = operand_sig + "#" + relative_offset;
 		ti.AddOneValueOfBranch(catted, vob);
 	}
 
-	private static void ProcessObjectAddress(String operand_sig, int relative_offset, int object_address, TraceInfo ti) {
+	private static void ProcessObjectAddress(String operand_sig, int relative_offset, int object_address,
+			TraceInfo ti) {
 		String catted = operand_sig + "#" + relative_offset;
 		ti.AddOneObjectAddress(catted, object_address);
 	}
-	
-	// the following two constraints must be applied immediately. 
-	private static void ProcessObjectType(String operandSig, int relativeOffset, boolean obligatory, Class<?> cls, int object_address,
-			TraceInfo ti) {
+
+	// the following two constraints must be applied immediately.
+	private static void ProcessObjectType(String operandSig, int relativeOffset, boolean obligatory, Class<?> cls,
+			int object_address, TraceInfo ti) {
 		ti.AddObjectTypeConstraint(obligatory, cls, object_address);
 	}
-	
-	private static void ProcessObjectAddressSameConstraint(String operandSig, int relativeOffset, int object_address1, int object_address2,
-			TraceInfo ti) {
+
+	private static void ProcessObjectAddressSameConstraint(String operandSig, int relativeOffset, int object_address1,
+			int object_address2, TraceInfo ti) {
 		if (object_address1 != object_address2) {
 			ti.AddObjectSameConstraint(object_address1, object_address2);
 		}
 	}
-	
+
 }

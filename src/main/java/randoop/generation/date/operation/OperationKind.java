@@ -18,4 +18,12 @@ public enum OperationKind {
 		return value;
 	}
 	
+	public OperationKind BitOr(OperationKind ok) {
+		if (value < ok.value) {
+			return ok;
+		} else {
+			return this;
+		}
+	}
+	
 }

@@ -21,6 +21,7 @@ import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.ObjectConstraintMutation;
 import randoop.generation.date.mutation.ObligatoryObjectConstraintMutation;
 import randoop.generation.date.mutation.TypedOperationMutation;
+import randoop.generation.date.operation.OperationKind;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
@@ -37,7 +38,7 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	// ========= split line =========
 	// the following are set up by execution trace
-	TraceInfo info = null;
+	ArrayList<TraceInfo> infos = null;
 	BranchValueState val_state = null;
 
 	// must satisfied constraint in next generation
@@ -56,9 +57,14 @@ public class PseudoSequenceContainer implements Rewardable {
 	PseudoSequenceContainer previous = null;
 	Set<PseudoSequenceContainer> nexts = new HashSet<PseudoSequenceContainer>();
 	
+	int mutated_number = 0;
+
 	public PseudoSequenceContainer(PseudoSequenceContainer previous) {
-		previous.nexts.add(this);
-		this.previous = previous;
+		if (previous != null) {
+			previous.nexts.add(this);
+			this.previous = previous;
+			this.mutated_number = previous.mutated_number;
+		}
 	}
 
 	public void SetEndPseudoSequence(PseudoSequence end) {
@@ -73,13 +79,17 @@ public class PseudoSequenceContainer implements Rewardable {
 		contained_sequences.add(e);
 	}
 
-	public void SetTraceInfo(TraceInfo info) {
-		this.info = info;
-		this.val_state = SimpleInfluenceComputer.CreateBranchValueState(info);
+	public void SetTraceInfo(ArrayList<TraceInfo> infos) {
+		this.infos = infos;
+		this.val_state = SimpleInfluenceComputer.CreateBranchValueState(infos.get(infos.size() - 1));
 	}
 
-	public TraceInfo GetTraceInfo() {
-		return info;
+	public ArrayList<TraceInfo> GetTraceInfo() {
+		return infos;
+	}
+
+	public TraceInfo GetLastTraceInfo() {
+		return infos.get(infos.size() - 1);
 	}
 
 	public LinkedSequence GenerateLinkedSequence() {
@@ -92,6 +102,7 @@ public class PseudoSequenceContainer implements Rewardable {
 		PseudoSequence copied_end = (PseudoSequence) end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
 		copied_end.ReplacePseudoVariableInDependency(dg, psac.GetShouldBeSamePseudoVariableOne(),
 				psac.GetShouldBeSamePseudoVariableTwo());
+		mutated_number++;
 		return copied_end.container;
 	}
 
@@ -104,6 +115,7 @@ public class PseudoSequenceContainer implements Rewardable {
 		Set<Class<?>> descendants = ClassUtil.GetDescendantClasses(origin, st);
 		Set<Class<?>> not_descendants = new HashSet<Class<?>>(origin);
 		not_descendants.removeAll(descendants);
+		mutated_number++;
 		if (is_to_same) {
 			return MakeSelectedVariableMatchSelectedClasses(pv, descendants, dg);
 		} else {
@@ -165,7 +177,7 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	@Override
 	public Reward GetReward(ArrayList<String> interested_branch) {
-		Assert.isTrue(info != null && val_state != null);
+		Assert.isTrue(infos != null && val_state != null);
 		return val_state.GetReward(interested_branch);
 	}
 
@@ -183,8 +195,12 @@ public class PseudoSequenceContainer implements Rewardable {
 		// }
 		// System.out.println("===== clses end =====");
 		HashSet<PseudoVariable> variables = new HashSet<PseudoVariable>();
-		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
-		end.BuildValidDependantPseudoVariables(variables, encountered, dg);
+		if (HasBranches()) {
+			HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
+			end.BuildValidDependantPseudoVariables(variables, encountered, dg);
+		} else {
+			variables.add(end.headed_variable);
+		}
 		for (PseudoVariable var : variables) {
 			Class<?> var_class = dg.pseudo_variable_class.get(var);
 			if (var_class != null) {
@@ -203,12 +219,22 @@ public class PseudoSequenceContainer implements Rewardable {
 				}
 				// System.out.println("just#tos.size():" + tos.size());
 				for (TypedOperation to : tos) {
+					if (!HasBranches()) {
+						OperationKind ok = dg.operation_kind.get(to);
+						if (ok != null && ok.equals(OperationKind.no_branch)) {
+							continue;
+						}
+					}
 					HashSet<PseudoVariable> pvs = op_vars.get(to);
 					if (pvs == null) {
 						pvs = new HashSet<PseudoVariable>();
 						op_vars.put(to, pvs);
 					}
-					pvs.add(var);
+					PseudoSequence seq = dg.pseudo_variable_headed_sequence.get(var);
+					Integer to_count = seq.operation_use_count.get(to);
+					if (to_count == null || to_count == 0) {
+						pvs.add(var);	
+					}
 				}
 			}
 		}
@@ -237,6 +263,19 @@ public class PseudoSequenceContainer implements Rewardable {
 	@Override
 	public String toString() {
 		return super.toString() + end.GenerateLinkedSequence().toCodeString();
+	}
+	
+	public boolean HasBranches() {
+		return infos.get(infos.size()-1).HasBranches();
+	}
+	
+	public TypedOperation GetEndedTypedOperation() {
+		PseudoStatement pstmt = end.GetLastStatement();
+		return pstmt.operation;
+	}
+	
+	public int GetMutatedNumber() {
+		return mutated_number;
 	}
 
 }

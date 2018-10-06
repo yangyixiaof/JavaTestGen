@@ -6,12 +6,13 @@ import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
+import randoop.generation.date.operation.OperationKind;
 import randoop.operation.TypedOperation;
 
 public class MapUtil {
 
 	public static void Insert(TypedOperation op, Class<?> op_for_class, Class<?> sequence_type, boolean is_to_create, boolean is_delta_change,
-			DateGenerator dg
+			OperationKind op_kind, DateGenerator dg
 //			Map<Class<?>, Class<?>> for_use_object_create_sequence_type,
 //			ArrayList<TypedOperation> create_operations,
 //			Map<Class<?>, ArrayList<TypedOperation>> for_use_object_create_operations,

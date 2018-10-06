@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -76,14 +77,14 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<TypedOperation, Boolean> operation_is_to_create = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_is_delta_change = new HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
-	
+
 	// influence for typed operation
 	public Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
 	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
 
 	// typed operation runtime information
 	public Map<TypedOperation, OperationKind> operation_kind = new HashMap<TypedOperation, OperationKind>();
-	
+
 	// runtime information
 	public Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = new HashMap<PseudoVariable, PseudoSequence>();
 	public Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
@@ -92,11 +93,19 @@ public class DateGenerator extends AbstractGenerator {
 	public Set<PseudoVariable> pseudo_variable_with_null_value = new HashSet<PseudoVariable>();
 	// Map<PseudoVariable, BranchValueState> pseudo_variable_branch_value_state =
 	// new HashMap<PseudoVariable, BranchValueState>();
-	public HashSet<PseudoSequenceContainer> pseudo_sequence_obligatory_constraint_containers = new HashSet<PseudoSequenceContainer>();
-	public HashSet<PseudoSequenceContainer> pseudo_sequence_optional_constraint_containers = new HashSet<PseudoSequenceContainer>();
-	public HashSet<PseudoSequenceContainer> pseudo_sequence_containers = new HashSet<PseudoSequenceContainer>();
+	// public HashSet<PseudoSequenceContainer>
+	// pseudo_sequence_obligatory_constraint_containers = new
+	// HashSet<PseudoSequenceContainer>();
+	// public HashSet<PseudoSequenceContainer>
+	// pseudo_sequence_optional_constraint_containers = new
+	// HashSet<PseudoSequenceContainer>();
+	// public HashSet<PseudoSequenceContainer> pseudo_sequence_containers = new
+	// HashSet<PseudoSequenceContainer>();
+	// public HashSet<PseudoSequenceContainer> pseudo_sequence_containers = new
+	// HashSet<PseudoSequenceContainer>();
 
-//	public Map<String, TraceInfo> recorded_traces = new HashMap<String, TraceInfo>();
+	// public Map<String, TraceInfo> recorded_traces = new HashMap<String,
+	// TraceInfo>();
 	public BranchNodesState branch_state = new BranchNodesState();
 
 	// Map<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass>
@@ -113,6 +122,14 @@ public class DateGenerator extends AbstractGenerator {
 	// been generated, to add the value to the components.
 	// private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 	private static final SimpleList<Statement> empty_statements = new Sequence().statements;
+
+	public static final int trying_maximum_steps = 10;
+	int trying_total_steps = 0;
+	int trying_step = 1;
+	int trying_remain_steps = -1;
+	PseudoSequenceContainer current_container = null;
+	// pseudo sequence containers
+	public TreeMap<Integer, HashSet<PseudoSequenceContainer>> mutated_number_pseudo_sequence_container_map = new TreeMap<Integer, HashSet<PseudoSequenceContainer>>();
 
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
 			GenInputsAbstract.Limits limits, ComponentManager componentManager,
@@ -154,13 +171,13 @@ public class DateGenerator extends AbstractGenerator {
 
 	@Override
 	public ExecutableSequence step() {
-		
+
 		try {
 			Thread.sleep(1500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	
+
 		long startTime = System.nanoTime();
 
 		// ExecutableSequence test_eSeq = new
@@ -201,7 +218,8 @@ public class DateGenerator extends AbstractGenerator {
 		while (n_cmp_sequence == null) {
 			n_cmp_sequence = CreateNewCompareSequence();
 		}
-		PseudoSequenceContainer previous_container = n_cmp_sequence.GetBeforeLinkedSequence().GetPseudoSequenceContainer();
+		PseudoSequenceContainer previous_container = n_cmp_sequence.GetBeforeLinkedSequence()
+				.GetPseudoSequenceContainer();
 		PseudoSequenceContainer newly_created_container = n_cmp_sequence.GetAfterLinkedSequence()
 				.GetPseudoSequenceContainer();
 		// pseudo_sequence_containers.add(newly_created_container);
@@ -209,8 +227,8 @@ public class DateGenerator extends AbstractGenerator {
 		// checkGenerator);");
 		// System.out.println(eSeq);
 
-		TraceInfo before_trace = previous_container == null ? null : previous_container.GetTraceInfo();
-//			recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
+		TraceInfo before_trace = previous_container == null ? null : previous_container.GetLastTraceInfo();
+		// recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
 
 		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
 				+ n_cmp_sequence.GetAfterLinkedSequence());
@@ -243,14 +261,16 @@ public class DateGenerator extends AbstractGenerator {
 		String after_trace_info = TracePrintController.GetPrintedTrace();
 
 		// TODO 记得添加
-//		System.out.println("one trace:" + after_trace_info);
-//		if (!after_trace_info.equals("")) {
-//			System.exit(1);
-//		}
+		// System.out.println("one trace:" + after_trace_info);
+		// if (!after_trace_info.equals("")) {
+		// System.exit(1);
+		// }
 
-		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
-//		recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(), after_trace);
-		newly_created_container.SetTraceInfo(after_trace);
+		ArrayList<TraceInfo> after_traces = TraceReader.HandleOneTrace(after_trace_info);
+		newly_created_container.SetTraceInfo(after_traces);
+		TraceInfo after_trace = after_traces.get(after_traces.size() - 1);
+		// recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(),
+		// after_trace);
 
 		String branch_state_representation_before = branch_state.RepresentationOfUnCoveredBranchWithState();
 		Map<String, Influence> all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
@@ -303,120 +323,160 @@ public class DateGenerator extends AbstractGenerator {
 				if (e_result instanceof ExceptionalExecution) {
 					// ExceptionalExecution ee = (ExceptionalExecution)e_result;
 					running_with_exception = true;
+					break;
 					// System.out.println("Encountering exceptional execution! The system will
 					// stop!");
 					// System.exit(1);
 				}
 			}
 		}
+		// if (running_with_exception) {
+		// // remove all necessary created objects
+		// pseudo_sequence_containers.remove(newly_created_container);
+		// for (int i = 0; i < e_size; i++) {
+		// TypedOperation e_op =
+		// n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
+		// PseudoVariable e_pv =
+		// n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
+		// if (!e_op.getOutputType().isVoid()
+		// && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+		// pseudo_variable_headed_sequence.remove(e_pv);
+		// }
+		// }
+		// } else
+		// {
+		// set up execution outcome.
+		Map<Integer, PseudoVariable> address_variable_map = new HashMap<Integer, PseudoVariable>();
+		for (int i = 0; i < e_size; i++) {
+			ExecutionOutcome e_result = eSeq.getResult(i);
+			// System.out.println("e_result:" + e_result);
+			TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
+			PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
+			if (!e_op.getOutputType().isVoid() && !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
+				if (e_result instanceof NormalExecution) {
+					// System.out.println("=== normally executed! ===");
+					NormalExecution ne = (NormalExecution) e_result;
+					Object out_obj = ne.getRuntimeValue();
+					if (out_obj != null) {
+						int out_obj_address = System.identityHashCode(out_obj);
+						address_variable_map.put(out_obj_address, e_pv);
+						Class<?> out_class = out_obj.getClass();
+						// System.out.println("out_obj:" + out_obj);
+						// System.out.println("out_class:" + out_class);
+						// encountered_types.add(Type.forClass(out_class));
+						ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
+						if (pvs == null) {
+							pvs = new ArrayList<PseudoVariable>();
+							class_pseudo_variable.put(out_class, pvs);
+						}
+						pvs.add(e_pv);
+						pseudo_variable_class.put(e_pv, out_class);
+						// System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
+						pseudo_variable_content.put(e_pv, out_obj.toString());
+						// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
+						// BranchValueState e_pv_branch_value_state =
+						// pseudo_variable_branch_value_state.get(e_pv);
+						// Assert.isTrue(e_pv_branch_value_state == null);
+						// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
+						// }
+					} else {
+						pseudo_variable_with_null_value.add(e_pv);
+					}
+				}
+			}
+		}
 
-		if (running_with_exception) {
-			// remove all necessary created objects
-			pseudo_sequence_containers.remove(newly_created_container);
+		// set up influence for this operation
+		Mutated mutated = n_cmp_sequence.GetMutated();
+		if (mutated instanceof ObjectConstraintMutated) {
+			// do nothing now.
+		}
+		if (mutated instanceof TypedOperationMutated) {
+			TypedOperationMutated tom = (TypedOperationMutated) mutated;
+			if (tom.HasReturnedPseudoVariable()) {
+				PseudoVariable pv = tom.GetReturnedPseudoVariable();
+				Class<?> cls = pseudo_variable_class.get(pv);
+				if (cls != null) {
+					PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(pv);
+					if (selected_pv_headed_sequence == null) {
+						Set<Class<?>> base_classes = for_use_object_create_sequence_type.keySet();
+						Set<Class<?>> classes = ClassUtil.GetSuperClasses(base_classes, cls);
+						if (classes.size() > 1) {
+							classes.remove(Object.class);
+						}
+						Class<?> sequence_type = for_use_object_create_sequence_type.get(classes.iterator().next());
+						selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
+						selected_pv_headed_sequence.SetHeadedVariable(pv);
+						selected_pv_headed_sequence.SetContainer(newly_created_container);
+						newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
+						pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
+					}
+					// if (tom instanceof DeltaChangeTypedOperationMutated) {
+					// ((DeltaChangePseudoSequence) selected_pv_headed_sequence)
+					// .SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+					// }
+				}
+			}
+			if (tom.IsMutatingVariable()) {
+				PseudoVariable in_use_var = tom.GetInUseMutatedPseudoVariable();
+				Class<?> in_use_var_cls = pseudo_variable_class.get(in_use_var);
+				if (in_use_var_cls != null) {
+					PseudoSequence in_use_var_headed_sequence = pseudo_variable_headed_sequence.get(in_use_var);
+					Assert.isTrue(in_use_var_headed_sequence != null);
+					in_use_var_headed_sequence.AddInfluenceOfBranchesForHeadedVariable(all_branches_influences);
+				}
+			}
+		}
+		// process object address related constraints
+		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
+				address_variable_map);
+		if (running_with_exception && !newly_created_container.HasUnsolvedObligatoryConstraint()) {
+			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
+			// pseudo_sequence_containers.remove(newly_created_container);
 			for (int i = 0; i < e_size; i++) {
 				TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
 				PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
 				if (!e_op.getOutputType().isVoid()
 						&& !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
 					pseudo_variable_headed_sequence.remove(e_pv);
-				}
-			}
-		} else {
-			// set up execution outcome.
-			Map<Integer, PseudoVariable> address_variable_map = new HashMap<Integer, PseudoVariable>();
-			for (int i = 0; i < e_size; i++) {
-				ExecutionOutcome e_result = eSeq.getResult(i);
-				// System.out.println("e_result:" + e_result);
-				TypedOperation e_op = n_cmp_sequence.GetAfterLinkedSequence().getStatement(i).getOperation();
-				PseudoVariable e_pv = n_cmp_sequence.GetAfterLinkedSequence().GetPseudoVariable(i);
-				if (!e_op.getOutputType().isVoid()
-						&& !e_pv.sequence.getClass().equals(DisposablePseudoSequence.class)) {
-					if (e_result instanceof NormalExecution) {
-						// System.out.println("=== normally executed! ===");
-						NormalExecution ne = (NormalExecution) e_result;
-						Object out_obj = ne.getRuntimeValue();
-						if (out_obj != null) {
-							int out_obj_address = System.identityHashCode(out_obj);
-							address_variable_map.put(out_obj_address, e_pv);
-							Class<?> out_class = out_obj.getClass();
-							// System.out.println("out_obj:" + out_obj);
-							// System.out.println("out_class:" + out_class);
-							// encountered_types.add(Type.forClass(out_class));
-							ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(out_class);
-							if (pvs == null) {
-								pvs = new ArrayList<PseudoVariable>();
-								class_pseudo_variable.put(out_class, pvs);
-							}
-							pvs.add(e_pv);
-							pseudo_variable_class.put(e_pv, out_class);
-							// System.out.println("e_pv:" + e_pv + "#out_class:" + out_class);
-							pseudo_variable_content.put(e_pv, out_obj.toString());
-							// if (!e_pv.equals(n_cmp_sequence.GetPseudoVariable())) {
-							// BranchValueState e_pv_branch_value_state =
-							// pseudo_variable_branch_value_state.get(e_pv);
-							// Assert.isTrue(e_pv_branch_value_state == null);
-							// pseudo_variable_branch_value_state.put(e_pv, branch_v_stat);
-							// }
-						} else {
-							pseudo_variable_with_null_value.add(e_pv);
-						}
-					}
-				}
-			}
-
-			// set up influence for this operation
-			Mutated mutated = n_cmp_sequence.GetMutated();
-			if (mutated instanceof ObjectConstraintMutated) {
-				// do nothing now.
-			}
-			if (mutated instanceof TypedOperationMutated) {
-				TypedOperationMutated tom = (TypedOperationMutated) mutated;
-				if (tom.HasReturnedPseudoVariable()) {
-					PseudoVariable pv = tom.GetReturnedPseudoVariable();
-					Class<?> cls = pseudo_variable_class.get(pv);
+					Class<?> cls = pseudo_variable_class.remove(e_pv);
+					pseudo_variable_content.remove(e_pv);
 					if (cls != null) {
-						PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(pv);
-						if (selected_pv_headed_sequence == null) {
-							Set<Class<?>> base_classes = for_use_object_create_sequence_type.keySet();
-							Set<Class<?>> classes = ClassUtil.GetSuperClasses(base_classes, cls);
-							if (classes.size() > 1) {
-								classes.remove(Object.class);
-							}
-							Class<?> sequence_type = for_use_object_create_sequence_type.get(classes.iterator().next());
-							selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
-							selected_pv_headed_sequence.SetHeadedVariable(pv);
-							selected_pv_headed_sequence.SetContainer(newly_created_container);
-							newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
-							pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
-						}
-						// if (tom instanceof DeltaChangeTypedOperationMutated) {
-						// ((DeltaChangePseudoSequence) selected_pv_headed_sequence)
-						// .SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
-						// }
-					}
-				}
-				if (tom.IsMutatingVariable()) {
-					PseudoVariable in_use_var = tom.GetInUseMutatedPseudoVariable();
-					Class<?> in_use_var_cls = pseudo_variable_class.get(in_use_var);
-					if (in_use_var_cls != null) {
-						PseudoSequence in_use_var_headed_sequence = pseudo_variable_headed_sequence.get(in_use_var);
-						Assert.isTrue(in_use_var_headed_sequence != null);
-						in_use_var_headed_sequence.AddInfluenceOfBranchesForHeadedVariable(all_branches_influences);
+						ArrayList<PseudoVariable> pvs = class_pseudo_variable.get(cls);
+						pvs.remove(e_pv);
+					} else {
+						pseudo_variable_with_null_value.remove(e_pv);
 					}
 				}
 			}
-			// process object address related constraints
-			ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
-					address_variable_map);
-			if (newly_created_container.HasUnsolvedObligatoryConstraint()) {
-				pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
-				pseudo_sequence_containers.remove(newly_created_container);
+			current_container = null;
+		} else {
+			int mutated_number = newly_created_container.GetMutatedNumber();
+			HashSet<PseudoSequenceContainer> sequence_set = mutated_number_pseudo_sequence_container_map
+					.get(mutated_number);
+			if (sequence_set == null) {
+				sequence_set = new HashSet<PseudoSequenceContainer>();
+				mutated_number_pseudo_sequence_container_map.put(mutated_number, sequence_set);
 			}
-			if (newly_created_container.HasUnsolvedConstraint()) {
-				pseudo_sequence_optional_constraint_containers.add(newly_created_container);
-				pseudo_sequence_containers.remove(newly_created_container);
+			sequence_set.add(newly_created_container);
+			TypedOperation ended_to = newly_created_container.GetEndedTypedOperation();
+			OperationKind ok = operation_kind.get(ended_to);
+			if (ok == null) {
+				ok = OperationKind.unknown;
 			}
+			if (newly_created_container.HasBranches()) {
+				ok = ok.BitOr(OperationKind.branch);
+			} else {
+				ok = ok.BitOr(OperationKind.no_branch);
+			}
+			operation_kind.put(ended_to, ok);
+			current_container = newly_created_container;
 		}
+		// if (newly_created_container.HasUnsolvedConstraint()) {
+		// pseudo_sequence_optional_constraint_containers.add(newly_created_container);
+		// pseudo_sequence_containers.remove(newly_created_container);
+		// }
+		// }
 
 		// System.out.println(System.getProperty("line.separator") + "trace:" + trace);
 		// System.exit(1);
@@ -543,91 +603,120 @@ public class DateGenerator extends AbstractGenerator {
 			}
 			if (interested_branch.size() > 0) {
 				System.out.println("encountering interested branch!");
-//				System.exit(1);
+				// System.exit(1);
 			}
 			// if () {
 			//
 			// } else
-			{
-				// if (selected_to.isStatic()) {
-				// TODO 两个选择: create a new one, append to last, if implemented, add the
-				// mechanism for API sequence (object state).
-				// } else
-				{
-					List<Mutation> mutations = new LinkedList<Mutation>();
-					if (mutations.size() == 0) {
-						if (Math.random() > 0.6) {
-							// handle obligatory constraint
-							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
-									.RandomElementFromSetByRewardableElements(
-											pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
-							if (selected_container != null) {
-								if (selected_container.HasUnsolvedObligatoryConstraint()) {
-									mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
-											object_constraint_branch_influence));
-								} else {
-									pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
-								}
-							}
-						}
+			// {
+			// if (selected_to.isStatic()) {
+			// TODO 两个选择: create a new one, append to last, if implemented, add the
+			// mechanism for API sequence (object state).
+			// } else
+			// {
+			List<Mutation> mutations = new LinkedList<Mutation>();
+			// if (mutations.size() == 0) {
+			// if (Math.random() > 0.6) {
+			// // handle obligatory constraint
+			// PseudoSequenceContainer selected_container = (PseudoSequenceContainer)
+			// RandomSelect
+			// .RandomElementFromSetByRewardableElements(
+			// pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
+			// if (selected_container != null) {
+			// if (selected_container.HasUnsolvedObligatoryConstraint()) {
+			// mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
+			// object_constraint_branch_influence));
+			// } else {
+			// pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
+			// }
+			// }
+			// }
+			// }
+			// if (mutations.size() == 0) {
+			// if (Math.random() > 0.6) {
+			// PseudoSequenceContainer selected_container = (PseudoSequenceContainer)
+			// RandomSelect
+			// .RandomElementFromSetByRewardableElements(pseudo_sequence_optional_constraint_containers,
+			// interested_branch, null);
+			// if (selected_container != null) {
+			// if (selected_container.HasUnsolvedConstraint()) {
+			// mutations.add(selected_container
+			// .GenerateObjectConstraintMutation(object_constraint_branch_influence));
+			// } else {
+			// pseudo_sequence_optional_constraint_containers.remove(selected_container);
+			// }
+			// }
+			// }
+			// }
+			// if (mutations.size() == 0) {
+			// handle non obligatory constraint and typed operation
+			// first select a container, then select typed operation
+			// PseudoSequenceContainer selected_container = null;
+			if (current_container != null && trying_remain_steps > 0) {
+				trying_remain_steps--;
+				mutations.addAll(GenerateMutationsFromOneContainer(current_container));
+			} else {
+				trying_remain_steps = trying_maximum_steps;
+				while (mutations.size() == 0 && trying_total_steps <= mutated_number_pseudo_sequence_container_map.size()) {
+					HashSet<PseudoSequenceContainer> containers = mutated_number_pseudo_sequence_container_map
+							.get(trying_total_steps);
+					if (containers == null) {
+						trying_total_steps += trying_step;
+						continue;
 					}
-					if (mutations.size() == 0) {
-						if (Math.random() > 0.6) {
-							PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
-									.RandomElementFromSetByRewardableElements(pseudo_sequence_optional_constraint_containers,
-											interested_branch, null);
-							if (selected_container != null) {
-								if (selected_container.HasUnsolvedConstraint()) {
-									mutations.add(selected_container
-											.GenerateObjectConstraintMutation(object_constraint_branch_influence));
-								} else {
-									pseudo_sequence_optional_constraint_containers.remove(selected_container);
-								}
-							}
-						}
-					}
-					if (mutations.size() == 0) {
-						// handle non obligatory constraint and typed operation
-						// first select a container, then select typed operation
-						PseudoSequenceContainer selected_container = (PseudoSequenceContainer) RandomSelect
-								.RandomElementFromSetByRewardableElements(pseudo_sequence_containers, interested_branch, null);
-//						System.out.println("selected_container:" + selected_container);
-						mutations.addAll(selected_container.UntriedMutations(this));
-						
-						// first select a typed operation, then select a container
-//						TypedOperation best_op = RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence, interested_branch, null);
-//						Class<?> best_op_cls = operation_class.get(best_op);
-//						Set<Class<?>> candidates = class_pseudo_variable.keySet();
-//						Set<Class<?>> selected_candidates = ClassUtil.GetDescendantClasses(candidates, best_op_cls);
-//						ArrayList<PseudoVariable> candidate_pvs = new ArrayList<PseudoVariable>();
-//						for (Class<?> selected : selected_candidates) {
-//							candidate_pvs.addAll(class_pseudo_variable.get(selected));
-//						}
-//						ArrayList<PseudoVariable> remove_pvs = new ArrayList<PseudoVariable>();
-//						Iterator<PseudoVariable> cpv_itr = candidate_pvs.iterator();
-//						while (cpv_itr.hasNext()) {
-//							PseudoVariable cpv = cpv_itr.next();
-//							PseudoSequence pv_ps = pseudo_variable_headed_sequence.get(cpv);
-//							if (pv_ps.OperationHasBeenApplied(best_op)) {
-//								remove_pvs.add(cpv);
-//							}
-//						}
-//						candidate_pvs.removeAll(remove_pvs);
-//						PseudoVariable selected_var = (PseudoVariable) RandomSelect
-//								.RandomElementFromSetByRewardableElements(candidate_pvs, interested_branch, null);
-//						HashSet<PseudoVariable> selected_vars = new HashSet<>();
-//						selected_vars.add(selected_var);
-//						mutations.add(new TypedOperationMutation(typed_operation_branch_influence.get(best_op), best_op, selected_vars));
-					}
-					Mutation one_mutate = (Mutation) RandomSelect.RandomElementFromSetByRewardableElements(mutations,
-							interested_branch, null);
-					if (one_mutate != null) {
-						BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
-						return result;
+					for (PseudoSequenceContainer one_container : containers) {
+						mutations.addAll(GenerateMutationsFromOneContainer(one_container));
 					}
 				}
 			}
+			// (PseudoSequenceContainer) RandomSelect
+			// .RandomElementFromSetByRewardableElements(pseudo_sequence_containers,
+			// interested_branch,
+			// null);
+			// if (selected_container != null) {
+			//
+			// }
+			// System.out.println("selected_container:" + selected_container);
+			// first select a typed operation, then select a container
+			// TypedOperation best_op =
+			// RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence,
+			// interested_branch, null);
+			// Class<?> best_op_cls = operation_class.get(best_op);
+			// Set<Class<?>> candidates = class_pseudo_variable.keySet();
+			// Set<Class<?>> selected_candidates =
+			// ClassUtil.GetDescendantClasses(candidates, best_op_cls);
+			// ArrayList<PseudoVariable> candidate_pvs = new ArrayList<PseudoVariable>();
+			// for (Class<?> selected : selected_candidates) {
+			// candidate_pvs.addAll(class_pseudo_variable.get(selected));
+			// }
+			// ArrayList<PseudoVariable> remove_pvs = new ArrayList<PseudoVariable>();
+			// Iterator<PseudoVariable> cpv_itr = candidate_pvs.iterator();
+			// while (cpv_itr.hasNext()) {
+			// PseudoVariable cpv = cpv_itr.next();
+			// PseudoSequence pv_ps = pseudo_variable_headed_sequence.get(cpv);
+			// if (pv_ps.OperationHasBeenApplied(best_op)) {
+			// remove_pvs.add(cpv);
+			// }
+			// }
+			// candidate_pvs.removeAll(remove_pvs);
+			// PseudoVariable selected_var = (PseudoVariable) RandomSelect
+			// .RandomElementFromSetByRewardableElements(candidate_pvs, interested_branch,
+			// null);
+			// HashSet<PseudoVariable> selected_vars = new HashSet<>();
+			// selected_vars.add(selected_var);
+			// mutations.add(new
+			// TypedOperationMutation(typed_operation_branch_influence.get(best_op),
+			// best_op, selected_vars));
+			// }
+			Mutation one_mutate = (Mutation) RandomSelect.RandomElementFromSetByRewardableElements(mutations,
+					interested_branch, null);
+			if (one_mutate != null) {
+				BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
+				return result;
+			}
 		}
+		// }
+		// }
 		return null;
 	}
 
@@ -643,6 +732,21 @@ public class DateGenerator extends AbstractGenerator {
 		}
 		return created_sequence;
 	}
+	
+	public List<Mutation> GenerateMutationsFromOneContainer(PseudoSequenceContainer one_container) {
+		List<Mutation> mutations = new LinkedList<Mutation>();
+		if (one_container.HasUnsolvedObligatoryConstraint()) {
+			mutations.add(one_container
+					.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
+		} else {
+			if (one_container.HasUnsolvedConstraint()) {
+				mutations.add(
+						one_container.GenerateObjectConstraintMutation(object_constraint_branch_influence));
+			}
+			mutations.addAll(one_container.UntriedMutations(this));
+		}
+		return mutations;
+	}
 
 	public Class<?> GetSequenceTypeFromTypedOperation(TypedOperation selected_to) {
 		Class<?> selected_to_class = operation_class.get(selected_to);
@@ -657,7 +761,6 @@ public class DateGenerator extends AbstractGenerator {
 				this);
 		if (candidates.size() == type_list.size()) {
 			PseudoSequenceContainer container = new PseudoSequenceContainer(null);
-			pseudo_sequence_containers.add(container);
 			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
 			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, container, input_pseudo_variables,
 					type_list, this);
@@ -666,7 +769,7 @@ public class DateGenerator extends AbstractGenerator {
 			container.AddPseudoSequence(ps);
 			container.SetEndPseudoSequence(ps);
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
-			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables);
+			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables, false);
 			ps.SetHeadedVariable(created_pv);
 			pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
@@ -921,6 +1024,9 @@ public class DateGenerator extends AbstractGenerator {
 			// if (!to.isConstructorCall()) {
 			// continue;
 			// }
+			if (to.toString().startsWith("java.lang.Object")) {
+				continue;
+			}
 			System.out.println("operation is generic or wild? " + (to.isGeneric() || to.hasWildcardTypes())
 					+ "#TypedOperation:" + to);
 			// System.out.println("to:" + to + "#to.getOutputType():" +
@@ -932,7 +1038,7 @@ public class DateGenerator extends AbstractGenerator {
 			int wild_idx = class_name.indexOf('<');
 			String exclude_generic_class_name = class_name.substring(0, wild_idx < 0 ? class_name.length() : wild_idx);
 			MapUtil.Insert(to, Class.forName(exclude_generic_class_name), PseudoSequence.class, to.isConstructorCall(),
-					false, this);
+					false, OperationKind.unknown, this);
 			// for_use_object_create_sequence_type, create_operations,
 			// for_use_object_create_operations, modify_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -942,56 +1048,64 @@ public class DateGenerator extends AbstractGenerator {
 		{
 			// primitives creation initialization
 			TypedOperation str_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateString"));
-			MapUtil.Insert(str_ob, String.class, StringDeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(str_ob, String.class, StringDeltaChangePseudoSequence.class, true, false,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateBoolean"));
-			MapUtil.Insert(bool_ob, Boolean.class, PseudoSequence.class, true, false, this
+			MapUtil.Insert(bool_ob, Boolean.class, PseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type,
 			// for_use_object_create_operations, for_use_object_modify_operations,
 			// operation_class,
 			// operation_is_to_create, typed_operation_branch_influence
 			);
 			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateCharacter"));
-			MapUtil.Insert(char_ob, Character.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(char_ob, Character.class, DeltaChangePseudoSequence.class, true, false,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateByte"));
-			MapUtil.Insert(byte_ob, Byte.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(byte_ob, Byte.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateShort"));
-			MapUtil.Insert(short_ob, Short.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(short_ob, Short.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
-			MapUtil.Insert(int_ob, Integer.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(int_ob, Integer.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateLong"));
-			MapUtil.Insert(long_ob, Long.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(long_ob, Long.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateFloat"));
-			MapUtil.Insert(float_ob, Float.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(float_ob, Float.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateDouble"));
-			MapUtil.Insert(double_ob, Double.class, DeltaChangePseudoSequence.class, true, false, this
+			MapUtil.Insert(double_ob, Double.class, DeltaChangePseudoSequence.class, true, false,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
@@ -1001,20 +1115,22 @@ public class DateGenerator extends AbstractGenerator {
 			// add operations to modify primitives
 			TypedOperation str_modify_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("ModifyString", String.class, Double.class));
-			MapUtil.Insert(str_modify_ob, String.class, StringDeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(str_modify_ob, String.class, StringDeltaChangePseudoSequence.class, false, true,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation str_append_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("AppendString", String.class));
-			MapUtil.Insert(str_append_ob, String.class, StringDeltaChangePseudoSequence.class, false, false, this
+			MapUtil.Insert(str_append_ob, String.class, StringDeltaChangePseudoSequence.class, false, false,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("not", Boolean.class));
-			MapUtil.Insert(bool_ob, Boolean.class, PseudoSequence.class, false, false, this
+			MapUtil.Insert(bool_ob, Boolean.class, PseudoSequence.class, false, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type,
 			// for_use_object_create_operations, for_use_object_modify_operations,
 			// operation_class,
@@ -1022,49 +1138,56 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation char_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Character.class, Double.class));
-			MapUtil.Insert(char_ob, Character.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(char_ob, Character.class, DeltaChangePseudoSequence.class, false, true,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation byte_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Byte.class, Double.class));
-			MapUtil.Insert(byte_ob, Byte.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(byte_ob, Byte.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation short_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Short.class, Double.class));
-			MapUtil.Insert(short_ob, Short.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(short_ob, Short.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation int_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Integer.class, Double.class));
-			MapUtil.Insert(int_ob, Integer.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(int_ob, Integer.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation long_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Long.class, Double.class));
-			MapUtil.Insert(long_ob, Long.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(long_ob, Long.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation float_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Float.class, Double.class));
-			MapUtil.Insert(float_ob, Float.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(float_ob, Float.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation double_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Double.class, Double.class));
-			MapUtil.Insert(double_ob, Double.class, DeltaChangePseudoSequence.class, false, true, this
+			MapUtil.Insert(double_ob, Double.class, DeltaChangePseudoSequence.class, false, true,
+					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence

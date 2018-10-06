@@ -110,8 +110,16 @@ public class TraceInfo {
 		return obligatory_constraint;
 	}
 	
+	public boolean HasObjectAddressConstraints() {
+		return obligatory_constraint.size() > 0;
+	}
+	
 	public LinkedList<ObjectAddressConstraint> GetOptionalConstraint() {
 		return optional_constraint;
+	}
+	
+	public boolean HasBranches() {
+		return vobs.size() > 0;
 	}
 	
 }

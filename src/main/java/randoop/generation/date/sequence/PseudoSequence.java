@@ -16,6 +16,7 @@ import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.mutation.TypedOperationMutated;
+import randoop.generation.date.operation.OperationKind;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 import randoop.types.Type;
@@ -77,7 +78,15 @@ public class PseudoSequence implements Rewardable {
 					r_type_list, dg);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
-			ps.Append(selected_to, input_pseudo_variables);// , dg.pseudo_variable_headed_sequence
+			boolean append_to_second_last = false;
+			if (this == container.end) {
+				TypedOperation last_to = GetLastStatement().operation;
+				OperationKind ok = dg.operation_kind.get(last_to);
+				if (ok.equals(OperationKind.branch) && !last_to.isConstructorCall()) {
+					append_to_second_last = true;
+				}
+			}
+			ps.Append(selected_to, input_pseudo_variables, append_to_second_last);// , dg.pseudo_variable_headed_sequence
 			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
 			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
@@ -88,6 +97,7 @@ public class PseudoSequence implements Rewardable {
 		if (result != null) {
 			Assert.isTrue(headed_variable != null);
 			OperationApplied(selected_to);
+			container.mutated_number++;
 		}
 		return result;
 	}
@@ -96,7 +106,7 @@ public class PseudoSequence implements Rewardable {
 		this.previous = pseudo_sequence;
 	}
 
-	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables, boolean append_to_second_last) {
 		// Map<PseudoVariable, PseudoSequence> class_object_headed_sequence
 		PseudoVariable pv = null;
 		if (!operation.getOutputType().isVoid()) {
@@ -107,7 +117,11 @@ public class PseudoSequence implements Rewardable {
 			// ps = new PseudoSequence();
 			// class_object_headed_sequence.put(pv, ps);
 		}
-		statements.add(new PseudoStatement(operation, inputVariables));
+		if (append_to_second_last) {
+			statements.add(statements.size()-1, new PseudoStatement(operation, inputVariables));
+		} else {
+			statements.add(new PseudoStatement(operation, inputVariables));
+		}
 		AddReferenceForAllVariables(inputVariables);
 		return pv;
 	}
@@ -156,7 +170,6 @@ public class PseudoSequence implements Rewardable {
 		if (container == null) {
 			container = new PseudoSequenceContainer(this.container);
 			container_created = true;
-			dg.pseudo_sequence_containers.add(container);
 		}
 		PseudoSequence copy_version = null;
 		try {
@@ -181,11 +194,12 @@ public class PseudoSequence implements Rewardable {
 		for (PseudoStatement stmt : statements) {
 			stmt_index++;
 			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
-			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);// , class_object_headed_sequence
+			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, false);// , class_object_headed_sequence
 			if (!stmt.operation.getOutputType().isVoid()) {
 				PseudoVariable stmt_returned_pv = new PseudoVariable(this, stmt_index);
 				if (dg.pseudo_variable_class.containsKey(stmt_returned_pv)) {
-					PseudoVariable copied_stmt_returned_pv = stmt_returned_pv.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
+					PseudoVariable copied_stmt_returned_pv = stmt_returned_pv.CopySelfInDeepCloneWay(container,
+							origin_copied_sequence_map, dg);
 					Assert.isTrue(copied_stmt_returned_pv != null);
 				}
 			}
@@ -199,7 +213,10 @@ public class PseudoSequence implements Rewardable {
 		// PseudoSequence new_end =
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
 		PseudoSequence copied_this = origin_copied_sequence_map.get(this);
-		Assert.isTrue(copied_this != null, "copied this is null, but this is not null? " + container.contained_sequences.contains(this) + "#this sequence' content is:" + toString() + "#over!" + "#headed_variable sequence's content is:" + headed_variable.sequence.toString() + "#over!");
+		Assert.isTrue(copied_this != null,
+				"copied this is null, but this is not null? " + container.contained_sequences.contains(this)
+						+ "#this sequence' content is:" + toString() + "#over!"
+						+ "#headed_variable sequence's content is:" + headed_variable.sequence.toString() + "#over!");
 		// System.out.println("container.contained_sequences.contains(this):" +
 		// container.contained_sequences.contains(this));
 		// System.out.println("container.end:" + container.end + "#this:" + this);
@@ -447,7 +464,7 @@ public class PseudoSequence implements Rewardable {
 	public Reward GetReward(ArrayList<String> interested_branch) {
 		return headed_variable_branch_influence.GetReward(interested_branch);
 	}
-	
+
 	@Override
 	public String toString() {
 		String result = "ContentStart!";
@@ -456,6 +473,10 @@ public class PseudoSequence implements Rewardable {
 		}
 		result += "ContentOver!";
 		return result;
+	}
+
+	public PseudoStatement GetLastStatement() {
+		return statements.get(statements.size() - 1);
 	}
 
 }
