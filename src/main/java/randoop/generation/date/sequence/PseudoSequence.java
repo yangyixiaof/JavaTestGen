@@ -77,7 +77,7 @@ public class PseudoSequence implements Rewardable {
 			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, ps.container, input_pseudo_variables,
 					r_type_list, dg);
 			input_pseudo_variables.add(0, ps.headed_variable);
-			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
+			LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
 			boolean append_to_second_last = false;
 			if (this == container.end) {
 				TypedOperation last_to = GetLastStatement().operation;
@@ -87,7 +87,7 @@ public class PseudoSequence implements Rewardable {
 				}
 			}
 			ps.Append(selected_to, input_pseudo_variables, append_to_second_last);// , dg.pseudo_variable_headed_sequence
-			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
+			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
 			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
 					new TypedOperationMutated(ps, has_return_value,

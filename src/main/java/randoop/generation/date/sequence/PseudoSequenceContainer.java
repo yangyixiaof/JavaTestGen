@@ -205,7 +205,7 @@ public class PseudoSequenceContainer implements Rewardable {
 			Class<?> var_class = dg.pseudo_variable_class.get(var);
 			if (var_class != null) {
 				// System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
-				System.out.println("var.sequence.getClass():" + var.sequence.getClass());
+//				System.out.println("var.sequence.getClass():" + var.sequence.getClass());
 				Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
 				// System.out.println("===== classes start =====");
 				// System.out.println("var_class:" + var_class);

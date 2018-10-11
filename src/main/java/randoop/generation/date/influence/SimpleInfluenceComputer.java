@@ -53,7 +53,7 @@ public class SimpleInfluenceComputer {
 					System.exit(1);
 				}
 			} else {
-				if (current_vobs.size() == 0) {
+				if (current_vobs == null || current_vobs.size() == 0) {
 					sig_influence = -0.5;
 				} else {
 					double prev_gap_avg = AverageGapOfBranch(previous_vobs);

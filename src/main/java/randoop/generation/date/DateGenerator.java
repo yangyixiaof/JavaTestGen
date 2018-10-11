@@ -267,6 +267,11 @@ public class DateGenerator extends AbstractGenerator {
 		// }
 
 		ArrayList<TraceInfo> after_traces = TraceReader.HandleOneTrace(after_trace_info);
+		System.out.println("=== print traces begin ===");
+		for (TraceInfo a_t_i : after_traces) {
+			System.out.println("one_a_t_i:" + a_t_i);
+		}
+		System.out.println("=== print traces end ===");
 		newly_created_container.SetTraceInfo(after_traces);
 		TraceInfo after_trace = after_traces.get(after_traces.size() - 1);
 		// recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(),
@@ -597,7 +602,7 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
 			// TODO 记得删除
-			System.out.println("interested branch size:" + interested_branch.size());
+//			System.out.println("interested branch size:" + interested_branch.size());
 			for (String ib : interested_branch) {
 				System.out.println("interested branch:" + ib);
 			}

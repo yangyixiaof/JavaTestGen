@@ -122,4 +122,15 @@ public class TraceInfo {
 		return vobs.size() > 0;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Set<String> bs_keys = branch_state.keySet();
+		for (String bs_key : bs_keys) {
+			Integer b_state = branch_state.get(bs_key);
+			sb.append(bs_key + ":" + b_state + "#");
+		}
+		return sb.toString();
+	}
+	
 }

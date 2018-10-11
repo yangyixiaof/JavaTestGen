@@ -64,15 +64,15 @@ public class RandomSelect {
 	private static <T> T RandomKeyFromMapByValue(Map<T, Double> wait_select) {
 		{
 			// print rewards
-			System.out.println("===== reward print begin =====");
-			Set<T> w_ks = wait_select.keySet();
-			Iterator<T> w_k_itr = w_ks.iterator();
-			while (w_k_itr.hasNext()) {
-				T t = w_k_itr.next();
-				Double r = wait_select.get(t);
-				System.out.println("t:" + t + "#reward:" + r);
-			}
-			System.out.println("===== reward print end =====");
+//			System.out.println("===== reward print begin =====");
+//			Set<T> w_ks = wait_select.keySet();
+//			Iterator<T> w_k_itr = w_ks.iterator();
+//			while (w_k_itr.hasNext()) {
+//				T t = w_k_itr.next();
+//				Double r = wait_select.get(t);
+//				System.out.println("t:" + t + "#reward:" + r);
+//			}
+//			System.out.println("===== reward print end =====");
 		}
 		// sort, big first
 		Map<T, Double> non_zero_wait_select = new HashMap<T, Double>();

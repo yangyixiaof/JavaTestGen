@@ -84,10 +84,10 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			dps.SetHeadedVariable(dpv);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			input_pseudo_variables.add(1, dpv);
-			LinkedSequence before_linked_sequence = this.GenerateLinkedSequence();
+			LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
 			PseudoVariable pv = ps.Append(selected_to, input_pseudo_variables, false);// , dg.pseudo_variable_headed_sequence
 			ps.ReplacePseudoVariableInDependency(dg, headed_variable, pv);
-			LinkedSequence after_linked_sequence = ps.GenerateLinkedSequence();
+			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
 			// ps.headed_variable, ps,
 			result = new BeforeAfterLinkedSequence(selected_to,
 					new DeltaChangeTypedOperationMutated(ps, true, new PseudoVariable(ps, ps.Size() - 1), true, pv),
