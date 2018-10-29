@@ -28,7 +28,7 @@ public class DisposablePseudoSequence extends PseudoSequence {
 	}
 
 	@Override
-	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables, boolean append_to_second_last) {
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
 		Assert.isTrue(inputVariables.size() == 0);
 		Assert.isTrue(statements.size() == 0);
 		statements.add(new PseudoStatement(operation, inputVariables));

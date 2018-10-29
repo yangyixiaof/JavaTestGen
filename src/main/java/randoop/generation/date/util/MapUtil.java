@@ -1,6 +1,9 @@
 package randoop.generation.date.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -50,6 +53,22 @@ public class MapUtil {
 		dg.operation_is_to_create.put(op, is_to_create);
 		dg.operation_is_delta_change.put(op, is_delta_change);
 		dg.operation_kind.put(op, op_kind);
+	}
+	
+	public static <T> void MapOneMergeMapTwo(Map<T, Double> map_1, Map<T, Double> map_2) {
+		Set<T> m2_keys = map_2.keySet();
+		Iterator<T> m2_itr = m2_keys.iterator();
+		while (m2_itr.hasNext()) {
+			T t = m2_itr.next();
+			Double m2_t_v = map_2.get(t);
+			Double m1_t_v = map_1.get(t);
+			if (m1_t_v == null) {
+				m1_t_v = m2_t_v;
+			} else {
+				m1_t_v += m2_t_v;
+			}
+			map_1.put(t, m1_t_v);
+		}
 	}
 	
 }

@@ -602,7 +602,7 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
 			// TODO 记得删除
-//			System.out.println("interested branch size:" + interested_branch.size());
+			// System.out.println("interested branch size:" + interested_branch.size());
 			for (String ib : interested_branch) {
 				System.out.println("interested branch:" + ib);
 			}
@@ -662,7 +662,8 @@ public class DateGenerator extends AbstractGenerator {
 				mutations.addAll(GenerateMutationsFromOneContainer(current_container));
 			} else {
 				trying_remain_steps = trying_maximum_steps;
-				while (mutations.size() == 0 && trying_total_steps <= mutated_number_pseudo_sequence_container_map.size()) {
+				while (mutations.size() == 0
+						&& trying_total_steps <= mutated_number_pseudo_sequence_container_map.size()) {
 					HashSet<PseudoSequenceContainer> containers = mutated_number_pseudo_sequence_container_map
 							.get(trying_total_steps);
 					if (containers == null) {
@@ -737,16 +738,14 @@ public class DateGenerator extends AbstractGenerator {
 		}
 		return created_sequence;
 	}
-	
+
 	public List<Mutation> GenerateMutationsFromOneContainer(PseudoSequenceContainer one_container) {
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (one_container.HasUnsolvedObligatoryConstraint()) {
-			mutations.add(one_container
-					.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
+			mutations.add(one_container.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
 		} else {
 			if (one_container.HasUnsolvedConstraint()) {
-				mutations.add(
-						one_container.GenerateObjectConstraintMutation(object_constraint_branch_influence));
+				mutations.add(one_container.GenerateObjectConstraintMutation(object_constraint_branch_influence));
 			}
 			mutations.addAll(one_container.UntriedMutations(this));
 		}
@@ -774,7 +773,7 @@ public class DateGenerator extends AbstractGenerator {
 			container.AddPseudoSequence(ps);
 			container.SetEndPseudoSequence(ps);
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
-			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables, false);
+			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables);// , false
 			ps.SetHeadedVariable(created_pv);
 			pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();

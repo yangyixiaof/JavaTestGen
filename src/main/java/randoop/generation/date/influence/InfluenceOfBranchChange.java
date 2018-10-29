@@ -10,11 +10,11 @@ import org.eclipse.core.runtime.Assert;
 
 public class InfluenceOfBranchChange implements Rewardable {
 
-	Map<String, Double> all_count = new HashMap<String, Double>();
-	Map<String, Double> positive_value_change_count = new HashMap<String, Double>();
-	Map<String, Double> negative_value_change_count = new HashMap<String, Double>();
-	Map<String, Double> reach_branch_count = new HashMap<String, Double>();
-	Map<String, Double> lose_branch_count = new HashMap<String, Double>();
+	public Map<String, Double> all_count = new HashMap<String, Double>();
+	public 	Map<String, Double> positive_value_change_count = new HashMap<String, Double>();
+	public Map<String, Double> negative_value_change_count = new HashMap<String, Double>();
+	public Map<String, Double> reach_branch_count = new HashMap<String, Double>();
+	public Map<String, Double> lose_branch_count = new HashMap<String, Double>();
 
 	public void AddInfluenceOfBranches(Map<String, Influence> branch_influence) {
 		AddInfluenceOfBranchesWithDiscount(branch_influence, 1.0);
@@ -89,14 +89,18 @@ public class InfluenceOfBranchChange implements Rewardable {
 		return new Reward(all_reward);
 	}
 
-	public InfluenceOfBranchChange CopySelfInDeepCloneWay() {
-		InfluenceOfBranchChange res = new InfluenceOfBranchChange();
-		res.all_count.putAll(all_count);
-		res.positive_value_change_count.putAll(positive_value_change_count);
-		res.negative_value_change_count.putAll(negative_value_change_count);
-		res.reach_branch_count.putAll(reach_branch_count);
-		res.lose_branch_count.putAll(lose_branch_count);
-		return res;
+//	public InfluenceOfBranchChange CopySelfInDeepCloneWay() {
+//		InfluenceOfBranchChange res = new InfluenceOfBranchChange();
+//		res.all_count.putAll(all_count);
+//		res.positive_value_change_count.putAll(positive_value_change_count);
+//		res.negative_value_change_count.putAll(negative_value_change_count);
+//		res.reach_branch_count.putAll(reach_branch_count);
+//		res.lose_branch_count.putAll(lose_branch_count);
+//		return res;
+//	}
+	
+	public void Merge(InfluenceOfBranchChange iobc) {
+		
 	}
 
 }

@@ -16,7 +16,7 @@ import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.mutation.TypedOperationMutated;
-import randoop.generation.date.operation.OperationKind;
+import randoop.generation.date.util.MapUtil;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
 import randoop.types.Type;
@@ -78,15 +78,16 @@ public class PseudoSequence implements Rewardable {
 					r_type_list, dg);
 			input_pseudo_variables.add(0, ps.headed_variable);
 			LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
-			boolean append_to_second_last = false;
-			if (this == container.end) {
-				TypedOperation last_to = GetLastStatement().operation;
-				OperationKind ok = dg.operation_kind.get(last_to);
-				if (ok.equals(OperationKind.branch) && !last_to.isConstructorCall()) {
-					append_to_second_last = true;
-				}
-			}
-			ps.Append(selected_to, input_pseudo_variables, append_to_second_last);// , dg.pseudo_variable_headed_sequence
+			// boolean append_to_second_last = false;
+			// if (this == container.end) {
+			// TypedOperation last_to = GetLastStatement().operation;
+			// OperationKind ok = dg.operation_kind.get(last_to);
+			// if (ok.equals(OperationKind.branch) && !last_to.isConstructorCall()) {
+			// append_to_second_last = true;
+			// }
+			// }
+			ps.Append(selected_to, input_pseudo_variables);// , append_to_second_last,
+															// dg.pseudo_variable_headed_sequence
 			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
 			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
@@ -106,8 +107,9 @@ public class PseudoSequence implements Rewardable {
 		this.previous = pseudo_sequence;
 	}
 
-	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables, boolean append_to_second_last) {
-		// Map<PseudoVariable, PseudoSequence> class_object_headed_sequence
+	public PseudoVariable Append(TypedOperation operation, ArrayList<PseudoVariable> inputVariables) {
+		// , boolean append_to_second_last
+		// , Map<PseudoVariable, PseudoSequence> class_object_headed_sequence
 		PseudoVariable pv = null;
 		if (!operation.getOutputType().isVoid()) {
 			int soon_be_added_variable_index_of_statement = statements.size();
@@ -117,11 +119,13 @@ public class PseudoSequence implements Rewardable {
 			// ps = new PseudoSequence();
 			// class_object_headed_sequence.put(pv, ps);
 		}
-		if (append_to_second_last) {
-			statements.add(statements.size()-1, new PseudoStatement(operation, inputVariables));
-		} else {
-			statements.add(new PseudoStatement(operation, inputVariables));
-		}
+		// if (append_to_second_last) {
+		// statements.add(statements.size()-1, new PseudoStatement(operation,
+		// inputVariables));
+		// } else {
+		// statements.add(new PseudoStatement(operation, inputVariables));
+		// }
+		statements.add(new PseudoStatement(operation, inputVariables));
 		AddReferenceForAllVariables(inputVariables);
 		return pv;
 	}
@@ -187,14 +191,19 @@ public class PseudoSequence implements Rewardable {
 		PseudoVariable copied_headed_variable = headed_variable.CopySelfInDeepCloneWay(container,
 				origin_copied_sequence_map, dg);
 		copy_version.SetHeadedVariable(copied_headed_variable);
-		copy_version.headed_variable_branch_influence = headed_variable_branch_influence.CopySelfInDeepCloneWay();
+		copy_version.operation_use_count.putAll(operation_use_count);
+		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.all_count, headed_variable_branch_influence.all_count);
+		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.positive_value_change_count, headed_variable_branch_influence.positive_value_change_count);
+		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.negative_value_change_count, headed_variable_branch_influence.negative_value_change_count);
+		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.reach_branch_count, headed_variable_branch_influence.reach_branch_count);
+		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.lose_branch_count, headed_variable_branch_influence.lose_branch_count);
 		dg.pseudo_variable_headed_sequence.put(copied_headed_variable, copy_version);
 		// clone statements
 		int stmt_index = -1;
 		for (PseudoStatement stmt : statements) {
 			stmt_index++;
 			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
-			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables, false);// , class_object_headed_sequence
+			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);// , false, class_object_headed_sequence
 			if (!stmt.operation.getOutputType().isVoid()) {
 				PseudoVariable stmt_returned_pv = new PseudoVariable(this, stmt_index);
 				if (dg.pseudo_variable_class.containsKey(stmt_returned_pv)) {
