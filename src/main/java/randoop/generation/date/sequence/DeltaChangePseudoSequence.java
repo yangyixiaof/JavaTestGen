@@ -17,9 +17,6 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 
 	// Set<Double> have_tried_delta = new HashSet<Double>();
 
-	// Random random = new Random();
-
-	// ArrayList<TypedOperation> operations
 	public DeltaChangePseudoSequence() {
 		super();// operations
 	}

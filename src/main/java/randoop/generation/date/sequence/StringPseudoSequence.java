@@ -5,16 +5,19 @@ import java.util.ArrayList;
 import randoop.generation.date.DateGenerator;
 import randoop.operation.TypedOperation;
 
-public class StringDeltaChangePseudoSequence extends DeltaChangePseudoSequence {
+public class StringPseudoSequence extends PseudoSequence {
 	
-//	int position = 0;
-//	double delta = 0.0;
-//	
-//	Map<Integer, HashSet<Double>> have_tried_delta_for_position = new TreeMap<Integer, HashSet<Double>>();
-//	
-//	Random random = new Random();
+	{
+		// deprecated block. it seems delta change is unnecessary
+		// position delta, based on DeltaChangePseudoSequence this child class only needs to record position information
+		// int position = 0;
+		// int delta = 0;
+	}
 	
-	public StringDeltaChangePseudoSequence() {// ArrayList<TypedOperation> operations
+	// position inserted, the position range is 0 ... n, n is the length of content of headed_variable
+	
+	
+	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
 	}
 	
@@ -25,7 +28,9 @@ public class StringDeltaChangePseudoSequence extends DeltaChangePseudoSequence {
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {
+		// fetch content of this headed variable
 		String content = dg.pseudo_variable_content.get(headed_variable);
+		// insert or delta change
 		if (content.length() == 0) {
 			if (dg.operation_is_delta_change.get(selected_to)) {
 				return null;

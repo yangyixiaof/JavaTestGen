@@ -46,7 +46,7 @@ import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.sequence.SequenceGeneratorHelper;
-import randoop.generation.date.sequence.StringDeltaChangePseudoSequence;
+import randoop.generation.date.sequence.StringPseudoSequence;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
@@ -1052,7 +1052,7 @@ public class DateGenerator extends AbstractGenerator {
 		{
 			// primitives creation initialization
 			TypedOperation str_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateString"));
-			MapUtil.Insert(str_ob, String.class, StringDeltaChangePseudoSequence.class, true, false,
+			MapUtil.Insert(str_ob, String.class, StringPseudoSequence.class, true, false,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1119,7 +1119,7 @@ public class DateGenerator extends AbstractGenerator {
 			// add operations to modify primitives
 			TypedOperation str_modify_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("ModifyString", String.class, Double.class));
-			MapUtil.Insert(str_modify_ob, String.class, StringDeltaChangePseudoSequence.class, false, true,
+			MapUtil.Insert(str_modify_ob, String.class, StringPseudoSequence.class, false, true,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1127,7 +1127,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation str_append_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("AppendString", String.class));
-			MapUtil.Insert(str_append_ob, String.class, StringDeltaChangePseudoSequence.class, false, false,
+			MapUtil.Insert(str_append_ob, String.class, StringPseudoSequence.class, false, false,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
