@@ -1052,8 +1052,7 @@ public class DateGenerator extends AbstractGenerator {
 		{
 			// primitives creation initialization
 			TypedOperation str_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateString"));
-			MapUtil.Insert(str_ob, String.class, StringPseudoSequence.class, true, false,
-					OperationKind.no_branch, this
+			MapUtil.Insert(str_ob, String.class, StringPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
@@ -1118,21 +1117,28 @@ public class DateGenerator extends AbstractGenerator {
 		{
 			// add operations to modify primitives
 			TypedOperation str_modify_ob = TypedOperation
-					.forMethod(DateRuntimeSupport.class.getMethod("ModifyString", String.class, Double.class));
+					.forMethod(DateRuntimeSupport.class.getMethod("InsertString", String.class, int.class, int.class));
 			MapUtil.Insert(str_modify_ob, String.class, StringPseudoSequence.class, false, true,
-					OperationKind.no_branch, this
+					OperationKind.no_branch, this);
+			// TypedOperation str_modify_ob = TypedOperation
+			// .forMethod(DateRuntimeSupport.class.getMethod("ModifyString", String.class,
+			// Double.class));
+			// MapUtil.Insert(str_modify_ob, String.class, StringPseudoSequence.class,
+			// false, true,
+			// OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
-			);
-			TypedOperation str_append_ob = TypedOperation
-					.forMethod(DateRuntimeSupport.class.getMethod("AppendString", String.class));
-			MapUtil.Insert(str_append_ob, String.class, StringPseudoSequence.class, false, false,
-					OperationKind.no_branch, this
+			// );
+			// TypedOperation str_append_ob = TypedOperation
+			// .forMethod(DateRuntimeSupport.class.getMethod("AppendString", String.class));
+			// MapUtil.Insert(str_append_ob, String.class, StringPseudoSequence.class,
+			// false, false,
+			// OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
-			);
+			// );
 			TypedOperation bool_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("not", Boolean.class));
 			MapUtil.Insert(bool_ob, Boolean.class, PseudoSequence.class, false, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type,

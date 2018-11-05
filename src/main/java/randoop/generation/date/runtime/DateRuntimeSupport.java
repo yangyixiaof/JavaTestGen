@@ -1,7 +1,5 @@
 package randoop.generation.date.runtime;
 
-import java.io.UnsupportedEncodingException;
-
 public class DateRuntimeSupport {
 
 //	private static Random random = new Random();
@@ -87,31 +85,42 @@ public class DateRuntimeSupport {
 //		return new StringBuilder(s).replace(index, index+1, (char)(s.charAt(index)+(int)delta) + "").toString();
 //	}
 	
-	public static String ModifyString(String str, Double delta) {
-		byte[] arr = str.getBytes();
-		arr[arr.length-1] += delta.byteValue();
-//		return getRandomCharacter('\u0000','\uFFFF');
-//		if (arr[arr.length-1] < '\u0000') {
-//			arr[arr.length-1] = '\u0000';
+//	public static String ModifyString(String str, Double delta) {
+//		byte[] arr = str.getBytes();
+//		arr[arr.length-1] += delta.byteValue();
+////		return getRandomCharacter('\u0000','\uFFFF');
+////		if (arr[arr.length-1] < '\u0000') {
+////			arr[arr.length-1] = '\u0000';
+////		}
+////		if (arr[arr.length-1] > '\uFFFF') {
+////			arr[arr.length-1] = '\uFFFF';
+////		}
+//		try {
+//			return new String(arr, "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//			System.exit(1);
 //		}
-//		if (arr[arr.length-1] > '\uFFFF') {
-//			arr[arr.length-1] = '\uFFFF';
-//		}
-		try {
-			return new String(arr, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return null;
-	}
+//		return null;
+//	}
+//	
+//	public static String AppendString(String s) {
+//		return s + CreateCharacter();
+//	}
 	
-	public static String AppendString(String s) {
-		return s + CreateCharacter();
+	public static String InsertString(String s, int position, int c) {
+		StringBuilder sb = new StringBuilder(s);
+		sb.insert(position, (char)c);
+		return sb.toString();
 	}
 
 //	private static char getRandomCharacter(char ch1, char ch2) {
 //		return (char) (ch1 + Math.random() * (ch2 - ch1 + 1));// 因为random<1.0，所以需要+1，才能取到ch2
 //	}
+	
+	public static void main(String[] args) {
+		String s = DateRuntimeSupport.InsertString("", 0, 66);
+		System.out.println("s:" + s);
+	}
 
 }
