@@ -1,6 +1,10 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import randoop.generation.date.DateGenerator;
 import randoop.operation.TypedOperation;
@@ -15,7 +19,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	}
 	
 	// position inserted, the position range is 0 ... n, n is the length of content of headed_variable
-	
+	Map<Integer, Integer> inserted_char = new TreeMap<Integer, Integer>();
 	
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
@@ -129,4 +133,11 @@ public class StringPseudoSequence extends PseudoSequence {
 //		return 0.0;
 //	}
 
+}
+
+class TriedChars {
+	
+	Set<Integer> tried_set = new TreeSet<Integer>();
+	
+	
 }
