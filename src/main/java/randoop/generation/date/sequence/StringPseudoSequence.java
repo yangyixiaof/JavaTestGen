@@ -19,7 +19,8 @@ public class StringPseudoSequence extends PseudoSequence {
 	}
 	
 	// position inserted, the position range is 0 ... n, n is the length of content of headed_variable
-	Map<Integer, Integer> inserted_char = new TreeMap<Integer, Integer>();
+	Map<Integer, TriedChars> inserted_char = new TreeMap<Integer, TriedChars>();
+	int recent_tried_position = -1;
 	
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
