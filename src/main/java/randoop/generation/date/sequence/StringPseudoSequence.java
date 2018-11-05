@@ -35,11 +35,10 @@ public class StringPseudoSequence extends PseudoSequence {
 		// fetch content of this headed variable
 		String content = dg.pseudo_variable_content.get(headed_variable);
 		// insert or delta change
-		if (content.length() == 0) {
-			if (dg.operation_is_delta_change.get(selected_to)) {
-				return null;
-			}
+		if (content == null) {
+			return null;
 		}
+		
 		return super.Mutate(selected_to, interested_branch, dg);
 	}
 	
