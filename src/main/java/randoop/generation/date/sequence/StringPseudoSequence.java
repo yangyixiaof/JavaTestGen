@@ -138,9 +138,8 @@ public class StringPseudoSequence extends PseudoSequence {
 class TriedChars {
 	
 	Set<Integer> tried_set = new TreeSet<Integer>();
-	// the value is mutated from key
+	// the key is mutated from value
 	Map<Integer, Integer> track = new TreeMap<Integer, Integer>();
-	
-	
+	Map<Integer, PseudoVariable> tried_crsp_variable = new TreeMap<Integer, PseudoVariable>();
 	
 }
