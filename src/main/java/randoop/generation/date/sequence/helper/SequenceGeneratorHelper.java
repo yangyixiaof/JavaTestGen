@@ -1,4 +1,4 @@
-package randoop.generation.date.sequence;
+package randoop.generation.date.sequence.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,9 @@ import java.util.Set;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.random.RandomSelect;
+import randoop.generation.date.sequence.PseudoSequence;
+import randoop.generation.date.sequence.PseudoSequenceContainer;
+import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.util.ClassUtil;
 import randoop.types.Type;
 import randoop.types.TypeTuple;

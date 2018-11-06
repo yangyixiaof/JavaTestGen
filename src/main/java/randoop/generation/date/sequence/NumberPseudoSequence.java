@@ -7,17 +7,19 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
+import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
+import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.operation.TypedOperation;
 import randoop.operation.TypedTermOperation;
 import randoop.types.Type;
 
-public class DeltaChangePseudoSequence extends PseudoSequence {
+public class NumberPseudoSequence extends PseudoSequence {
 
 	double delta = 0.0;
 
 	// Set<Double> have_tried_delta = new HashSet<Double>();
 
-	public DeltaChangePseudoSequence() {
+	public NumberPseudoSequence() {
 		super();// operations
 	}
 
@@ -31,7 +33,7 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 																				// origin_copied_sequence_map,
 																				// Map<PseudoVariable, PseudoSequence>
 																				// class_object_headed_sequence
-		DeltaChangePseudoSequence dcps = (DeltaChangePseudoSequence) super.CopySelfAndCitersInDeepCloneWay(dg);
+		NumberPseudoSequence dcps = (NumberPseudoSequence) super.CopySelfAndCitersInDeepCloneWay(dg);
 		// origin_copied_sequence_map, class_object_headed_sequence
 		dcps.delta = delta;
 		// dcps.have_tried_delta.addAll(have_tried_delta);
@@ -42,8 +44,9 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {
 		if (dg.operation_is_delta_change.get(selected_to)) {
+			container.mutated_number++;
 			BeforeAfterLinkedSequence result = null;
-			DeltaChangePseudoSequence ps = (DeltaChangePseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);// origin_copied_sequence_map,
+			NumberPseudoSequence ps = (NumberPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);// origin_copied_sequence_map,
 			ps.SetPreviousSequence(this);
 			
 			LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
@@ -61,17 +64,16 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			term_value += next_delta;
 			
 			// create new primitive int and replace the old variable (pv) with new variable (new_pv). 
-			TypedOperation new_op = TypedOperation.createPrimitiveInitialization(Type.forClass(Double.class), term_value);
-			DisposablePseudoSequence dps = new DisposablePseudoSequence();
-			PseudoVariable new_pv = dps.Append(new_op, new ArrayList<PseudoVariable>());
+			PseudoVariable new_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(Double.class), term_value);
 			ps.GetLastStatement().inputVariables.set(0, new_pv);
+			PseudoVariable new_mutated = new PseudoVariable(ps, ps.Size() - 1);
 			
 			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
 			
 			result = new BeforeAfterLinkedSequence(selected_to,
-					new DeltaChangeTypedOperationMutated(ps, true, new PseudoVariable(ps, ps.Size() - 1), true, ps.headed_variable),
+					new DeltaChangeTypedOperationMutated(ps, true, new_mutated, true, new_mutated),
 					before_linked_sequence, after_linked_sequence);
-			container.mutated_number++;
+			
 			return result;
 		} else {
 			return super.Mutate(selected_to, interested_branch, dg);
@@ -87,8 +89,8 @@ public class DeltaChangePseudoSequence extends PseudoSequence {
 			in_use_influence = headed_variable_branch_influence;
 		} else {
 			PseudoSequence headed_variable_sequence = this.headed_variable.sequence;
-			if (headed_variable_sequence instanceof DeltaChangePseudoSequence) {
-				DeltaChangePseudoSequence ndcps = (DeltaChangePseudoSequence) headed_variable_sequence;
+			if (headed_variable_sequence instanceof NumberPseudoSequence) {
+				NumberPseudoSequence ndcps = (NumberPseudoSequence) headed_variable_sequence;
 				double headed_variable_sequence_delta = ndcps.delta;
 				if (headed_variable_sequence_delta != 0) {
 					in_use_delta = headed_variable_sequence_delta;

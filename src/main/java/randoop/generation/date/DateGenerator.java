@@ -39,18 +39,18 @@ import randoop.generation.date.operation.OperationKind;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
-import randoop.generation.date.sequence.DeltaChangePseudoSequence;
+import randoop.generation.date.sequence.NumberPseudoSequence;
 import randoop.generation.date.sequence.DisposablePseudoSequence;
 import randoop.generation.date.sequence.LinkedSequence;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
-import randoop.generation.date.sequence.SequenceGeneratorHelper;
 import randoop.generation.date.sequence.StringPseudoSequence;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableTypeConstraint;
+import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.test.SequenceGenerator;
 import randoop.generation.date.util.ClassUtil;
 import randoop.generation.date.util.MapUtil;
@@ -1065,49 +1065,49 @@ public class DateGenerator extends AbstractGenerator {
 			// operation_is_to_create, typed_operation_branch_influence
 			);
 			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateCharacter"));
-			MapUtil.Insert(char_ob, Character.class, DeltaChangePseudoSequence.class, true, false,
+			MapUtil.Insert(char_ob, Character.class, NumberPseudoSequence.class, true, false,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateByte"));
-			MapUtil.Insert(byte_ob, Byte.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+			MapUtil.Insert(byte_ob, Byte.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateShort"));
-			MapUtil.Insert(short_ob, Short.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+			MapUtil.Insert(short_ob, Short.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
-			MapUtil.Insert(int_ob, Integer.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+			MapUtil.Insert(int_ob, Integer.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateLong"));
-			MapUtil.Insert(long_ob, Long.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+			MapUtil.Insert(long_ob, Long.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateFloat"));
-			MapUtil.Insert(float_ob, Float.class, DeltaChangePseudoSequence.class, true, false, OperationKind.no_branch,
+			MapUtil.Insert(float_ob, Float.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateDouble"));
-			MapUtil.Insert(double_ob, Double.class, DeltaChangePseudoSequence.class, true, false,
+			MapUtil.Insert(double_ob, Double.class, NumberPseudoSequence.class, true, false,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1148,7 +1148,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation char_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Character.class, Double.class));
-			MapUtil.Insert(char_ob, Character.class, DeltaChangePseudoSequence.class, false, true,
+			MapUtil.Insert(char_ob, Character.class, NumberPseudoSequence.class, false, true,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1156,7 +1156,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation byte_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Byte.class, Double.class));
-			MapUtil.Insert(byte_ob, Byte.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+			MapUtil.Insert(byte_ob, Byte.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1164,7 +1164,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation short_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Short.class, Double.class));
-			MapUtil.Insert(short_ob, Short.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+			MapUtil.Insert(short_ob, Short.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1172,7 +1172,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation int_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Integer.class, Double.class));
-			MapUtil.Insert(int_ob, Integer.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+			MapUtil.Insert(int_ob, Integer.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1180,7 +1180,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation long_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Long.class, Double.class));
-			MapUtil.Insert(long_ob, Long.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+			MapUtil.Insert(long_ob, Long.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1188,7 +1188,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation float_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Float.class, Double.class));
-			MapUtil.Insert(float_ob, Float.class, DeltaChangePseudoSequence.class, false, true, OperationKind.no_branch,
+			MapUtil.Insert(float_ob, Float.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
 					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1196,7 +1196,7 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation double_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Double.class, Double.class));
-			MapUtil.Insert(double_ob, Double.class, DeltaChangePseudoSequence.class, false, true,
+			MapUtil.Insert(double_ob, Double.class, NumberPseudoSequence.class, false, true,
 					OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,

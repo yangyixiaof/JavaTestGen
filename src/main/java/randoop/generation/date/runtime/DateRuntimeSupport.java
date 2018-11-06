@@ -109,9 +109,14 @@ public class DateRuntimeSupport {
 //	}
 	
 	public static String InsertString(String s, int position, int c) {
-		StringBuilder sb = new StringBuilder(s);
-		sb.insert(position, (char)c);
-		return sb.toString();
+		if (s == null) {
+//			Assert.isTrue(position == -1 && c == 0);
+			return "";
+		} else {
+			StringBuilder sb = new StringBuilder(s);
+			sb.insert(position, (char)c);
+			return sb.toString();
+		}
 	}
 
 //	private static char getRandomCharacter(char ch1, char ch2) {

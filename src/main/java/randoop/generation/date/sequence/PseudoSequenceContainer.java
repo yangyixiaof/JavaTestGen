@@ -26,6 +26,7 @@ import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableTypeConstraint;
+import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.util.ClassUtil;
 import randoop.operation.TypedOperation;
 import randoop.util.Randomness;

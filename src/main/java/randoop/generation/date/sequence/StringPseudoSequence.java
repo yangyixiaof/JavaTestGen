@@ -6,8 +6,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.eclipse.core.runtime.Assert;
+
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
+import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
 import randoop.operation.TypedOperation;
+import randoop.types.Type;
 
 public class StringPseudoSequence extends PseudoSequence {
 	
@@ -33,14 +38,34 @@ public class StringPseudoSequence extends PseudoSequence {
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {
+		Assert.isTrue(selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.InsertString"));
 		// fetch content of this headed variable
 		String content = dg.pseudo_variable_content.get(headed_variable);
-		// insert or delta change
+		// create input variable of operation
+		ArrayList<PseudoVariable> input_variables = new ArrayList<PseudoVariable>();
+		PseudoSequence copied_this = this.CopySelfAndCitersInDeepCloneWay(dg);
+		input_variables.add(copied_this.headed_variable);
+		int position = -1;
+		int character = 0;
 		if (content == null) {
-			return null;
+			// use the default value
+		} else {
+			// select suitable position and suitable character
+			// TODO 在这里实现具体逻辑
 		}
+		PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
+		PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
+		input_variables.add(position_pv);
+		input_variables.add(character_pv);
+		PseudoVariable new_generated = copied_this.Append(selected_to, input_variables);
 		
-		return super.Mutate(selected_to, interested_branch, dg);
+		LinkedSequence before_linked_sequence = this.container.GenerateLinkedSequence();
+		LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
+		
+		BeforeAfterLinkedSequence result = new BeforeAfterLinkedSequence(selected_to,
+				new DeltaChangeTypedOperationMutated(copied_this, true, new_generated, true, new_generated),
+				before_linked_sequence, after_linked_sequence);
+		return result;
 	}
 	
 //	@Override

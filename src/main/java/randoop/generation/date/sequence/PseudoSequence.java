@@ -16,6 +16,7 @@ import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.mutation.TypedOperationMutated;
+import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.util.MapUtil;
 import randoop.operation.TypedOperation;
 import randoop.sequence.Variable;
