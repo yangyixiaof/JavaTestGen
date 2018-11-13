@@ -1,18 +1,13 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
 import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
 import randoop.operation.TypedOperation;
 import randoop.types.Type;
+import randoop.util.Randomness;
 
 public class StringPseudoSequence extends PseudoSequence {
 	
@@ -24,8 +19,8 @@ public class StringPseudoSequence extends PseudoSequence {
 	}
 	
 	// position inserted, the position range is 0 ... n, n is the length of content of headed_variable
-	Map<Integer, TriedChars> inserted_char = new TreeMap<Integer, TriedChars>();
-	int recent_tried_position = -1;
+//	Map<Integer, TriedChars> inserted_char = new TreeMap<Integer, TriedChars>();
+//	int recent_tried_position = -1;
 	
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
@@ -38,34 +33,48 @@ public class StringPseudoSequence extends PseudoSequence {
 	@Override
 	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
 			DateGenerator dg) {
-		Assert.isTrue(selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.InsertString"));
 		// fetch content of this headed variable
 		String content = dg.pseudo_variable_content.get(headed_variable);
 		// create input variable of operation
 		ArrayList<PseudoVariable> input_variables = new ArrayList<PseudoVariable>();
 		PseudoSequence copied_this = this.CopySelfAndCitersInDeepCloneWay(dg);
-		input_variables.add(copied_this.headed_variable);
-		int position = -1;
-		int character = 0;
-		if (content == null) {
-			// use the default value
-		} else {
-			// select suitable position and suitable character
-			// TODO 在这里实现具体逻辑
+		// insert situation
+		if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.InsertString")) {
+			input_variables.add(copied_this.headed_variable);
+			int position = -1;
+			int character = 0;
+			if (content == null) {
+				// use the default value
+			} else {
+				// select suitable position (random) and suitable character (random) 
+				position = Randomness.nextRandomInt(content.length()+1);
+				character = Randomness.nextRandomInt(200);
+			}
+			PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
+			PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
+			input_variables.add(position_pv);
+			input_variables.add(character_pv);
 		}
-		PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
-		PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
-		input_variables.add(position_pv);
-		input_variables.add(character_pv);
 		PseudoVariable new_generated = copied_this.Append(selected_to, input_variables);
-		
 		LinkedSequence before_linked_sequence = this.container.GenerateLinkedSequence();
 		LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
-		
 		BeforeAfterLinkedSequence result = new BeforeAfterLinkedSequence(selected_to,
 				new DeltaChangeTypedOperationMutated(copied_this, true, new_generated, true, new_generated),
 				before_linked_sequence, after_linked_sequence);
 		return result;
+		
+		// compute whether changing a position is meaningful or not 
+		// meaningful: the influenced position has not been exactly covered. 
+		// not meaningful: the influenced position has been exactly covered. 
+		
+		// record branch whole structure changing: 
+		// if changed, e.g, appearance number of one same branch from 4 to 3: it shows that influences really happen. 
+		// in this situation, we can not decide whether the changes are over, so the changing position should be less selected. 
+		// this branch whole structure changed, decrease the weights of the selected changing position. 
+		
+		// all two schemas must be accompanied with trying-times discount
+		
+		// some operations are not in sampling, but in force-executing such as modifying-directly-after-inserting
 	}
 	
 //	@Override
@@ -160,11 +169,11 @@ public class StringPseudoSequence extends PseudoSequence {
 
 }
 
-class TriedChars {
-	
-	Set<Integer> tried_set = new TreeSet<Integer>();
-	// the key is mutated from value
-	Map<Integer, Integer> track = new TreeMap<Integer, Integer>();
-	Map<Integer, PseudoVariable> tried_crsp_variable = new TreeMap<Integer, PseudoVariable>();
-	
-}
+//class TriedChars {
+//	
+//	Set<Integer> tried_set = new TreeSet<Integer>();
+//	// the key is mutated from value
+//	Map<Integer, Integer> track = new TreeMap<Integer, Integer>();
+//	Map<Integer, PseudoVariable> tried_crsp_variable = new TreeMap<Integer, PseudoVariable>();
+//	
+//}
