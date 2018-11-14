@@ -1,5 +1,7 @@
 package randoop.generation.date.runtime;
 
+import org.eclipse.core.runtime.Assert;
+
 public class DateRuntimeSupport {
 
 //	private static Random random = new Random();
@@ -118,14 +120,27 @@ public class DateRuntimeSupport {
 			return sb.toString();
 		}
 	}
+	
+	public static String ChangeDeltaInPositionOfString(String s, int position, int delta) {
+		if (s == null) {
+			return "";
+		} else {
+			Assert.isTrue(position < s.length(), "Error! The position is not in the String");
+			StringBuilder builder = new StringBuilder(s);
+			builder.setCharAt(position, (char)(builder.charAt(position) + delta));
+			return builder.toString();
+		}
+	}
 
 //	private static char getRandomCharacter(char ch1, char ch2) {
 //		return (char) (ch1 + Math.random() * (ch2 - ch1 + 1));// 因为random<1.0，所以需要+1，才能取到ch2
 //	}
 	
 	public static void main(String[] args) {
-		String s = DateRuntimeSupport.InsertString("", 0, 66);
-		System.out.println("s:" + s);
+		String s1 = DateRuntimeSupport.InsertString("", 0, 66);
+		System.out.println("s1:" + s1);
+		String s2 = DateRuntimeSupport.InsertString(s1, 1, 66);
+		System.out.println("s2:" + s2);
 	}
 
 }

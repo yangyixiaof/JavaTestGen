@@ -2,6 +2,8 @@ package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.Assert;
+
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
 import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
@@ -38,11 +40,11 @@ public class StringPseudoSequence extends PseudoSequence {
 		// create input variable of operation
 		ArrayList<PseudoVariable> input_variables = new ArrayList<PseudoVariable>();
 		PseudoSequence copied_this = this.CopySelfAndCitersInDeepCloneWay(dg);
+		input_variables.add(copied_this.headed_variable);
+		int position = -1;
+		int character = 0;
 		// insert situation
 		if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.InsertString")) {
-			input_variables.add(copied_this.headed_variable);
-			int position = -1;
-			int character = 0;
 			if (content == null) {
 				// use the default value
 			} else {
@@ -50,12 +52,22 @@ public class StringPseudoSequence extends PseudoSequence {
 				position = Randomness.nextRandomInt(content.length()+1);
 				character = Randomness.nextRandomInt(200);
 			}
-			PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
-			PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
-			input_variables.add(position_pv);
-			input_variables.add(character_pv);
+		} else if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.ChangeDeltaInPositionOfString")) {
+			if (content == null) {
+				// use the default value
+			} else {
+				// select suitable position (random) and suitable character (random) 
+				// TODO 实现新的选择逻辑
+			}
+		} else {
+			Assert.isTrue(false, "Error! Unsupported operation for String: " + selected_to.toString());
 		}
+		PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
+		PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
+		input_variables.add(position_pv);
+		input_variables.add(character_pv);
 		PseudoVariable new_generated = copied_this.Append(selected_to, input_variables);
+		// generate compare sequences
 		LinkedSequence before_linked_sequence = this.container.GenerateLinkedSequence();
 		LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
 		BeforeAfterLinkedSequence result = new BeforeAfterLinkedSequence(selected_to,
