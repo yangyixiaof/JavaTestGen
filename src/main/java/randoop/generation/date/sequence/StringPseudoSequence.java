@@ -13,12 +13,12 @@ import randoop.util.Randomness;
 
 public class StringPseudoSequence extends PseudoSequence {
 	
-	{
+	// {
 		// deprecated block. it seems delta change is unnecessary
 		// position delta, based on DeltaChangePseudoSequence this child class only needs to record position information
 		// int position = 0;
 		// int delta = 0;
-	}
+	// }
 	
 	
 	
