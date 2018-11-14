@@ -59,8 +59,7 @@ public class PseudoSequence implements Rewardable {
 	// this.operations = operations;
 	// }
 
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
-			DateGenerator dg) {
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch, DateGenerator dg) {
 		BeforeAfterLinkedSequence result = null;
 		// add parameters.
 		TypeTuple input_types = selected_to.getInputTypes();

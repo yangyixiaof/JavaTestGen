@@ -20,6 +20,8 @@ public class StringPseudoSequence extends PseudoSequence {
 		// int delta = 0;
 	}
 	
+	
+	
 	// position inserted, the position range is 0 ... n, n is the length of content of headed_variable
 //	Map<Integer, TriedChars> inserted_char = new TreeMap<Integer, TriedChars>();
 //	int recent_tried_position = -1;
@@ -33,8 +35,7 @@ public class StringPseudoSequence extends PseudoSequence {
 //	}
 	
 	@Override
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
-			DateGenerator dg) {
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch, DateGenerator dg) {
 		// fetch content of this headed variable
 		String content = dg.pseudo_variable_content.get(headed_variable);
 		// create input variable of operation
@@ -56,8 +57,9 @@ public class StringPseudoSequence extends PseudoSequence {
 			if (content == null) {
 				// use the default value
 			} else {
-				// select suitable position (random) and suitable character (random) 
+				// select suitable position (random) and suitable character delta (random) 
 				// TODO 实现新的选择逻辑
+				
 			}
 		} else {
 			Assert.isTrue(false, "Error! Unsupported operation for String: " + selected_to.toString());
