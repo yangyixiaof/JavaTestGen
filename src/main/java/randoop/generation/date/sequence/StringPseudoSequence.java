@@ -59,6 +59,10 @@ public class StringPseudoSequence extends PseudoSequence {
 			} else {
 				// select suitable position (random) and suitable character delta (random) 
 				// TODO 实现新的选择逻辑
+				// A A B B C
+				// A B C
+				// 10 20 : 30 40
+				// 11 15 : 20 40
 				
 			}
 		} else {
