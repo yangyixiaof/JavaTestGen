@@ -11,25 +11,18 @@ import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
-import randoop.generation.date.influence.BranchValueState;
-import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
-import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.mutation.Mutation;
-import randoop.generation.date.mutation.ObjectConstraintMutation;
-import randoop.generation.date.mutation.ObligatoryObjectConstraintMutation;
 import randoop.generation.date.mutation.TypedOperationMutation;
 import randoop.generation.date.operation.OperationKind;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
-import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
 import randoop.generation.date.sequence.constraint.PseudoVariableTypeConstraint;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.util.ClassUtil;
 import randoop.operation.TypedOperation;
-import randoop.util.Randomness;
 
 public class PseudoSequenceContainer implements Rewardable {
 
@@ -39,8 +32,9 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	// ========= split line =========
 	// the following are set up by execution trace
-	ArrayList<TraceInfo> infos = null;
-	BranchValueState val_state = null;
+//	ArrayList<TraceInfo> infos = null;
+	TraceInfo trace_info = null;
+//	BranchValueState val_state = null;
 
 	// must satisfied constraint in next generation
 	// HashSet<PseudoSequenceAddressConstraint> acs = new
@@ -48,12 +42,12 @@ public class PseudoSequenceContainer implements Rewardable {
 	// HashSet<PseudoSequenceTypeConstraint> tcs = new
 	// HashSet<PseudoSequenceTypeConstraint>();
 
-	HashSet<PseudoVariableConstraint> solved_obligatory_tcs = new HashSet<PseudoVariableConstraint>();
-	HashSet<PseudoVariableConstraint> obligatory_tcs = new HashSet<PseudoVariableConstraint>();
-
-	// optional satisfied constraint
-	HashSet<PseudoVariableConstraint> solved_optional_tcs = new HashSet<PseudoVariableConstraint>();
-	HashSet<PseudoVariableConstraint> optional_tcs = new HashSet<PseudoVariableConstraint>();
+//	HashSet<PseudoVariableConstraint> solved_obligatory_tcs = new HashSet<PseudoVariableConstraint>();
+//	HashSet<PseudoVariableConstraint> obligatory_tcs = new HashSet<PseudoVariableConstraint>();
+//
+//	// optional satisfied constraint
+//	HashSet<PseudoVariableConstraint> solved_optional_tcs = new HashSet<PseudoVariableConstraint>();
+//	HashSet<PseudoVariableConstraint> optional_tcs = new HashSet<PseudoVariableConstraint>();
 
 	PseudoSequenceContainer previous = null;
 	Set<PseudoSequenceContainer> nexts = new HashSet<PseudoSequenceContainer>();
@@ -79,102 +73,106 @@ public class PseudoSequenceContainer implements Rewardable {
 	public void AddPseudoSequence(PseudoSequence e) {
 		contained_sequences.add(e);
 	}
-
-	public void SetTraceInfo(ArrayList<TraceInfo> infos) {
-		this.infos = infos;
-		this.val_state = SimpleInfluenceComputer.CreateBranchValueState(infos.get(infos.size() - 1));
+	
+	public void SetTraceInfo(TraceInfo info) {
+		this.trace_info = info;
 	}
 
-	public ArrayList<TraceInfo> GetTraceInfo() {
-		return infos;
-	}
+//	public void SetTraceInfo(ArrayList<TraceInfo> infos) {
+//		this.infos = infos;
+//		this.val_state = SimpleInfluenceComputer.CreateBranchValueState(infos.get(infos.size() - 1));
+//	}
 
-	public TraceInfo GetLastTraceInfo() {
-		return infos.get(infos.size() - 1);
-	}
+//	public ArrayList<TraceInfo> GetTraceInfo() {
+//		return infos;
+//	}
+
+//	public TraceInfo GetLastTraceInfo() {
+//		return infos.get(infos.size() - 1);
+//	}
 
 	public LinkedSequence GenerateLinkedSequence() {
 		return end.GenerateLinkedSequence();
 	}
 
-	private PseudoSequenceContainer MutateByApplyingObjectAddressConstraint(DateGenerator dg,
-			PseudoVariableAddressSameConstraint psac) {
-		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-		PseudoSequence copied_end = (PseudoSequence) end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
-		copied_end.ReplacePseudoVariableInDependency(dg, psac.GetShouldBeSamePseudoVariableOne(),
-				psac.GetShouldBeSamePseudoVariableTwo());
-		mutated_number++;
-		return copied_end.container;
-	}
-
-	private PseudoSequenceContainer MutateByApplyingObjectTypeConstraint(DateGenerator dg,
-			PseudoVariableTypeConstraint pstc) {
-		PseudoVariable pv = pstc.GetPseudoVariable();
-		Class<?> st = pstc.GetSpecifiedType();
-		boolean is_to_same = pstc.IsToSame();
-		Set<Class<?>> origin = dg.class_pseudo_variable.keySet();
-		Set<Class<?>> descendants = ClassUtil.GetDescendantClasses(origin, st);
-		Set<Class<?>> not_descendants = new HashSet<Class<?>>(origin);
-		not_descendants.removeAll(descendants);
-		mutated_number++;
-		if (is_to_same) {
-			return MakeSelectedVariableMatchSelectedClasses(pv, descendants, dg);
-		} else {
-			return MakeSelectedVariableMatchSelectedClasses(pv, not_descendants, dg);
-		}
-	}
-
-	private PseudoSequenceContainer MakeSelectedVariableMatchSelectedClasses(PseudoVariable pv,
-			Set<Class<?>> selected_classes, DateGenerator dg) {
-		ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
-		SequenceGeneratorHelper.SelectToListFromMap(selected_classes, dg.class_pseudo_variable, candidates);
-		PseudoVariable sv = RandomSelect.RandomPseudoVariableListAccordingToLength(candidates);
-		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map_for_end = new HashMap<PseudoSequence, PseudoSequence>();
-		PseudoSequence copied_end = (PseudoSequence) end.CopySelfInDeepCloneWay(null,
-				origin_copied_sequence_map_for_end, dg);
-		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-		PseudoVariable copied_sv = sv.CopySelfInDeepCloneWay(copied_end.container, origin_copied_sequence_map, dg);
-		copied_end.ReplacePseudoVariableInDependency(dg, pv, copied_sv);
-		return copied_end.container;
-	}
-
-	public boolean HasUnsolvedObligatoryConstraint() {
-		return obligatory_tcs.size() > 0;
-	}
-
-	public PseudoSequenceContainer MutateByApplyingObligatoryConstraint(DateGenerator dg) {
-		PseudoVariableConstraint oc = Randomness.randomSetMember(obligatory_tcs);
-		obligatory_tcs.remove(oc);
-		solved_obligatory_tcs.add(oc);
-		if (oc instanceof PseudoVariableAddressSameConstraint) {
-			return MutateByApplyingObjectAddressConstraint(dg, (PseudoVariableAddressSameConstraint) oc);
-		}
-		if (oc instanceof PseudoVariableTypeConstraint) {
-			return MutateByApplyingObjectTypeConstraint(dg, (PseudoVariableTypeConstraint) oc);
-		}
-		return null;
-	}
-
-	public ObligatoryObjectConstraintMutation GenerateObligatoryObjectConstraintMutation(
-			InfluenceOfBranchChange object_constraint_branch_influence) {
-		return new ObligatoryObjectConstraintMutation(object_constraint_branch_influence, this);
-	}
-
-	public boolean HasUnsolvedConstraint() {
-		return optional_tcs.size() > 0;
-	}
-
-	public PseudoSequenceContainer MutateByApplyingOptionalConstraint(DateGenerator dg) {
-		PseudoVariableTypeConstraint tc = (PseudoVariableTypeConstraint) Randomness.randomSetMember(optional_tcs);
-		optional_tcs.remove(tc);
-		solved_optional_tcs.add(tc);
-		return MutateByApplyingObjectTypeConstraint(dg, tc);
-	}
-
-	public ObjectConstraintMutation GenerateObjectConstraintMutation(
-			InfluenceOfBranchChange object_constraint_branch_influence) {
-		return new ObjectConstraintMutation(object_constraint_branch_influence, this);
-	}
+//	private PseudoSequenceContainer MutateByApplyingObjectAddressConstraint(DateGenerator dg,
+//			PseudoVariableAddressSameConstraint psac) {
+//		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+//		PseudoSequence copied_end = (PseudoSequence) end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
+//		copied_end.ReplacePseudoVariableInDependency(dg, psac.GetShouldBeSamePseudoVariableOne(),
+//				psac.GetShouldBeSamePseudoVariableTwo());
+//		mutated_number++;
+//		return copied_end.container;
+//	}
+//
+//	private PseudoSequenceContainer MutateByApplyingObjectTypeConstraint(DateGenerator dg,
+//			PseudoVariableTypeConstraint pstc) {
+//		PseudoVariable pv = pstc.GetPseudoVariable();
+//		Class<?> st = pstc.GetSpecifiedType();
+//		boolean is_to_same = pstc.IsToSame();
+//		Set<Class<?>> origin = dg.class_pseudo_variable.keySet();
+//		Set<Class<?>> descendants = ClassUtil.GetDescendantClasses(origin, st);
+//		Set<Class<?>> not_descendants = new HashSet<Class<?>>(origin);
+//		not_descendants.removeAll(descendants);
+//		mutated_number++;
+//		if (is_to_same) {
+//			return MakeSelectedVariableMatchSelectedClasses(pv, descendants, dg);
+//		} else {
+//			return MakeSelectedVariableMatchSelectedClasses(pv, not_descendants, dg);
+//		}
+//	}
+//
+//	private PseudoSequenceContainer MakeSelectedVariableMatchSelectedClasses(PseudoVariable pv,
+//			Set<Class<?>> selected_classes, DateGenerator dg) {
+//		ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
+//		SequenceGeneratorHelper.SelectToListFromMap(selected_classes, dg.class_pseudo_variable, candidates);
+//		PseudoVariable sv = RandomSelect.RandomPseudoVariableListAccordingToLength(candidates);
+//		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map_for_end = new HashMap<PseudoSequence, PseudoSequence>();
+//		PseudoSequence copied_end = (PseudoSequence) end.CopySelfInDeepCloneWay(null,
+//				origin_copied_sequence_map_for_end, dg);
+//		Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+//		PseudoVariable copied_sv = sv.CopySelfInDeepCloneWay(copied_end.container, origin_copied_sequence_map, dg);
+//		copied_end.ReplacePseudoVariableInDependency(dg, pv, copied_sv);
+//		return copied_end.container;
+//	}
+//
+//	public boolean HasUnsolvedObligatoryConstraint() {
+//		return obligatory_tcs.size() > 0;
+//	}
+//
+//	public PseudoSequenceContainer MutateByApplyingObligatoryConstraint(DateGenerator dg) {
+//		PseudoVariableConstraint oc = Randomness.randomSetMember(obligatory_tcs);
+//		obligatory_tcs.remove(oc);
+//		solved_obligatory_tcs.add(oc);
+//		if (oc instanceof PseudoVariableAddressSameConstraint) {
+//			return MutateByApplyingObjectAddressConstraint(dg, (PseudoVariableAddressSameConstraint) oc);
+//		}
+//		if (oc instanceof PseudoVariableTypeConstraint) {
+//			return MutateByApplyingObjectTypeConstraint(dg, (PseudoVariableTypeConstraint) oc);
+//		}
+//		return null;
+//	}
+//
+//	public ObligatoryObjectConstraintMutation GenerateObligatoryObjectConstraintMutation(
+//			InfluenceOfBranchChange object_constraint_branch_influence) {
+//		return new ObligatoryObjectConstraintMutation(object_constraint_branch_influence, this);
+//	}
+//
+//	public boolean HasUnsolvedConstraint() {
+//		return optional_tcs.size() > 0;
+//	}
+//
+//	public PseudoSequenceContainer MutateByApplyingOptionalConstraint(DateGenerator dg) {
+//		PseudoVariableTypeConstraint tc = (PseudoVariableTypeConstraint) Randomness.randomSetMember(optional_tcs);
+//		optional_tcs.remove(tc);
+//		solved_optional_tcs.add(tc);
+//		return MutateByApplyingObjectTypeConstraint(dg, tc);
+//	}
+//
+//	public ObjectConstraintMutation GenerateObjectConstraintMutation(
+//			InfluenceOfBranchChange object_constraint_branch_influence) {
+//		return new ObjectConstraintMutation(object_constraint_branch_influence, this);
+//	}
 
 	@Override
 	public Reward GetReward(ArrayList<String> interested_branch) {
@@ -253,13 +251,13 @@ public class PseudoSequenceContainer implements Rewardable {
 		return mutations;
 	}
 
-	public void AddObligatoryConstraint(PseudoVariableConstraint pvc) {
-		obligatory_tcs.add(pvc);
-	}
-
-	public void AddOptionalConstraint(PseudoVariableConstraint pvc) {
-		optional_tcs.add(pvc);
-	}
+//	public void AddObligatoryConstraint(PseudoVariableConstraint pvc) {
+//		obligatory_tcs.add(pvc);
+//	}
+//
+//	public void AddOptionalConstraint(PseudoVariableConstraint pvc) {
+//		optional_tcs.add(pvc);
+//	}
 
 	@Override
 	public String toString() {

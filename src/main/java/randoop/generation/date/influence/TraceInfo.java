@@ -3,33 +3,32 @@ package randoop.generation.date.influence;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class TraceInfo {
 	
-	Map<String, LinkedList<ValuesOfBranch>> vobs = new HashMap<String, LinkedList<ValuesOfBranch>>();
-	List<StatementReturn> stmt_rets = new LinkedList<StatementReturn>();
+	Map<String, TracesOfBranch> vobs = new HashMap<String, TracesOfBranch>();
+//	List<StatementReturn> stmt_rets = new LinkedList<StatementReturn>();
 	
-	Map<String, Integer> branch_state = new HashMap<String, Integer>();
+//	Map<String, Integer> branch_state = new HashMap<String, Integer>();
 	
 	// this is just an internal data structure.
-	private List<Integer> ordered_address = new LinkedList<Integer>();
+//	private List<Integer> ordered_address = new LinkedList<Integer>();
 	
-	LinkedList<ObjectAddressConstraint> obligatory_constraint = new LinkedList<ObjectAddressConstraint>();
-	LinkedList<ObjectAddressConstraint> optional_constraint = new LinkedList<ObjectAddressConstraint>();
+//	LinkedList<ObjectAddressConstraint> obligatory_constraint = new LinkedList<ObjectAddressConstraint>();
+//	LinkedList<ObjectAddressConstraint> optional_constraint = new LinkedList<ObjectAddressConstraint>();
 	
 	public TraceInfo() {
 	}
 	
-	public void AddOneReturnOfStatement(StatementReturn sr) {
-		stmt_rets.add(sr);
-	}
+//	public void AddOneReturnOfStatement(StatementReturn sr) {
+//		stmt_rets.add(sr);
+//	}
 	
 	public void AddOneValueOfBranch(String sig_info, ValuesOfBranch vob) {
 		// set up value of branch.
-		vob.SetUpOrderedMayInfluenceAddresses(ordered_address);
+//		vob.SetUpOrderedMayInfluenceAddresses(ordered_address);
 		// add value of branch to list.
 		LinkedList<ValuesOfBranch> vob_list = vobs.get(sig_info);
 		if (vob_list == null) {
@@ -39,27 +38,27 @@ public class TraceInfo {
 		vob_list.add(vob);
 	}
 	
-	public void AddOneObjectAddress(String catted, int object_address) {
-		int idx = ordered_address.indexOf(object_address);
-		if (idx != -1) {
-			ordered_address.remove(object_address);
-		}
-		ordered_address.add(0, object_address);
-	}
-
-	public void AddObjectSameConstraint(int object_address1, int object_address2) {
-		ObjectAddressSameConstraint oasc = new ObjectAddressSameConstraint(object_address1, object_address2);
-		obligatory_constraint.add(oasc);
-	}
-
-	public void AddObjectTypeConstraint(boolean obligatory, Class<?> cls, int object_address) {
-		ObjectAddressTypeConstraint oatc = new ObjectAddressTypeConstraint(obligatory, object_address, cls);
-		if (obligatory) {
-			obligatory_constraint.add(oatc);
-		} else {
-			optional_constraint.add(oatc);
-		}
-	}
+//	public void AddOneObjectAddress(String catted, int object_address) {
+//		int idx = ordered_address.indexOf(object_address);
+//		if (idx != -1) {
+//			ordered_address.remove(object_address);
+//		}
+//		ordered_address.add(0, object_address);
+//	}
+//
+//	public void AddObjectSameConstraint(int object_address1, int object_address2) {
+//		ObjectAddressSameConstraint oasc = new ObjectAddressSameConstraint(object_address1, object_address2);
+//		obligatory_constraint.add(oasc);
+//	}
+//
+//	public void AddObjectTypeConstraint(boolean obligatory, Class<?> cls, int object_address) {
+//		ObjectAddressTypeConstraint oatc = new ObjectAddressTypeConstraint(obligatory, object_address, cls);
+//		if (obligatory) {
+//			obligatory_constraint.add(oatc);
+//		} else {
+//			optional_constraint.add(oatc);
+//		}
+//	}
 	
 	public Map<String, LinkedList<ValuesOfBranch>> GetValuesOfBranches() {
 		return vobs;
@@ -106,17 +105,17 @@ public class TraceInfo {
 //		return fitness;
 //	}
 	
-	public LinkedList<ObjectAddressConstraint> GetObligatoryConstraint() {
-		return obligatory_constraint;
-	}
-	
-	public boolean HasObjectAddressConstraints() {
-		return obligatory_constraint.size() > 0;
-	}
-	
-	public LinkedList<ObjectAddressConstraint> GetOptionalConstraint() {
-		return optional_constraint;
-	}
+//	public LinkedList<ObjectAddressConstraint> GetObligatoryConstraint() {
+//		return obligatory_constraint;
+//	}
+//	
+//	public boolean HasObjectAddressConstraints() {
+//		return obligatory_constraint.size() > 0;
+//	}
+//	
+//	public LinkedList<ObjectAddressConstraint> GetOptionalConstraint() {
+//		return optional_constraint;
+//	}
 	
 	public boolean HasBranches() {
 		return vobs.size() > 0;

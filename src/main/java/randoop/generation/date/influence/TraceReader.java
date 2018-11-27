@@ -71,10 +71,10 @@ public class TraceReader {
 								String cmpOperator = parts[5];
 								double op1 = Double.parseDouble(parts[6]);
 								double op2 = Double.parseDouble(parts[7]);
-								if (cmpOperator.equals("A$==") || cmpOperator.equals("A$!=")) {
-									ProcessObjectAddressSameConstraint(operandSig, relativeOffset, (int) op1, (int) op2,
-											ti);
-								}
+								// if (cmpOperator.equals("A$==") || cmpOperator.equals("A$!=")) {
+								// ProcessObjectAddressSameConstraint(operandSig, relativeOffset, (int) op1,
+								// (int) op2, ti);
+								// }
 								// String enclosingMethod = runtime_stack.peek();
 								ProcessBranchOperand(operandSig, relativeOffset, cmpOperator, op1, op2, ti);
 							} catch (Exception e) {
@@ -84,20 +84,22 @@ public class TraceReader {
 								System.exit(1);
 							}
 						}
-						if (parts[0].equals("@Object-Type")) {
-							try {
-								String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
-								int relativeOffset = Integer.parseInt(parts[5]);
-								String type_str = parts[6];
-								Class<?> cls = Class.forName(type_str);
-								int object_address = Integer.parseInt(parts[7]);
-								ProcessObjectType(operandSig, relativeOffset, parts[4].equals("checkcast"), cls,
-										object_address, ti);
-							} catch (Exception e) {
-								e.printStackTrace();
-								System.exit(1);
-							}
-						}
+						// if (parts[0].equals("@Object-Type")) {
+						// try {
+						// String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" +
+						// parts[3];
+						// int relativeOffset = Integer.parseInt(parts[5]);
+						// String type_str = parts[6];
+						// Class<?> cls = Class.forName(type_str);
+						// int object_address = Integer.parseInt(parts[7]);
+						// ProcessObjectType(operandSig, relativeOffset, parts[4].equals("checkcast"),
+						// cls,
+						// object_address, ti);
+						// } catch (Exception e) {
+						// e.printStackTrace();
+						// System.exit(1);
+						// }
+						// }
 						// if (one_line.startsWith("@Var")) {
 						// String[] parts = one_line.split("#");
 						// String var_type = parts[1];
@@ -105,21 +107,22 @@ public class TraceReader {
 						// Class<?> var_class = Class.forName(var_type);
 						// ti.AddOneReturnOfStatement(new StatementReturn(var_class, var_value));
 						// }
-						if (parts[0].equals("@Object-Address")) {
-							// branch_operand++;
-							try {
-								String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
-								int relativeOffset = Integer.parseInt(parts[4]);
-								int object_address = Integer.parseInt(parts[5]);
-								// String enclosingMethod = runtime_stack.peek();
-								ProcessObjectAddress(operandSig, relativeOffset, object_address, ti);
-							} catch (Exception e) {
-								// System.out.println("lastPop: " + lastPop);
-								// System.out.println("currentLineFrom1 " + currentLineFrom1);
-								e.printStackTrace();
-								System.exit(1);
-							}
-						}
+						// if (parts[0].equals("@Object-Address")) {
+						// // branch_operand++;
+						// try {
+						// String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" +
+						// parts[3];
+						// int relativeOffset = Integer.parseInt(parts[4]);
+						// int object_address = Integer.parseInt(parts[5]);
+						// // String enclosingMethod = runtime_stack.peek();
+						// ProcessObjectAddress(operandSig, relativeOffset, object_address, ti);
+						// } catch (Exception e) {
+						// // System.out.println("lastPop: " + lastPop);
+						// // System.out.println("currentLineFrom1 " + currentLineFrom1);
+						// e.printStackTrace();
+						// System.exit(1);
+						// }
+						// }
 					}
 				}
 			}
@@ -170,23 +173,26 @@ public class TraceReader {
 		ti.AddOneValueOfBranch(catted, vob);
 	}
 
-	private static void ProcessObjectAddress(String operand_sig, int relative_offset, int object_address,
-			TraceInfo ti) {
-		String catted = operand_sig + "#" + relative_offset;
-		ti.AddOneObjectAddress(catted, object_address);
-	}
+	// private static void ProcessObjectAddress(String operand_sig, int
+	// relative_offset, int object_address,
+	// TraceInfo ti) {
+	// String catted = operand_sig + "#" + relative_offset;
+	// ti.AddOneObjectAddress(catted, object_address);
+	// }
 
 	// the following two constraints must be applied immediately.
-	private static void ProcessObjectType(String operandSig, int relativeOffset, boolean obligatory, Class<?> cls,
-			int object_address, TraceInfo ti) {
-		ti.AddObjectTypeConstraint(obligatory, cls, object_address);
-	}
-
-	private static void ProcessObjectAddressSameConstraint(String operandSig, int relativeOffset, int object_address1,
-			int object_address2, TraceInfo ti) {
-		if (object_address1 != object_address2) {
-			ti.AddObjectSameConstraint(object_address1, object_address2);
-		}
-	}
+	// private static void ProcessObjectType(String operandSig, int relativeOffset,
+	// boolean obligatory, Class<?> cls,
+	// int object_address, TraceInfo ti) {
+	// ti.AddObjectTypeConstraint(obligatory, cls, object_address);
+	// }
+	//
+	// private static void ProcessObjectAddressSameConstraint(String operandSig, int
+	// relativeOffset, int object_address1,
+	// int object_address2, TraceInfo ti) {
+	// if (object_address1 != object_address2) {
+	// ti.AddObjectSameConstraint(object_address1, object_address2);
+	// }
+	// }
 
 }

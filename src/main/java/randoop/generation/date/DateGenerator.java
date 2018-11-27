@@ -80,7 +80,7 @@ public class DateGenerator extends AbstractGenerator {
 
 	// influence for typed operation
 	public Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
-	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
+//	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
 
 	// typed operation runtime information
 	public Map<TypedOperation, OperationKind> operation_kind = new HashMap<TypedOperation, OperationKind>();
@@ -88,7 +88,7 @@ public class DateGenerator extends AbstractGenerator {
 	// runtime information
 	public Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = new HashMap<PseudoVariable, PseudoSequence>();
 	public Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
-	public Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>();
+	public Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>(); 
 	public Map<PseudoVariable, String> pseudo_variable_content = new HashMap<PseudoVariable, String>();
 	public Set<PseudoVariable> pseudo_variable_with_null_value = new HashSet<PseudoVariable>();
 	// Map<PseudoVariable, BranchValueState> pseudo_variable_branch_value_state =
@@ -433,8 +433,8 @@ public class DateGenerator extends AbstractGenerator {
 			}
 		}
 		// process object address related constraints
-		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
-				address_variable_map);
+//		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
+//				address_variable_map);
 		if (running_with_exception && !newly_created_container.HasUnsolvedObligatoryConstraint()) {
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
 			// pseudo_sequence_containers.remove(newly_created_container);
@@ -519,55 +519,55 @@ public class DateGenerator extends AbstractGenerator {
 		return eSeq;
 	}
 
-	private void ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info,
-			PseudoSequenceContainer container, Map<Integer, PseudoVariable> address_variable_map) {
-		LinkedList<ObjectAddressConstraint> obcs = info.GetObligatoryConstraint();
-		for (ObjectAddressConstraint oac : obcs) {
-			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
-			if (pvc != null) {
-				container.AddObligatoryConstraint(pvc);
-			}
-		}
-		LinkedList<ObjectAddressConstraint> opcs = info.GetOptionalConstraint();
-		for (ObjectAddressConstraint oac : opcs) {
-			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
-			if (pvc != null) {
-				container.AddOptionalConstraint(pvc);
-			}
-		}
-	}
-
-	private PseudoVariableConstraint HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable> address_variable_map,
-			ObjectAddressConstraint oac) {
-		if (oac instanceof ObjectAddressTypeConstraint) {
-			ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint) oac;
-			int ad = oatc.GetObjectAddress();
-			Class<?> spec_type = oatc.GetType();
-			PseudoVariable pv = address_variable_map.get(ad);
-			if (pv != null) {
-				Class<?> pv_cls = pseudo_variable_class.get(pv);
-				if (pv_cls != null) {
-					boolean type_match = spec_type.isAssignableFrom(pv_cls);
-					if (oatc.IsObligatory() && type_match) {
-						// do nothing.
-					} else {
-						return new PseudoVariableTypeConstraint(pv, spec_type, !type_match);
-					}
-				}
-			}
-		}
-		if (oac instanceof ObjectAddressSameConstraint) {
-			ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint) oac;
-			int ad1 = oasc.GetAddressOne();
-			int ad2 = oasc.GetAddressTwo();
-			PseudoVariable pv1 = address_variable_map.get(ad1);
-			PseudoVariable pv2 = address_variable_map.get(ad2);
-			if (pv1 != null && pv2 != null) {
-				return new PseudoVariableAddressSameConstraint(pv1, pv2);
-			}
-		}
-		return null;
-	}
+//	private void ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info,
+//			PseudoSequenceContainer container, Map<Integer, PseudoVariable> address_variable_map) {
+//		LinkedList<ObjectAddressConstraint> obcs = info.GetObligatoryConstraint();
+//		for (ObjectAddressConstraint oac : obcs) {
+//			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
+//			if (pvc != null) {
+//				container.AddObligatoryConstraint(pvc);
+//			}
+//		}
+//		LinkedList<ObjectAddressConstraint> opcs = info.GetOptionalConstraint();
+//		for (ObjectAddressConstraint oac : opcs) {
+//			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
+//			if (pvc != null) {
+//				container.AddOptionalConstraint(pvc);
+//			}
+//		}
+//	}
+//
+//	private PseudoVariableConstraint HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable> address_variable_map,
+//			ObjectAddressConstraint oac) {
+//		if (oac instanceof ObjectAddressTypeConstraint) {
+//			ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint) oac;
+//			int ad = oatc.GetObjectAddress();
+//			Class<?> spec_type = oatc.GetType();
+//			PseudoVariable pv = address_variable_map.get(ad);
+//			if (pv != null) {
+//				Class<?> pv_cls = pseudo_variable_class.get(pv);
+//				if (pv_cls != null) {
+//					boolean type_match = spec_type.isAssignableFrom(pv_cls);
+//					if (oatc.IsObligatory() && type_match) {
+//						// do nothing.
+//					} else {
+//						return new PseudoVariableTypeConstraint(pv, spec_type, !type_match);
+//					}
+//				}
+//			}
+//		}
+//		if (oac instanceof ObjectAddressSameConstraint) {
+//			ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint) oac;
+//			int ad1 = oasc.GetAddressOne();
+//			int ad2 = oasc.GetAddressTwo();
+//			PseudoVariable pv1 = address_variable_map.get(ad1);
+//			PseudoVariable pv2 = address_variable_map.get(ad2);
+//			if (pv1 != null && pv2 != null) {
+//				return new PseudoVariableAddressSameConstraint(pv1, pv2);
+//			}
+//		}
+//		return null;
+//	}
 
 	private BeforeAfterLinkedSequence CreateNewCompareSequence() {
 		// select create operations.
