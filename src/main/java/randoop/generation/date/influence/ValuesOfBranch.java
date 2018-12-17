@@ -1,23 +1,24 @@
 package randoop.generation.date.influence;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ValuesOfBranch implements Serializable {
 
 	private static final long serialVersionUID = 8325093925948900533L;
 
+	private int line_index = -1;
 	private String enclosing_method = null;
 	private int relative_offset = -1;
 	private String cmp_optr = null;
 	private double branch_value1 = -1;
 	private double branch_value2 = -1;
+	private int state = -1;
 
-	private List<Integer> ordered_addresses = new LinkedList<Integer>();
+//	private List<Integer> ordered_addresses = new LinkedList<Integer>();
 
-	public ValuesOfBranch(String enclosing_method, int relative_offset, String cmp_optr, double branch_value1,
+	public ValuesOfBranch(int line_index, String enclosing_method, int relative_offset, String cmp_optr, double branch_value1,
 			double branch_value2) {
+		this.setLine_index(line_index);
 		this.setEnclosing_method(enclosing_method);
 		this.setRelative_offset(relative_offset);
 		this.setCmp_optr(cmp_optr);
@@ -39,6 +40,10 @@ public class ValuesOfBranch implements Serializable {
 
 	public void setBranch_value2(double branch_value2) {
 		this.branch_value2 = branch_value2;
+	}
+	
+	public double GetGap() {
+		return Math.abs(branch_value2 - branch_value1);
 	}
 
 	public String GetCmpOptr() {
@@ -65,7 +70,27 @@ public class ValuesOfBranch implements Serializable {
 		this.enclosing_method = enclosing_method;
 	}
 
-	public void SetUpOrderedMayInfluenceAddresses(List<Integer> linkedList) {
-		ordered_addresses.addAll(linkedList);
+//	public void SetUpOrderedMayInfluenceAddresses(List<Integer> linkedList) {
+//		ordered_addresses.addAll(linkedList);
+//	}
+
+	public int GetLineIndex() {
+		return line_index;
+	}
+
+	public void setLine_index(int line_index) {
+		this.line_index = line_index;
+	}
+
+	public int GetState() {
+		return state;
+	}
+
+	public void SetState(int state) {
+		if (this.state != -1) {
+			System.err.println("Serious error! state for one trace of branch could only be set once.");
+			System.exit(1);
+		}
+		this.state = state;
 	}
 }

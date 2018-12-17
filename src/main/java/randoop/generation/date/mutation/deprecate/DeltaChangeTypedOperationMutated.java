@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation;
+package randoop.generation.date.mutation.deprecate;
 
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoVariable;

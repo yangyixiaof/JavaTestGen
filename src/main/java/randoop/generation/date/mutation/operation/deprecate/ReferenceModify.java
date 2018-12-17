@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation.operation;
+package randoop.generation.date.mutation.operation.deprecate;
 
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;

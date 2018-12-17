@@ -7,7 +7,7 @@ import java.util.Map;
 import randoop.generation.date.embed.BranchIDAssigner;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
-import randoop.generation.date.mutation.operation.MutationOperation;
+import randoop.generation.date.mutation.operation.deprecate.MutationOperation;
 import randoop.generation.date.sequence.TraceableSequence;
 
 public class QLearning {

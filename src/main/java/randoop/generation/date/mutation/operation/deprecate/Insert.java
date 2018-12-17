@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation.operation;
+package randoop.generation.date.mutation.operation.deprecate;
 
 import java.util.Iterator;
 import java.util.LinkedList;

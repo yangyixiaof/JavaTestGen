@@ -1,6 +1,6 @@
 package randoop.generation.date.sequence;
 
-import randoop.generation.date.mutation.Mutated;
+import randoop.generation.date.mutation.deprecate.Mutated;
 import randoop.operation.TypedOperation;
 
 public class BeforeAfterLinkedSequence {

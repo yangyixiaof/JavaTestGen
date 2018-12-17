@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation.operation;
+package randoop.generation.date.mutation.operation.deprecate;
 
 public enum MutationType {
 	insert(0), 

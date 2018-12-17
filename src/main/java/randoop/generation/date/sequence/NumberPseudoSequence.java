@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
-import randoop.generation.date.mutation.DeltaChangeTypedOperationMutated;
+import randoop.generation.date.mutation.deprecate.DeltaChangeTypedOperationMutated;
 import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.operation.TypedOperation;

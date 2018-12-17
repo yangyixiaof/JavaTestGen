@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import randoop.generation.date.DateMeta;
-import randoop.generation.date.mutation.operation.MutationAnalyzer;
-import randoop.generation.date.mutation.operation.MutationOperation;
+import randoop.generation.date.mutation.operation.deprecate.MutationAnalyzer;
+import randoop.generation.date.mutation.operation.deprecate.MutationOperation;
 import randoop.generation.date.sequence.TraceableSequence;
 import randoop.operation.TypedOperation;
 import randoop.reflection.TypeInstantiator;

@@ -3,7 +3,6 @@ package randoop.generation.date.influence;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class TraceReader {
 
@@ -22,7 +21,8 @@ public class TraceReader {
 	 * @param specific_file
 	 * @return
 	 */
-	public static ArrayList<TraceInfo> ReadFromTraceFile(String specific_file) {
+	public static TraceInfo ReadFromTraceFile(String specific_file) {
+		// ArrayList<TraceInfo>
 		// Stack<String> runtime_stack = new Stack<>();
 		// Map<String, LinkedList<ValuesOfBranch>> branch_signature_to_info = new
 		// TreeMap<>();
@@ -40,11 +40,15 @@ public class TraceReader {
 		return HandleOneTrace(str);
 	}
 
-	public static ArrayList<TraceInfo> HandleOneTrace(String str) {
-		ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
+	public static TraceInfo HandleOneTrace(String str) {
+		// ArrayList<TraceInfo>
+		TraceInfo overall_ti = new TraceInfo();
+//		ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
 		String[] lines = str.split("\\r?\\n");
 		try {
+			int line_index = 0;
 			for (String one_line : lines) {
+				line_index++;
 				// currentLineFrom1++;
 				one_line = one_line.trim();
 				if (!one_line.equals("")) {
@@ -59,9 +63,10 @@ public class TraceReader {
 					// ProcessMethodExit(parts[1], runtime_stack);
 					// }
 					if (one_line.equals("$OperationStartUp$")) {
-						traces.add(new TraceInfo());
+//						traces.add(new TraceInfo());
+						// do nothing.
 					} else {
-						TraceInfo ti = traces.get(traces.size() - 1);
+//						TraceInfo ti = traces.get(traces.size() - 1);
 						String[] parts = one_line.split("#");
 						if (parts[0].equals("@Branch-Operand")) {
 							// branch_operand++;
@@ -76,7 +81,7 @@ public class TraceReader {
 								// (int) op2, ti);
 								// }
 								// String enclosingMethod = runtime_stack.peek();
-								ProcessBranchOperand(operandSig, relativeOffset, cmpOperator, op1, op2, ti);
+								ProcessBranchOperand(line_index, operandSig, relativeOffset, cmpOperator, op1, op2, overall_ti);
 							} catch (Exception e) {
 								// System.out.println("lastPop: " + lastPop);
 								// System.out.println("currentLineFrom1 " + currentLineFrom1);
@@ -140,12 +145,13 @@ public class TraceReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (traces.size() > 0) {
-			for (TraceInfo trace : traces) {
-				trace.IdentifyStatesOfBranches();
-			}
-		}
-		return traces;
+//		if (traces.size() > 0) {
+//			for (TraceInfo trace : traces) {
+//				trace.IdentifyStatesOfBranches();
+//			}
+//		}
+//		return traces;
+		return overall_ti;
 	}
 
 	// private void ProcessMethodEnter(String method_name, Stack<String>
@@ -166,10 +172,10 @@ public class TraceReader {
 	// }
 	// }
 
-	private static void ProcessBranchOperand(String operand_sig, int relative_offset, String cmp_optr,
+	private static void ProcessBranchOperand(int line_index, String operand_sig, int relative_offset, String cmp_optr,
 			double branch_value1, double branch_value2, TraceInfo ti) {
-		ValuesOfBranch vob = new ValuesOfBranch(operand_sig, relative_offset, cmp_optr, branch_value1, branch_value2);
-		String catted = operand_sig + "#" + relative_offset;
+		ValuesOfBranch vob = new ValuesOfBranch(line_index, operand_sig, relative_offset, cmp_optr, branch_value1, branch_value2);
+		String catted = operand_sig + "#" + relative_offset + "#" + cmp_optr;
 		ti.AddOneValueOfBranch(catted, vob);
 	}
 

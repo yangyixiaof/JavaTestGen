@@ -22,7 +22,7 @@ import randoop.generation.AbstractGenerator;
 import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
-import randoop.generation.date.influence.BranchNodesState;
+import randoop.generation.date.influence.BranchStateSummary;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.ObjectAddressConstraint;
@@ -31,10 +31,10 @@ import randoop.generation.date.influence.ObjectAddressTypeConstraint;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.influence.TraceReader;
-import randoop.generation.date.mutation.Mutated;
-import randoop.generation.date.mutation.Mutation;
-import randoop.generation.date.mutation.ObjectConstraintMutated;
-import randoop.generation.date.mutation.TypedOperationMutated;
+import randoop.generation.date.mutation.deprecate.Mutated;
+import randoop.generation.date.mutation.deprecate.Mutation;
+import randoop.generation.date.mutation.deprecate.ObjectConstraintMutated;
+import randoop.generation.date.mutation.deprecate.TypedOperationMutated;
 import randoop.generation.date.operation.OperationKind;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.runtime.DateRuntimeSupport;
@@ -106,7 +106,7 @@ public class DateGenerator extends AbstractGenerator {
 
 	// public Map<String, TraceInfo> recorded_traces = new HashMap<String,
 	// TraceInfo>();
-	public BranchNodesState branch_state = new BranchNodesState();
+	public BranchStateSummary branch_state = new BranchStateSummary();
 
 	// Map<TypedOperation, InfluenceOfStateChangeForTypedOperationInClass>
 	// operation_self_state_influence = new HashMap<TypedOperation,
@@ -278,7 +278,7 @@ public class DateGenerator extends AbstractGenerator {
 		// after_trace);
 
 		String branch_state_representation_before = branch_state.RepresentationOfUnCoveredBranchWithState();
-		Map<String, Influence> all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
+		Map<String, Influence> all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state, n_cmp_sequence.GetMutated(),
 				before_trace, after_trace);
 		// n_cmp_sequence.GetPseudoSequence().SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
 		String branch_state_representation_after = branch_state.RepresentationOfUnCoveredBranchWithState();

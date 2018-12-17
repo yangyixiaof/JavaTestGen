@@ -1,18 +1,18 @@
-package randoop.generation.date.mutation.operation;
+package randoop.generation.date.mutation.operation.deprecate;
 
 import cern.colt.matrix.impl.DenseObjectMatrix2D;
 import randoop.generation.date.embed.StringIDAssigner;
 import randoop.generation.date.embed.TypedOperationIDAssigner;
-import randoop.generation.date.mutation.util.StatementInfoFetcher;
+import randoop.generation.date.mutation.util.deprecate.StatementInfoFetcher;
 import randoop.generation.date.sequence.TraceableSequence;
 
-public class PrimitiveRealModify extends MutationOperation {
+public class PrimitiveIntegralModify extends MutationOperation {
 
 	int stmtIndex = -1;
 	int varIndex = -1;
 	Object deltaValue = null;
 
-	public PrimitiveRealModify(TraceableSequence sequence, int stmtIndex, int varIndex, Object deltaValue) {
+	public PrimitiveIntegralModify(TraceableSequence sequence, int stmtIndex, int varIndex, Object deltaValue) {
 		super(sequence);
 		this.stmtIndex = stmtIndex;
 		this.varIndex = varIndex;
@@ -21,12 +21,12 @@ public class PrimitiveRealModify extends MutationOperation {
 
 	@Override
 	public TraceableSequence ApplyMutation() {
-		return sequence.modifyReal(this, stmtIndex, varIndex, deltaValue);
+		return sequence.modifyIntegral(this, stmtIndex, varIndex, deltaValue);
 	}
 
 	@Override
 	public String toString() {
-		return "PrimitiveRealModify at:" + stmtIndex + "#input_index:" + varIndex + "#deltaValue:" + deltaValue;
+		return "PrimitiveIntegralModify at:" + stmtIndex + "#input_index:" + varIndex + "#deltaValue:" + deltaValue;
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class PrimitiveRealModify extends MutationOperation {
 		result.set(1, 0, 2);
 //		result[0][0] = stmtIndex;
 //		result[1][0] = 2;
-		int operation_index = string_id_assigner.AssignID("PrimitiveRealModify");
+		int operation_index = string_id_assigner.AssignID("PrimitiveIntegralModify");
 		result.set(0, 1, operation_index);
 		result.set(1, 1, 1);
 //		result[0][1] = operation_index;

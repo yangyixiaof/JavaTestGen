@@ -2,13 +2,12 @@ package randoop.generation.date.influence;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
 public class TraceInfo {
 	
-	Map<String, TracesOfBranch> vobs = new HashMap<String, TracesOfBranch>();
+	Map<String, InfoOfBranch> vobs = new HashMap<String, InfoOfBranch>();
 //	List<StatementReturn> stmt_rets = new LinkedList<StatementReturn>();
 	
 //	Map<String, Integer> branch_state = new HashMap<String, Integer>();
@@ -30,12 +29,12 @@ public class TraceInfo {
 		// set up value of branch.
 //		vob.SetUpOrderedMayInfluenceAddresses(ordered_address);
 		// add value of branch to list.
-		LinkedList<ValuesOfBranch> vob_list = vobs.get(sig_info);
-		if (vob_list == null) {
-			vob_list = new LinkedList<ValuesOfBranch>();
-			vobs.put(sig_info, vob_list);
+		InfoOfBranch iob = vobs.get(sig_info);
+		if (iob == null) {
+			iob = new InfoOfBranch();
+			vobs.put(sig_info, iob);
 		}
-		vob_list.add(vob);
+		iob.HandleOneValueOfBranch(vob);
 	}
 	
 //	public void AddOneObjectAddress(String catted, int object_address) {
@@ -59,24 +58,24 @@ public class TraceInfo {
 //			optional_constraint.add(oatc);
 //		}
 //	}
-	
-	public Map<String, LinkedList<ValuesOfBranch>> GetValuesOfBranches() {
+	 
+	public Map<String, InfoOfBranch> GetInfoOfBranches() {
 		return vobs;
 	}
 	
-	public void IdentifyStatesOfBranches() {
-		Set<String> vkeys = vobs.keySet();
-		Iterator<String> vitr = vkeys.iterator();
-		while (vitr.hasNext()) {
-			String vk = vitr.next();
-			LinkedList<ValuesOfBranch> vk_vobs = vobs.get(vk);
-			Integer state = SimpleInfluenceComputer.IdentifyBranchState(vk_vobs);
-			branch_state.put(vk, state);
-		}
-	}
+//	public void IdentifyStatesOfBranches() {
+//		Set<String> vkeys = vobs.keySet();
+//		Iterator<String> vitr = vkeys.iterator();
+//		while (vitr.hasNext()) {
+//			String vk = vitr.next();
+//			LinkedList<ValuesOfBranch> vk_vobs = vobs.get(vk);
+//			Integer state = SimpleInfluenceComputer.IdentifyBranchState(vk_vobs);
+//			branch_state.put(vk, state);
+//		}
+//	}
 	
 	public Integer GetBranchState(String sig) {
-		return branch_state.get(sig);
+		return vobs.get(sig).GetBranchState();
 	}
 
 //	public double Fitness(Map<String, Double> branch_priority, Map<String, Integer> branch_current_interest_state) {
@@ -121,15 +120,28 @@ public class TraceInfo {
 		return vobs.size() > 0;
 	}
 	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Set<String> bs_keys = branch_state.keySet();
-		for (String bs_key : bs_keys) {
-			Integer b_state = branch_state.get(bs_key);
-			sb.append(bs_key + ":" + b_state + "#");
+//	@Override
+//	public String toString() {
+//		StringBuilder sb = new StringBuilder();
+//		Set<String> bs_keys = branch_state.keySet();
+//		for (String bs_key : bs_keys) {
+//			Integer b_state = branch_state.get(bs_key);
+//			sb.append(bs_key + ":" + b_state + "#");
+//		}
+//		return sb.toString();
+//	}
+	
+	public String GenerateBranchStateSignature() {
+		StringBuilder builder = new StringBuilder();
+		Set<String> vkeys = vobs.keySet();
+		Iterator<String> vk_itr = vkeys.iterator();
+		while (vk_itr.hasNext()) {
+			String vk = vk_itr.next();
+			InfoOfBranch ib = vobs.get(vk);
+			String branch_sig = ib.GenerateBranchStateSignature();
+			builder.append(vk.hashCode() + "#" + branch_sig);
 		}
-		return sb.toString();
+		return builder.toString();
 	}
 	
 }

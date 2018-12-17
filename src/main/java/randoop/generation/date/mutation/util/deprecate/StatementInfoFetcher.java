@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation.util;
+package randoop.generation.date.mutation.util.deprecate;
 
 import randoop.generation.date.sequence.TraceableSequence;
 

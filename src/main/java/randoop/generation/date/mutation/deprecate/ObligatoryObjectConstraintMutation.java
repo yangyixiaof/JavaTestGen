@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation;
+package randoop.generation.date.mutation.deprecate;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
@@ -12,8 +12,10 @@ public class ObligatoryObjectConstraintMutation extends ObjectConstraintMutation
 
 	@Override
 	protected PseudoSequenceContainer GeneratedMutatedNewContainer(DateGenerator dg) {
-		PseudoSequenceContainer new_container = container.MutateByApplyingObligatoryConstraint(dg);
-		return new_container;
+		// PseudoSequenceContainer new_container =
+		// container.MutateByApplyingObligatoryConstraint(dg);
+		// return new_container;
+		return null;
 	}
 
 }

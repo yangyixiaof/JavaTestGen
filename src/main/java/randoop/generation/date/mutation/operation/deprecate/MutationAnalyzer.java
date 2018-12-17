@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation.operation;
+package randoop.generation.date.mutation.operation.deprecate;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,10 +41,10 @@ public class MutationAnalyzer {
 	}
 
 	/**
-	 * 妯′豢 ForwardGenerator 鐨� createNewUniqueSequence
+	 * 妯�?�豢 ForwardGenerator 鐨� createNewUniqueSequence
 	 *
 	 * <p>
-	 * 鍏朵腑 instantiator 鐨勬潵婧愭槸 OperationModel -> ComponentManager ->
+	 * 鍏朵�? instantiator 鐨勬潵婧愭槸 OperationModel -> ComponentManager ->
 	 * ForwardGenerator
 	 *
 	 * <p>

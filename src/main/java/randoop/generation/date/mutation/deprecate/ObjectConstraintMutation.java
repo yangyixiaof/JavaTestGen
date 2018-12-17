@@ -1,4 +1,4 @@
-package randoop.generation.date.mutation;
+package randoop.generation.date.mutation.deprecate;
 
 import java.util.ArrayList;
 
@@ -18,8 +18,9 @@ public class ObjectConstraintMutation extends Mutation {
 	}
 	
 	protected PseudoSequenceContainer GeneratedMutatedNewContainer(DateGenerator dg) {
-		PseudoSequenceContainer new_container = container.MutateByApplyingOptionalConstraint(dg);
-		return new_container;
+//		PseudoSequenceContainer new_container = container.MutateByApplyingOptionalConstraint(dg);
+//		return new_container;
+		return null;
 	}
 
 	@Override
