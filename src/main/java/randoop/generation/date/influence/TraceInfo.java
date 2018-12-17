@@ -116,7 +116,7 @@ public class TraceInfo {
 //		return optional_constraint;
 //	}
 	
-	public boolean HasBranches() {
+	public boolean BranchesExistInTrace() {
 		return vobs.size() > 0;
 	}
 	
