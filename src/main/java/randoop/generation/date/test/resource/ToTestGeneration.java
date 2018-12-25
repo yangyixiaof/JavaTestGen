@@ -6,6 +6,12 @@ public class ToTestGeneration {
 
 	public ToTestGeneration() {
 	}
+	
+	public void ToTest(String number) {
+		if (Integer.parseInt(number) == 4) {
+			System.out.println("Number 4");
+		}
+	}
 
 	public String HeiHei(int a) {
 		if (a == 102) {

@@ -1,20 +1,14 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.influence.TraceInfo;
-import randoop.generation.date.mutation.deprecate.Mutation;
-import randoop.generation.date.mutation.deprecate.TypedOperationMutation;
-import randoop.generation.date.operation.OperationKind;
-import randoop.generation.date.util.ClassUtil;
 import randoop.operation.TypedOperation;
 
 public class PseudoSequenceContainer implements Rewardable {
@@ -88,6 +82,10 @@ public class PseudoSequenceContainer implements Rewardable {
 	// public TraceInfo GetLastTraceInfo() {
 	// return infos.get(infos.size() - 1);
 	// }
+
+	public TraceInfo GetTraceInfo() {
+		return trace_info;
+	}
 
 	public LinkedSequence GenerateLinkedSequence() {
 		return end.GenerateLinkedSequence();
@@ -198,76 +196,120 @@ public class PseudoSequenceContainer implements Rewardable {
 		return new Reward(0.1);
 	}
 
-	public List<Mutation> UntriedMutations(DateGenerator dg) {
-		// Map<TypedOperation, Class<?>> operation_class,
-		// Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations,
-		// Map<TypedOperation, InfluenceOfBranchChange>
-		// typed_operation_branch_influence,
-		// Map<PseudoVariable, Class<?>> pseudo_variable_class
-		HashMap<TypedOperation, HashSet<PseudoVariable>> op_vars = new HashMap<TypedOperation, HashSet<PseudoVariable>>();
-		Set<Class<?>> classes = dg.for_use_object_modify_operations.keySet();
-		// System.out.println("===== clses start =====");
-		// for (Class<?> cls : classes) {
-		// System.out.println("b_cls:" + cls);
-		// }
-		// System.out.println("===== clses end =====");
-		HashSet<PseudoVariable> variables = new HashSet<PseudoVariable>();
-		if (BranchesExistInTrace()) {
-			HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
-			end.BuildValidDependantPseudoVariables(variables, encountered, dg);
-		} else {
-			variables.add(end.headed_variable);
-		}
-		for (PseudoVariable var : variables) {
-			Class<?> var_class = dg.pseudo_variable_class.get(var);
-			if (var_class != null) {
-				// System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
-				// System.out.println("var.sequence.getClass():" + var.sequence.getClass());
-				Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes, var_class);
-				// System.out.println("===== classes start =====");
-				// System.out.println("var_class:" + var_class);
-				// for (Class<?> cls : could_assign_classes) {
-				// System.out.println("cls:" + cls);
-				// }
-				// System.out.println("===== classes end =====");
-				ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
-				for (Class<?> ca_cls : could_assign_classes) {
-					tos.addAll(dg.for_use_object_modify_operations.get(ca_cls));
-				}
-				// System.out.println("just#tos.size():" + tos.size());
-				for (TypedOperation to : tos) {
-					if (!BranchesExistInTrace()) {
-						OperationKind ok = dg.operation_kind.get(to);
-						if (ok != null && ok.equals(OperationKind.no_branch)) {
-							continue;
-						}
-					}
-					HashSet<PseudoVariable> pvs = op_vars.get(to);
-					if (pvs == null) {
-						pvs = new HashSet<PseudoVariable>();
-						op_vars.put(to, pvs);
-					}
-					PseudoSequence seq = dg.pseudo_variable_headed_sequence.get(var);
-					Integer to_count = seq.operation_use_count.get(to);
-					if (to_count == null || to_count == 0) {
-						pvs.add(var);
-					}
-				}
+	public void ResetMutate(DateGenerator dg) {
+		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
+		int s_len = string_sequences.size();
+		if (s_len > 0) {
+			for (int i = 0; i < s_len; i++) {
+				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
+				to_mutate_sequence.ResetMutateString(dg);
 			}
 		}
-		List<Mutation> mutations = new LinkedList<Mutation>();
-		Set<TypedOperation> tos = op_vars.keySet();
-		// System.out.println("tos.size():" + tos.size());
-		for (TypedOperation to : tos) {
-			HashSet<PseudoVariable> pvs = op_vars.get(to);
-			if (pvs.size() > 0) {
-				TypedOperationMutation tom = new TypedOperationMutation(dg.typed_operation_branch_influence.get(to), to,
-						pvs);
-				mutations.add(tom);
-			}
-		}
-		return mutations;
 	}
+
+	public BeforeAfterLinkedSequence Mutate(DateGenerator dg) {
+		// // here should be specified Mutation for string
+		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
+		int s_len = string_sequences.size();
+		if (s_len > 0) {
+			for (int i = 0; i < s_len; i++) {
+				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
+				BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
+				if (mutated != null) {
+					return mutated;
+				}
+			}
+		}
+		return null;
+	}
+
+	private ArrayList<StringPseudoSequence> FetchAllStringPseudoSequences() {
+		ArrayList<StringPseudoSequence> string_sequences = new ArrayList<StringPseudoSequence>();
+		Iterator<PseudoSequence> seq_itr = contained_sequences.iterator();
+		while (seq_itr.hasNext()) {
+			PseudoSequence ps = seq_itr.next();
+			if (ps instanceof StringPseudoSequence) {
+				string_sequences.add((StringPseudoSequence) ps);
+			}
+		}
+		return string_sequences;
+	}
+
+	// public List<Mutation> UntriedMutations(DateGenerator dg) {
+	//
+	//
+	// // Map<TypedOperation, Class<?>> operation_class,
+	// // Map<Class<?>, ArrayList<TypedOperation>> for_use_object_modify_operations,
+	// // Map<TypedOperation, InfluenceOfBranchChange>
+	// // typed_operation_branch_influence,
+	// // Map<PseudoVariable, Class<?>> pseudo_variable_class
+	// HashMap<TypedOperation, HashSet<PseudoVariable>> op_vars = new
+	// HashMap<TypedOperation, HashSet<PseudoVariable>>();
+	// Set<Class<?>> classes = dg.for_use_object_modify_operations.keySet();
+	// // System.out.println("===== clses start =====");
+	// // for (Class<?> cls : classes) {
+	// // System.out.println("b_cls:" + cls);
+	// // }
+	// // System.out.println("===== clses end =====");
+	// HashSet<PseudoVariable> variables = new HashSet<PseudoVariable>();
+	// if (BranchesExistInTrace()) {
+	// HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
+	// end.BuildValidDependantPseudoVariables(variables, encountered, dg);
+	// } else {
+	// variables.add(end.headed_variable);
+	// }
+	// for (PseudoVariable var : variables) {
+	// Class<?> var_class = dg.pseudo_variable_class.get(var);
+	// if (var_class != null) {
+	// // System.out.println("Ha#e_pv:" + var + "#out_class:" + var_class);
+	// // System.out.println("var.sequence.getClass():" + var.sequence.getClass());
+	// Set<Class<?>> could_assign_classes = ClassUtil.GetSuperClasses(classes,
+	// var_class);
+	// // System.out.println("===== classes start =====");
+	// // System.out.println("var_class:" + var_class);
+	// // for (Class<?> cls : could_assign_classes) {
+	// // System.out.println("cls:" + cls);
+	// // }
+	// // System.out.println("===== classes end =====");
+	// ArrayList<TypedOperation> tos = new ArrayList<TypedOperation>();
+	// for (Class<?> ca_cls : could_assign_classes) {
+	// tos.addAll(dg.for_use_object_modify_operations.get(ca_cls));
+	// }
+	// // System.out.println("just#tos.size():" + tos.size());
+	// for (TypedOperation to : tos) {
+	// if (!BranchesExistInTrace()) {
+	// OperationKind ok = dg.operation_kind.get(to);
+	// if (ok != null && ok.equals(OperationKind.no_branch)) {
+	// continue;
+	// }
+	// }
+	// HashSet<PseudoVariable> pvs = op_vars.get(to);
+	// if (pvs == null) {
+	// pvs = new HashSet<PseudoVariable>();
+	// op_vars.put(to, pvs);
+	// }
+	// PseudoSequence seq = dg.pseudo_variable_headed_sequence.get(var);
+	// Integer to_count = seq.operation_use_count.get(to);
+	// if (to_count == null || to_count == 0) {
+	// pvs.add(var);
+	// }
+	// }
+	// }
+	// }
+	// List<Mutation> mutations = new LinkedList<Mutation>();
+	// Set<TypedOperation> tos = op_vars.keySet();
+	// // System.out.println("tos.size():" + tos.size());
+	// for (TypedOperation to : tos) {
+	// HashSet<PseudoVariable> pvs = op_vars.get(to);
+	// if (pvs.size() > 0) {
+	// TypedOperationMutation tom = new
+	// TypedOperationMutation(dg.typed_operation_branch_influence.get(to), to,
+	// pvs);
+	// mutations.add(tom);
+	// }
+	// }
+	// return mutations;
+	// }
 
 	// public void AddObligatoryConstraint(PseudoVariableConstraint pvc) {
 	// obligatory_tcs.add(pvc);
@@ -282,10 +324,10 @@ public class PseudoSequenceContainer implements Rewardable {
 		return super.toString() + end.GenerateLinkedSequence().toCodeString();
 	}
 
-	private boolean BranchesExistInTrace() {
-//		return infos.get(infos.size() - 1).HasBranches();
-		return trace_info.BranchesExistInTrace();
-	}
+	// private boolean BranchesExistInTrace() {
+	// return infos.get(infos.size() - 1).HasBranches();
+	// return trace_info.BranchesExistInTrace();
+	// }
 
 	public TypedOperation GetEndedTypedOperation() {
 		PseudoStatement pstmt = end.GetLastStatement();

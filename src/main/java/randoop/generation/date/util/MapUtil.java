@@ -8,7 +8,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
-import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.operation.OperationKind;
 import randoop.operation.TypedOperation;
 
@@ -47,7 +46,7 @@ public class MapUtil {
 			}
 			tos.add(op);
 			// only modify operations have influence change. 
-			dg.typed_operation_branch_influence.put(op, new InfluenceOfBranchChange());
+//			dg.typed_operation_branch_influence.put(op, new InfluenceOfBranchChange());
 		}
 		dg.operation_class.put(op, op_for_class);
 		dg.operation_is_to_create.put(op, is_to_create);

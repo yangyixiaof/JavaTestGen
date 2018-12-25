@@ -6,12 +6,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -23,36 +21,24 @@ import randoop.generation.ComponentManager;
 import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
 import randoop.generation.date.influence.BranchStateSummary;
-import randoop.generation.date.influence.Influence;
-import randoop.generation.date.influence.InfluenceOfBranchChange;
-import randoop.generation.date.influence.ObjectAddressConstraint;
-import randoop.generation.date.influence.ObjectAddressSameConstraint;
-import randoop.generation.date.influence.ObjectAddressTypeConstraint;
+import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.influence.TraceReader;
-import randoop.generation.date.mutation.deprecate.Mutated;
-import randoop.generation.date.mutation.deprecate.Mutation;
-import randoop.generation.date.mutation.deprecate.ObjectConstraintMutated;
-import randoop.generation.date.mutation.deprecate.TypedOperationMutated;
 import randoop.generation.date.operation.OperationKind;
 import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.runtime.DateRuntimeSupport;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
-import randoop.generation.date.sequence.NumberPseudoSequence;
 import randoop.generation.date.sequence.DisposablePseudoSequence;
 import randoop.generation.date.sequence.LinkedSequence;
+import randoop.generation.date.sequence.NumberPseudoSequence;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.sequence.StringPseudoSequence;
 import randoop.generation.date.sequence.TraceableSequence;
-import randoop.generation.date.sequence.constraint.PseudoVariableAddressSameConstraint;
-import randoop.generation.date.sequence.constraint.PseudoVariableConstraint;
-import randoop.generation.date.sequence.constraint.PseudoVariableTypeConstraint;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.test.SequenceGenerator;
-import randoop.generation.date.util.ClassUtil;
 import randoop.generation.date.util.MapUtil;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
@@ -79,8 +65,11 @@ public class DateGenerator extends AbstractGenerator {
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
 
 	// influence for typed operation
-	public Map<TypedOperation, InfluenceOfBranchChange> typed_operation_branch_influence = new HashMap<TypedOperation, InfluenceOfBranchChange>();
-//	public InfluenceOfBranchChange object_constraint_branch_influence = new InfluenceOfBranchChange();
+	// public Map<TypedOperation, InfluenceOfBranchChange>
+	// typed_operation_branch_influence = new HashMap<TypedOperation,
+	// InfluenceOfBranchChange>();
+	// public InfluenceOfBranchChange object_constraint_branch_influence = new
+	// InfluenceOfBranchChange();
 
 	// typed operation runtime information
 	public Map<TypedOperation, OperationKind> operation_kind = new HashMap<TypedOperation, OperationKind>();
@@ -88,7 +77,7 @@ public class DateGenerator extends AbstractGenerator {
 	// runtime information
 	public Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence = new HashMap<PseudoVariable, PseudoSequence>();
 	public Map<Class<?>, ArrayList<PseudoVariable>> class_pseudo_variable = new HashMap<Class<?>, ArrayList<PseudoVariable>>();
-	public Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>(); 
+	public Map<PseudoVariable, Class<?>> pseudo_variable_class = new HashMap<PseudoVariable, Class<?>>();
 	public Map<PseudoVariable, String> pseudo_variable_content = new HashMap<PseudoVariable, String>();
 	public Set<PseudoVariable> pseudo_variable_with_null_value = new HashSet<PseudoVariable>();
 	// Map<PseudoVariable, BranchValueState> pseudo_variable_branch_value_state =
@@ -123,13 +112,16 @@ public class DateGenerator extends AbstractGenerator {
 	// private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 	private static final SimpleList<Statement> empty_statements = new Sequence().statements;
 
-	public static final int trying_maximum_steps = 10;
-	int trying_total_steps = 0;
-	int trying_step = 1;
-	int trying_remain_steps = -1;
+	// public static final int trying_maximum_steps = 10;
+	// int trying_total_steps = 0;
+	// int trying_step = 1;
+	// int trying_remain_steps = -1;
 	PseudoSequenceContainer current_container = null;
 	// pseudo sequence containers
-	public TreeMap<Integer, HashSet<PseudoSequenceContainer>> mutated_number_pseudo_sequence_container_map = new TreeMap<Integer, HashSet<PseudoSequenceContainer>>();
+	// public TreeMap<Integer, HashSet<PseudoSequenceContainer>>
+	// mutated_number_pseudo_sequence_container_map = new TreeMap<Integer,
+	// HashSet<PseudoSequenceContainer>>();
+	HashSet<PseudoSequenceContainer> containers = new HashSet<PseudoSequenceContainer>();
 
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
 			GenInputsAbstract.Limits limits, ComponentManager componentManager,
@@ -227,11 +219,12 @@ public class DateGenerator extends AbstractGenerator {
 		// checkGenerator);");
 		// System.out.println(eSeq);
 
-		TraceInfo before_trace = previous_container == null ? null : previous_container.GetLastTraceInfo();
+		TraceInfo before_trace = previous_container == null ? null : previous_container.GetTraceInfo();
 		// recorded_traces.get(n_cmp_sequence.GetBeforeLinkedSequence().toParsableString());
 
-		System.out.println("Executing sequence: size:" + n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
-				+ n_cmp_sequence.GetAfterLinkedSequence());
+		// System.out.println("Executing sequence: size:" +
+		// n_cmp_sequence.GetAfterLinkedSequence().size() + "#"
+		// + n_cmp_sequence.GetAfterLinkedSequence());
 		ExecutableSequence eSeq = new ExecutableSequence(n_cmp_sequence.GetAfterLinkedSequence());
 
 		// try {
@@ -260,44 +253,55 @@ public class DateGenerator extends AbstractGenerator {
 		// analyze trace and compute influence.
 		String after_trace_info = TracePrintController.GetPrintedTrace();
 
-		// TODO 记得添加
 		// System.out.println("one trace:" + after_trace_info);
 		// if (!after_trace_info.equals("")) {
 		// System.exit(1);
 		// }
 
-		ArrayList<TraceInfo> after_traces = TraceReader.HandleOneTrace(after_trace_info);
-		System.out.println("=== print traces begin ===");
-		for (TraceInfo a_t_i : after_traces) {
-			System.out.println("one_a_t_i:" + a_t_i);
-		}
-		System.out.println("=== print traces end ===");
-		newly_created_container.SetTraceInfo(after_traces);
-		TraceInfo after_trace = after_traces.get(after_traces.size() - 1);
+		// ArrayList<TraceInfo> after_traces =
+		// TraceReader.HandleOneTrace(after_trace_info);
+		// System.out.println("=== print traces begin ===");
+		// for (TraceInfo a_t_i : after_traces) {
+		// System.out.println("one_a_t_i:" + a_t_i);
+		// }
+		// System.out.println("=== print traces end ===");
+		// newly_created_container.SetTraceInfo(after_traces);
+		// TraceInfo after_trace = after_traces.get(after_traces.size() - 1);
 		// recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(),
 		// after_trace);
 
-		String branch_state_representation_before = branch_state.RepresentationOfUnCoveredBranchWithState();
-		Map<String, Influence> all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state, n_cmp_sequence.GetMutated(),
-				before_trace, after_trace);
-		// n_cmp_sequence.GetPseudoSequence().SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
-		String branch_state_representation_after = branch_state.RepresentationOfUnCoveredBranchWithState();
-		if (!branch_state_representation_before.equals(branch_state_representation_after)) {
-			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
-		}
+		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 
-		TypedOperation applied_to = n_cmp_sequence.GetTypedOperation();
+		// String branch_state_representation_before =
+		// branch_state.RepresentationOfUnCoveredBranchWithState();
+
+		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
+				n_cmp_sequence.GetMutation(), before_trace, after_trace);
+		// TODO handle all_branches_influences
+
+		// n_cmp_sequence.GetPseudoSequence().SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+		// String branch_state_representation_after =
+		// branch_state.RepresentationOfUnCoveredBranchWithState();
+		// if
+		// (!branch_state_representation_before.equals(branch_state_representation_after))
+		// {
+		// allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
+		// }
+
+		// TypedOperation applied_to = n_cmp_sequence.GetTypedOperation();
 		// set up influence of the modified TypedOperation
-		if (applied_to == null) {
-			// object constraint
-			object_constraint_branch_influence.AddInfluenceOfBranches(all_branches_influences);
-		} else {
-			// typed operation
-			InfluenceOfBranchChange branch_influence_operation = typed_operation_branch_influence
-					.get(n_cmp_sequence.GetTypedOperation());
-			if (branch_influence_operation != null)
-				branch_influence_operation.AddInfluenceOfBranches(all_branches_influences);
-		}
+		// if (applied_to == null) {
+		// object constraint
+		// object_constraint_branch_influence.AddInfluenceOfBranches(all_branches_influences);
+		// } else {
+		// typed operation
+		// InfluenceOfBranchChange branch_influence_operation =
+		// typed_operation_branch_influence
+		// .get(n_cmp_sequence.GetTypedOperation());
+		// if (branch_influence_operation != null)
+		// branch_influence_operation.AddInfluenceOfBranches(all_branches_influences);
+		// }
+
 		// if (branch_influence_operation == null) {
 		// branch_influence_operation = new InfluenceOfBranchChange();
 		// typed_operation_branch_influence.put(n_cmp_sequence.GetTypedOperation(),
@@ -392,50 +396,54 @@ public class DateGenerator extends AbstractGenerator {
 		}
 
 		// set up influence for this operation
-		Mutated mutated = n_cmp_sequence.GetMutated();
-		if (mutated instanceof ObjectConstraintMutated) {
-			// do nothing now.
-		}
-		if (mutated instanceof TypedOperationMutated) {
-			TypedOperationMutated tom = (TypedOperationMutated) mutated;
-			if (tom.HasReturnedPseudoVariable()) {
-				PseudoVariable pv = tom.GetReturnedPseudoVariable();
-				Class<?> cls = pseudo_variable_class.get(pv);
-				if (cls != null) {
-					PseudoSequence selected_pv_headed_sequence = pseudo_variable_headed_sequence.get(pv);
-					if (selected_pv_headed_sequence == null) {
-						Set<Class<?>> base_classes = for_use_object_create_sequence_type.keySet();
-						Set<Class<?>> classes = ClassUtil.GetSuperClasses(base_classes, cls);
-						if (classes.size() > 1) {
-							classes.remove(Object.class);
-						}
-						Class<?> sequence_type = for_use_object_create_sequence_type.get(classes.iterator().next());
-						selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
-						selected_pv_headed_sequence.SetHeadedVariable(pv);
-						selected_pv_headed_sequence.SetContainer(newly_created_container);
-						newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
-						pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
-					}
-					// if (tom instanceof DeltaChangeTypedOperationMutated) {
-					// ((DeltaChangePseudoSequence) selected_pv_headed_sequence)
-					// .SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
-					// }
-				}
-			}
-			if (tom.IsMutatingVariable()) {
-				PseudoVariable in_use_var = tom.GetInUseMutatedPseudoVariable();
-				Class<?> in_use_var_cls = pseudo_variable_class.get(in_use_var);
-				if (in_use_var_cls != null) {
-					PseudoSequence in_use_var_headed_sequence = pseudo_variable_headed_sequence.get(in_use_var);
-					Assert.isTrue(in_use_var_headed_sequence != null);
-					in_use_var_headed_sequence.AddInfluenceOfBranchesForHeadedVariable(all_branches_influences);
-				}
-			}
-		}
+		// Mutated mutated = n_cmp_sequence.GetMutated();
+		// if (mutated instanceof ObjectConstraintMutated) {
+		// do nothing now.
+		// }
+		// if (mutated instanceof TypedOperationMutated) {
+		// TypedOperationMutated tom = (TypedOperationMutated) mutated;
+		// if (tom.HasReturnedPseudoVariable()) {
+		// PseudoVariable pv = tom.GetReturnedPseudoVariable();
+		// Class<?> cls = pseudo_variable_class.get(pv);
+		// if (cls != null) {
+		// PseudoSequence selected_pv_headed_sequence =
+		// pseudo_variable_headed_sequence.get(pv);
+		// if (selected_pv_headed_sequence == null) {
+		// Set<Class<?>> base_classes = for_use_object_create_sequence_type.keySet();
+		// Set<Class<?>> classes = ClassUtil.GetSuperClasses(base_classes, cls);
+		// if (classes.size() > 1) {
+		// classes.remove(Object.class);
+		// }
+		// Class<?> sequence_type =
+		// for_use_object_create_sequence_type.get(classes.iterator().next());
+		// selected_pv_headed_sequence = CreatePseudoSequence(sequence_type);
+		// selected_pv_headed_sequence.SetHeadedVariable(pv);
+		// selected_pv_headed_sequence.SetContainer(newly_created_container);
+		// newly_created_container.AddPseudoSequence(selected_pv_headed_sequence);
+		// pseudo_variable_headed_sequence.put(pv, selected_pv_headed_sequence);
+		// }
+		// if (tom instanceof DeltaChangeTypedOperationMutated) {
+		// ((DeltaChangePseudoSequence) selected_pv_headed_sequence)
+		// .SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
+		// }
+		// }
+		// }
+		// if (tom.IsMutatingVariable()) {
+		// PseudoVariable in_use_var = tom.GetInUseMutatedPseudoVariable();
+		// Class<?> in_use_var_cls = pseudo_variable_class.get(in_use_var);
+		// if (in_use_var_cls != null) {
+		// PseudoSequence in_use_var_headed_sequence =
+		// pseudo_variable_headed_sequence.get(in_use_var);
+		// Assert.isTrue(in_use_var_headed_sequence != null);
+		// in_use_var_headed_sequence.AddInfluenceOfBranchesForHeadedVariable(all_branches_influences);
+		// }
+		// }
+		// }
 		// process object address related constraints
-//		ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace, newly_created_container,
-//				address_variable_map);
-		if (running_with_exception && !newly_created_container.HasUnsolvedObligatoryConstraint()) {
+		// ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace,
+		// newly_created_container,
+		// address_variable_map);
+		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
 			// pseudo_sequence_containers.remove(newly_created_container);
 			for (int i = 0; i < e_size; i++) {
@@ -454,28 +462,31 @@ public class DateGenerator extends AbstractGenerator {
 					}
 				}
 			}
-			current_container = null;
+			// current_container = null;
 		} else {
-			int mutated_number = newly_created_container.GetMutatedNumber();
-			HashSet<PseudoSequenceContainer> sequence_set = mutated_number_pseudo_sequence_container_map
-					.get(mutated_number);
-			if (sequence_set == null) {
-				sequence_set = new HashSet<PseudoSequenceContainer>();
-				mutated_number_pseudo_sequence_container_map.put(mutated_number, sequence_set);
-			}
-			sequence_set.add(newly_created_container);
-			TypedOperation ended_to = newly_created_container.GetEndedTypedOperation();
-			OperationKind ok = operation_kind.get(ended_to);
-			if (ok == null) {
-				ok = OperationKind.unknown;
-			}
-			if (newly_created_container.HasBranches()) {
-				ok = ok.BitOr(OperationKind.branch);
-			} else {
-				ok = ok.BitOr(OperationKind.no_branch);
-			}
-			operation_kind.put(ended_to, ok);
-			current_container = newly_created_container;
+			containers.add(newly_created_container);
+			// int mutated_number = newly_created_container.GetMutatedNumber();
+			// HashSet<PseudoSequenceContainer> sequence_set =
+			// mutated_number_pseudo_sequence_container_map
+			// .get(mutated_number);
+			// if (sequence_set == null) {
+			// sequence_set = new HashSet<PseudoSequenceContainer>();
+			// mutated_number_pseudo_sequence_container_map.put(mutated_number,
+			// sequence_set);
+			// }
+			// sequence_set.add(newly_created_container);
+			// TypedOperation ended_to = newly_created_container.GetEndedTypedOperation();
+			// OperationKind ok = operation_kind.get(ended_to);
+			// if (ok == null) {
+			// ok = OperationKind.unknown;
+			// }
+			// if (newly_created_container.HasBranches()) {
+			// ok = ok.BitOr(OperationKind.branch);
+			// } else {
+			// ok = ok.BitOr(OperationKind.no_branch);
+			// }
+			// operation_kind.put(ended_to, ok);
+			// current_container = newly_created_container;
 		}
 		// if (newly_created_container.HasUnsolvedConstraint()) {
 		// pseudo_sequence_optional_constraint_containers.add(newly_created_container);
@@ -519,55 +530,61 @@ public class DateGenerator extends AbstractGenerator {
 		return eSeq;
 	}
 
-//	private void ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info,
-//			PseudoSequenceContainer container, Map<Integer, PseudoVariable> address_variable_map) {
-//		LinkedList<ObjectAddressConstraint> obcs = info.GetObligatoryConstraint();
-//		for (ObjectAddressConstraint oac : obcs) {
-//			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
-//			if (pvc != null) {
-//				container.AddObligatoryConstraint(pvc);
-//			}
-//		}
-//		LinkedList<ObjectAddressConstraint> opcs = info.GetOptionalConstraint();
-//		for (ObjectAddressConstraint oac : opcs) {
-//			PseudoVariableConstraint pvc = HandleOneObjectAddressConstraint(address_variable_map, oac);
-//			if (pvc != null) {
-//				container.AddOptionalConstraint(pvc);
-//			}
-//		}
-//	}
-//
-//	private PseudoVariableConstraint HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable> address_variable_map,
-//			ObjectAddressConstraint oac) {
-//		if (oac instanceof ObjectAddressTypeConstraint) {
-//			ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint) oac;
-//			int ad = oatc.GetObjectAddress();
-//			Class<?> spec_type = oatc.GetType();
-//			PseudoVariable pv = address_variable_map.get(ad);
-//			if (pv != null) {
-//				Class<?> pv_cls = pseudo_variable_class.get(pv);
-//				if (pv_cls != null) {
-//					boolean type_match = spec_type.isAssignableFrom(pv_cls);
-//					if (oatc.IsObligatory() && type_match) {
-//						// do nothing.
-//					} else {
-//						return new PseudoVariableTypeConstraint(pv, spec_type, !type_match);
-//					}
-//				}
-//			}
-//		}
-//		if (oac instanceof ObjectAddressSameConstraint) {
-//			ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint) oac;
-//			int ad1 = oasc.GetAddressOne();
-//			int ad2 = oasc.GetAddressTwo();
-//			PseudoVariable pv1 = address_variable_map.get(ad1);
-//			PseudoVariable pv2 = address_variable_map.get(ad2);
-//			if (pv1 != null && pv2 != null) {
-//				return new PseudoVariableAddressSameConstraint(pv1, pv2);
-//			}
-//		}
-//		return null;
-//	}
+	// private void
+	// ProcessObjectAddressConstraintToPseudoVariableConstraint(TraceInfo info,
+	// PseudoSequenceContainer container, Map<Integer, PseudoVariable>
+	// address_variable_map) {
+	// LinkedList<ObjectAddressConstraint> obcs = info.GetObligatoryConstraint();
+	// for (ObjectAddressConstraint oac : obcs) {
+	// PseudoVariableConstraint pvc =
+	// HandleOneObjectAddressConstraint(address_variable_map, oac);
+	// if (pvc != null) {
+	// container.AddObligatoryConstraint(pvc);
+	// }
+	// }
+	// LinkedList<ObjectAddressConstraint> opcs = info.GetOptionalConstraint();
+	// for (ObjectAddressConstraint oac : opcs) {
+	// PseudoVariableConstraint pvc =
+	// HandleOneObjectAddressConstraint(address_variable_map, oac);
+	// if (pvc != null) {
+	// container.AddOptionalConstraint(pvc);
+	// }
+	// }
+	// }
+	//
+	// private PseudoVariableConstraint
+	// HandleOneObjectAddressConstraint(Map<Integer, PseudoVariable>
+	// address_variable_map,
+	// ObjectAddressConstraint oac) {
+	// if (oac instanceof ObjectAddressTypeConstraint) {
+	// ObjectAddressTypeConstraint oatc = (ObjectAddressTypeConstraint) oac;
+	// int ad = oatc.GetObjectAddress();
+	// Class<?> spec_type = oatc.GetType();
+	// PseudoVariable pv = address_variable_map.get(ad);
+	// if (pv != null) {
+	// Class<?> pv_cls = pseudo_variable_class.get(pv);
+	// if (pv_cls != null) {
+	// boolean type_match = spec_type.isAssignableFrom(pv_cls);
+	// if (oatc.IsObligatory() && type_match) {
+	// // do nothing.
+	// } else {
+	// return new PseudoVariableTypeConstraint(pv, spec_type, !type_match);
+	// }
+	// }
+	// }
+	// }
+	// if (oac instanceof ObjectAddressSameConstraint) {
+	// ObjectAddressSameConstraint oasc = (ObjectAddressSameConstraint) oac;
+	// int ad1 = oasc.GetAddressOne();
+	// int ad2 = oasc.GetAddressTwo();
+	// PseudoVariable pv1 = address_variable_map.get(ad1);
+	// PseudoVariable pv2 = address_variable_map.get(ad2);
+	// if (pv1 != null && pv2 != null) {
+	// return new PseudoVariableAddressSameConstraint(pv1, pv2);
+	// }
+	// }
+	// return null;
+	// }
 
 	private BeforeAfterLinkedSequence CreateNewCompareSequence() {
 		// select create operations.
@@ -600,26 +617,26 @@ public class DateGenerator extends AbstractGenerator {
 			// "#instantiated typed operation:" + could_use_to);
 			// System.exit(1);
 			// }
-			ArrayList<String> interested_branch = branch_state.GetSortedUnCoveredBranches();
-			// TODO 记得删除
+			// ArrayList<String> interested_branch =
+			// branch_state.GetSortedUnCoveredBranches();
 			// System.out.println("interested branch size:" + interested_branch.size());
-			for (String ib : interested_branch) {
-				System.out.println("interested branch:" + ib);
-			}
-			if (interested_branch.size() > 0) {
-				System.out.println("encountering interested branch!");
-				// System.exit(1);
-			}
+			// for (String ib : interested_branch) {
+			// System.out.println("interested branch:" + ib);
+			// }
+			// if (interested_branch.size() > 0) {
+			// System.out.println("encountering interested branch!");
+			// System.exit(1);
+			// }
 			// if () {
 			//
 			// } else
 			// {
 			// if (selected_to.isStatic()) {
-			// TODO 两个选择: create a new one, append to last, if implemented, add the
+			// create a new one, append to last, if implemented, add the
 			// mechanism for API sequence (object state).
 			// } else
 			// {
-			List<Mutation> mutations = new LinkedList<Mutation>();
+			// List<Mutation> mutations = new LinkedList<Mutation>();
 			// if (mutations.size() == 0) {
 			// if (Math.random() > 0.6) {
 			// // handle obligatory constraint
@@ -657,24 +674,39 @@ public class DateGenerator extends AbstractGenerator {
 			// handle non obligatory constraint and typed operation
 			// first select a container, then select typed operation
 			// PseudoSequenceContainer selected_container = null;
-			if (current_container != null && trying_remain_steps > 0) {
-				trying_remain_steps--;
-				mutations.addAll(GenerateMutationsFromOneContainer(current_container));
-			} else {
-				trying_remain_steps = trying_maximum_steps;
-				while (mutations.size() == 0
-						&& trying_total_steps <= mutated_number_pseudo_sequence_container_map.size()) {
-					HashSet<PseudoSequenceContainer> containers = mutated_number_pseudo_sequence_container_map
-							.get(trying_total_steps);
-					if (containers == null) {
-						trying_total_steps += trying_step;
-						continue;
-					}
-					for (PseudoSequenceContainer one_container : containers) {
-						mutations.addAll(GenerateMutationsFromOneContainer(one_container));
-					}
+
+			// if (current_container != null && trying_remain_steps > 0) {
+			// trying_remain_steps--;
+			// mutations.addAll(GenerateMutationsFromOneContainer(current_container));
+			// } else {
+			// trying_remain_steps = trying_maximum_steps;
+			// while (mutations.size() == 0
+			// && trying_total_steps <= mutated_number_pseudo_sequence_container_map.size())
+			// {
+			// HashSet<PseudoSequenceContainer> containers =
+			// mutated_number_pseudo_sequence_container_map
+			// .get(trying_total_steps);
+			// if (containers == null) {
+			// trying_total_steps += trying_step;
+			// continue;
+			// }
+			// for (PseudoSequenceContainer one_container : containers) {
+			// mutations.addAll(GenerateMutationsFromOneContainer(one_container));
+			// }
+			// }
+			// }
+
+			if (current_container != null) {
+				BeforeAfterLinkedSequence result = current_container.Mutate(this);
+				if (result == null) {
+					current_container.ResetMutate(this);
+					current_container = (PseudoSequenceContainer) RandomSelect
+							.RandomElementFromSetByRewardableElements(containers, null, null);
+				} else {
+					return result;
 				}
 			}
+
 			// (PseudoSequenceContainer) RandomSelect
 			// .RandomElementFromSetByRewardableElements(pseudo_sequence_containers,
 			// interested_branch,
@@ -714,12 +746,14 @@ public class DateGenerator extends AbstractGenerator {
 			// TypedOperationMutation(typed_operation_branch_influence.get(best_op),
 			// best_op, selected_vars));
 			// }
-			Mutation one_mutate = (Mutation) RandomSelect.RandomElementFromSetByRewardableElements(mutations,
-					interested_branch, null);
-			if (one_mutate != null) {
-				BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
-				return result;
-			}
+
+			// Mutation one_mutate = (Mutation)
+			// RandomSelect.RandomElementFromSetByRewardableElements(mutations,
+			// interested_branch, null);
+			// if (one_mutate != null) {
+			// BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
+			// return result;
+			// }
 		}
 		// }
 		// }
@@ -739,20 +773,21 @@ public class DateGenerator extends AbstractGenerator {
 		return created_sequence;
 	}
 
-	public List<Mutation> GenerateMutationsFromOneContainer(PseudoSequenceContainer one_container) {
-		List<Mutation> mutations = new LinkedList<Mutation>();
-		if (one_container.HasUnsolvedObligatoryConstraint()) {
-			mutations.add(one_container.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
-		} else {
-			if (one_container.HasUnsolvedConstraint()) {
-				mutations.add(one_container.GenerateObjectConstraintMutation(object_constraint_branch_influence));
-			}
-			mutations.addAll(one_container.UntriedMutations(this));
-		}
-		return mutations;
-	}
+	// public List<Mutation>
+	// GenerateMutationsFromOneContainer(PseudoSequenceContainer one_container) {
+	// List<Mutation> mutations = new LinkedList<Mutation>();
+	// if (one_container.HasUnsolvedObligatoryConstraint()) {
+	// mutations.add(one_container.GenerateObligatoryObjectConstraintMutation(object_constraint_branch_influence));
+	// } else {
+	// if (one_container.HasUnsolvedConstraint()) {
+	// mutations.add(one_container.GenerateObjectConstraintMutation(object_constraint_branch_influence));
+	// }
+	// mutations.addAll(one_container.UntriedMutations(this));
+	// }
+	// return mutations;
+	// }
 
-	public Class<?> GetSequenceTypeFromTypedOperation(TypedOperation selected_to) {
+	private Class<?> GetSequenceTypeFromTypedOperation(TypedOperation selected_to) {
 		Class<?> selected_to_class = operation_class.get(selected_to);
 		Class<?> sequence_type = for_use_object_create_sequence_type.get(selected_to_class);
 		return sequence_type;
@@ -777,9 +812,8 @@ public class DateGenerator extends AbstractGenerator {
 			ps.SetHeadedVariable(created_pv);
 			pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to,
-					new TypedOperationMutated(ps, true, created_pv, true, created_pv), before_linked_sequence,
-					after_linked_sequence);
+			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence);
+			// new TypedOperationMutated(ps, true, created_pv, true, created_pv)
 		}
 		return null;
 	}
@@ -1065,50 +1099,45 @@ public class DateGenerator extends AbstractGenerator {
 			// operation_is_to_create, typed_operation_branch_influence
 			);
 			TypedOperation char_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateCharacter"));
-			MapUtil.Insert(char_ob, Character.class, NumberPseudoSequence.class, true, false,
-					OperationKind.no_branch, this
+			MapUtil.Insert(char_ob, Character.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation byte_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateByte"));
-			MapUtil.Insert(byte_ob, Byte.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
-					this
+			MapUtil.Insert(byte_ob, Byte.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation short_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateShort"));
-			MapUtil.Insert(short_ob, Short.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
-					this
+			MapUtil.Insert(short_ob, Short.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation int_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateInteger"));
-			MapUtil.Insert(int_ob, Integer.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
-					this
+			MapUtil.Insert(int_ob, Integer.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation long_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateLong"));
-			MapUtil.Insert(long_ob, Long.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
-					this
+			MapUtil.Insert(long_ob, Long.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation float_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateFloat"));
-			MapUtil.Insert(float_ob, Float.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
-					this
+			MapUtil.Insert(float_ob, Float.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation double_ob = TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateDouble"));
-			MapUtil.Insert(double_ob, Double.class, NumberPseudoSequence.class, true, false,
-					OperationKind.no_branch, this
+			MapUtil.Insert(double_ob, Double.class, NumberPseudoSequence.class, true, false, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
@@ -1148,56 +1177,51 @@ public class DateGenerator extends AbstractGenerator {
 			);
 			TypedOperation char_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Character.class, Double.class));
-			MapUtil.Insert(char_ob, Character.class, NumberPseudoSequence.class, false, true,
-					OperationKind.no_branch, this
+			MapUtil.Insert(char_ob, Character.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation byte_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Byte.class, Double.class));
-			MapUtil.Insert(byte_ob, Byte.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
-					this
+			MapUtil.Insert(byte_ob, Byte.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation short_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Short.class, Double.class));
-			MapUtil.Insert(short_ob, Short.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
-					this
+			MapUtil.Insert(short_ob, Short.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation int_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Integer.class, Double.class));
-			MapUtil.Insert(int_ob, Integer.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
-					this
+			MapUtil.Insert(int_ob, Integer.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation long_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Long.class, Double.class));
-			MapUtil.Insert(long_ob, Long.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
-					this
+			MapUtil.Insert(long_ob, Long.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation float_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Float.class, Double.class));
-			MapUtil.Insert(float_ob, Float.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
-					this
+			MapUtil.Insert(float_ob, Float.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence
 			);
 			TypedOperation double_ob = TypedOperation
 					.forMethod(DateRuntimeSupport.class.getMethod("add", Double.class, Double.class));
-			MapUtil.Insert(double_ob, Double.class, NumberPseudoSequence.class, false, true,
-					OperationKind.no_branch, this
+			MapUtil.Insert(double_ob, Double.class, NumberPseudoSequence.class, false, true, OperationKind.no_branch,
+					this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
 			// typed_operation_branch_influence

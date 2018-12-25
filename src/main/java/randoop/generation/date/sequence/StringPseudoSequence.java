@@ -1,15 +1,6 @@
 package randoop.generation.date.sequence;
 
-import java.util.ArrayList;
-
-import org.eclipse.core.runtime.Assert;
-
 import randoop.generation.date.DateGenerator;
-import randoop.generation.date.mutation.deprecate.DeltaChangeTypedOperationMutated;
-import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
-import randoop.operation.TypedOperation;
-import randoop.types.Type;
-import randoop.util.Randomness;
 
 public class StringPseudoSequence extends PseudoSequence {
 	
@@ -19,7 +10,6 @@ public class StringPseudoSequence extends PseudoSequence {
 		// int position = 0;
 		// int delta = 0;
 	// }
-	
 	
 	
 	// position inserted, the position range is 0 ... n, n is the length of content of headed_variable
@@ -34,65 +24,75 @@ public class StringPseudoSequence extends PseudoSequence {
 //		super(pv, operations);
 //	}
 	
-	@Override
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch, DateGenerator dg) {
-		// fetch content of this headed variable
-		String content = dg.pseudo_variable_content.get(headed_variable);
-		// create input variable of operation
-		ArrayList<PseudoVariable> input_variables = new ArrayList<PseudoVariable>();
-		PseudoSequence copied_this = this.CopySelfAndCitersInDeepCloneWay(dg);
-		input_variables.add(copied_this.headed_variable);
-		int position = -1;
-		int character = 0;
-		// insert situation
-		if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.InsertString")) {
-			if (content == null) {
-				// use the default value
-			} else {
-				// select suitable position (random) and suitable character (random) 
-				position = Randomness.nextRandomInt(content.length()+1);
-				character = Randomness.nextRandomInt(200);
-			}
-		} else if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.ChangeDeltaInPositionOfString")) {
-			if (content == null) {
-				// use the default value
-			} else {
-				// select suitable position (random) and suitable character delta (random) 
-				// TODO 实现新的选择逻辑
-				// A A B B C
-				// A B C
-				// 10 20 : 30 40
-				// 11 15 : 20 40
-				
-			}
-		} else {
-			Assert.isTrue(false, "Error! Unsupported operation for String: " + selected_to.toString());
-		}
-		PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
-		PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
-		input_variables.add(position_pv);
-		input_variables.add(character_pv);
-		PseudoVariable new_generated = copied_this.Append(selected_to, input_variables);
-		// generate compare sequences
-		LinkedSequence before_linked_sequence = this.container.GenerateLinkedSequence();
-		LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
-		BeforeAfterLinkedSequence result = new BeforeAfterLinkedSequence(selected_to,
-				new DeltaChangeTypedOperationMutated(copied_this, true, new_generated, true, new_generated),
-				before_linked_sequence, after_linked_sequence);
-		return result;
+//	@Override
+//	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch, DateGenerator dg) {
+//		// fetch content of this headed variable
+//		String content = dg.pseudo_variable_content.get(headed_variable);
+//		// create input variable of operation
+//		ArrayList<PseudoVariable> input_variables = new ArrayList<PseudoVariable>();
+//		PseudoSequence copied_this = this.CopySelfAndCitersInDeepCloneWay(dg);
+//		input_variables.add(copied_this.headed_variable);
+//		int position = -1;
+//		int character = 0;
+//		// insert situation
+//		if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.InsertString")) {
+//			if (content == null) {
+//				// use the default value
+//			} else {
+//				// select suitable position (random) and suitable character (random) 
+//				position = Randomness.nextRandomInt(content.length()+1);
+//				character = Randomness.nextRandomInt(200);
+//			}
+//		} else if (selected_to.toString().startsWith("randoop.generation.date.runtime.DateRuntimeSupport.ChangeDeltaInPositionOfString")) {
+//			if (content == null) {
+//				// use the default value
+//			} else {
+//				// select suitable position (random) and suitable character delta (random) 
+//				// A A B B C
+//				// A B C
+//				// 10 20 : 30 40
+//				// 11 15 : 20 40
+//				
+//			}
+//		} else {
+//			Assert.isTrue(false, "Error! Unsupported operation for String: " + selected_to.toString());
+//		}
+//		PseudoVariable position_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), position);
+//		PseudoVariable character_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(int.class), character);
+//		input_variables.add(position_pv);
+//		input_variables.add(character_pv);
+//		PseudoVariable new_generated = copied_this.Append(selected_to, input_variables);
+//		// generate compare sequences
+//		LinkedSequence before_linked_sequence = this.container.GenerateLinkedSequence();
+//		LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
+//		BeforeAfterLinkedSequence result = new BeforeAfterLinkedSequence(selected_to,
+//				new DeltaChangeTypedOperationMutated(copied_this, true, new_generated, true, new_generated),
+//				before_linked_sequence, after_linked_sequence);
+//		return result;
+//		
+//		// compute whether changing a position is meaningful or not 
+//		// meaningful: the influenced position has not been exactly covered. 
+//		// not meaningful: the influenced position has been exactly covered. 
+//		
+//		// record branch whole structure changing: 
+//		// if changed, e.g, appearance number of one same branch from 4 to 3: it shows that influences really happen. 
+//		// in this situation, we can not decide whether the changes are over, so the changing position should be less selected. 
+//		// this branch whole structure changed, decrease the weights of the selected changing position. 
+//		
+//		// all two schemas must be accompanied with trying-times discount
+//		
+//		// some operations are not in sampling, but in force-executing such as modifying-directly-after-inserting
+//	}
+
+	public void ResetMutateString(DateGenerator dg) {
+		// TODO Auto-generated method stub
 		
-		// compute whether changing a position is meaningful or not 
-		// meaningful: the influenced position has not been exactly covered. 
-		// not meaningful: the influenced position has been exactly covered. 
+	}
+	
+	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
+		// TODO Auto-generated method stub
 		
-		// record branch whole structure changing: 
-		// if changed, e.g, appearance number of one same branch from 4 to 3: it shows that influences really happen. 
-		// in this situation, we can not decide whether the changes are over, so the changing position should be less selected. 
-		// this branch whole structure changed, decrease the weights of the selected changing position. 
-		
-		// all two schemas must be accompanied with trying-times discount
-		
-		// some operations are not in sampling, but in force-executing such as modifying-directly-after-inserting
+		return null;
 	}
 	
 //	@Override

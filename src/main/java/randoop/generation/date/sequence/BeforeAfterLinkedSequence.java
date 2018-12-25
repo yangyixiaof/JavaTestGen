@@ -1,20 +1,23 @@
 package randoop.generation.date.sequence;
 
-import randoop.generation.date.mutation.deprecate.Mutated;
+import randoop.generation.date.mutation.Mutation;
 import randoop.operation.TypedOperation;
 
 public class BeforeAfterLinkedSequence {
 
 	TypedOperation operation = null;
-	Mutated mutated = null;
+//	Mutated mutated = null;
+	Mutation mutation = null;
 	LinkedSequence before_linked_sequence = null;
 	LinkedSequence after_linked_sequence = null;
 
 	// PseudoVariable pseudo_variable, PseudoSequence pseudo_sequence,
-	public BeforeAfterLinkedSequence(TypedOperation operation, Mutated mutated, LinkedSequence before_linked_sequence,
+	// Mutated mutated
+	public BeforeAfterLinkedSequence(TypedOperation operation, Mutation mutation, LinkedSequence before_linked_sequence,
 			LinkedSequence after_linked_sequence) {
 		this.operation = operation;
-		this.mutated = mutated;
+//		this.mutated = mutated;
+		this.mutation = mutation;
 		this.before_linked_sequence = before_linked_sequence;
 		this.after_linked_sequence = after_linked_sequence;
 	}
@@ -23,8 +26,12 @@ public class BeforeAfterLinkedSequence {
 		return operation;
 	}
 	
-	public Mutated GetMutated() {
-		return mutated;
+//	public Mutated GetMutated() {
+//		return mutated;
+//	}
+	
+	public Mutation GetMutation() {
+		return mutation;
 	}
 
 	public LinkedSequence GetBeforeLinkedSequence() {
