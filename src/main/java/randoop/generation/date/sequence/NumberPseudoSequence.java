@@ -6,7 +6,6 @@ import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
-import randoop.generation.date.mutation.deprecate.DeltaChangeTypedOperationMutated;
 import randoop.generation.date.sequence.helper.PrimitiveGeneratorHelper;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.operation.TypedOperation;
@@ -48,13 +47,13 @@ public class NumberPseudoSequence extends PseudoSequence {
 			BeforeAfterLinkedSequence result = null;
 			NumberPseudoSequence ps = (NumberPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);// origin_copied_sequence_map,
 			ps.SetPreviousSequence(this);
-			
+
 			LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
-			
+
 			// compute next delta
 			double next_delta = ComputeNextDleta(interested_branch);
 			ps.delta = next_delta;
-			
+
 			// compute the value which applies the computed delta
 			PseudoVariable pv = ps.GetLastStatement().inputVariables.get(0);
 			TypedOperation op = pv.sequence.GetLastStatement().operation;
@@ -62,24 +61,26 @@ public class NumberPseudoSequence extends PseudoSequence {
 			TypedTermOperation tto = (TypedTermOperation) op;
 			Double term_value = (Double) tto.getValue();
 			term_value += next_delta;
-			
-			// create new primitive int and replace the old variable (pv) with new variable (new_pv). 
-			PseudoVariable new_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(Double.class), term_value);
+
+			// create new primitive int and replace the old variable (pv) with new variable
+			// (new_pv).
+			PseudoVariable new_pv = PrimitiveGeneratorHelper.CreatePrimitiveVariable(Type.forClass(Double.class),
+					term_value);
 			ps.GetLastStatement().inputVariables.set(0, new_pv);
-			PseudoVariable new_mutated = new PseudoVariable(ps, ps.Size() - 1);
-			
+			// PseudoVariable new_mutated = new PseudoVariable(ps, ps.Size() - 1);
+
 			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
-			
-			result = new BeforeAfterLinkedSequence(selected_to,
-					new DeltaChangeTypedOperationMutated(ps, true, new_mutated, true, new_mutated),
+
+			result = new BeforeAfterLinkedSequence(selected_to, null, // new DeltaChangeTypedOperationMutated(ps, true,
+																		// new_mutated, true, new_mutated)
 					before_linked_sequence, after_linked_sequence);
-			
+
 			return result;
 		} else {
 			return super.Mutate(selected_to, interested_branch, dg);
 		}
 	}
-	
+
 	private double ComputeNextDleta(ArrayList<String> interested_branch) {
 		double next_delta = 0.0;
 		double in_use_delta = 0.0;

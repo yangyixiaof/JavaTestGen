@@ -15,7 +15,6 @@ import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
-import randoop.generation.date.mutation.deprecate.TypedOperationMutated;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.util.MapUtil;
 import randoop.operation.TypedOperation;
@@ -89,11 +88,10 @@ public class PseudoSequence implements Rewardable {
 			ps.Append(selected_to, input_pseudo_variables);// , append_to_second_last,
 															// dg.pseudo_variable_headed_sequence
 			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
-			boolean has_return_value = !selected_to.getOutputType().isVoid();
 			result = new BeforeAfterLinkedSequence(selected_to,
-					new TypedOperationMutated(ps, has_return_value,
-							has_return_value ? new PseudoVariable(ps, ps.Size() - 1) : null, true, ps.headed_variable),
-					before_linked_sequence, after_linked_sequence);
+					null, before_linked_sequence, after_linked_sequence);
+			// boolean has_return_value = !selected_to.getOutputType().isVoid();
+			// new TypedOperationMutated(ps, has_return_value, has_return_value ? new PseudoVariable(ps, ps.Size() - 1) : null, true, ps.headed_variable)
 		}
 		if (result != null) {
 			Assert.isTrue(headed_variable != null);

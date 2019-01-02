@@ -3,9 +3,12 @@ package randoop.generation.date.sequence;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.influence.TraceInfo;
@@ -21,6 +24,10 @@ public class PseudoSequenceContainer implements Rewardable {
 	// the following are set up by execution trace
 	// ArrayList<TraceInfo> infos = null;
 	TraceInfo trace_info = null;
+	
+	// the key is meaning the previous trace info
+	Map<TraceInfo, InfluenceOfTraceCompare> influences_compared_to_previous_trace = new TreeMap<TraceInfo, InfluenceOfTraceCompare>();
+	
 	// BranchValueState val_state = null;
 
 	// must satisfied constraint in next generation
@@ -66,7 +73,9 @@ public class PseudoSequenceContainer implements Rewardable {
 	}
 
 	public void SetTraceInfo(TraceInfo info) {
-		this.trace_info = info;
+		if (this.trace_info == null) {
+			this.trace_info = info;
+		}
 	}
 
 	// public void SetTraceInfo(ArrayList<TraceInfo> infos) {
@@ -336,6 +345,10 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	public int GetMutatedNumber() {
 		return mutated_number;
+	}
+
+	public void AddRecentInfluence(TraceInfo previous_trace_info, InfluenceOfTraceCompare all_branches_influences) {
+		influences_compared_to_previous_trace.put(previous_trace_info, all_branches_influences);
 	}
 
 }

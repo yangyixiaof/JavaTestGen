@@ -277,7 +277,8 @@ public class DateGenerator extends AbstractGenerator {
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
 				n_cmp_sequence.GetMutation(), before_trace, after_trace);
-		// TODO handle all_branches_influences
+		newly_created_container.SetTraceInfo(after_trace);
+		newly_created_container.AddRecentInfluence(before_trace, all_branches_influences);
 
 		// n_cmp_sequence.GetPseudoSequence().SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
 		// String branch_state_representation_after =

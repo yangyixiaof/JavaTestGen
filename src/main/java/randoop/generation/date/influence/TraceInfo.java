@@ -18,6 +18,9 @@ public class TraceInfo {
 //	LinkedList<ObjectAddressConstraint> obligatory_constraint = new LinkedList<ObjectAddressConstraint>();
 //	LinkedList<ObjectAddressConstraint> optional_constraint = new LinkedList<ObjectAddressConstraint>();
 	
+	// once set, not changed any more
+	String trace_sig = null;
+	
 	public TraceInfo() {
 	}
 	
@@ -131,17 +134,20 @@ public class TraceInfo {
 //		return sb.toString();
 //	}
 	
-	public String GenerateBranchStateSignature() {
-		StringBuilder builder = new StringBuilder();
-		Set<String> vkeys = vobs.keySet();
-		Iterator<String> vk_itr = vkeys.iterator();
-		while (vk_itr.hasNext()) {
-			String vk = vk_itr.next();
-			InfoOfBranch ib = vobs.get(vk);
-			String branch_sig = ib.GenerateBranchStateSignature();
-			builder.append(vk.hashCode() + "#" + branch_sig);
+	public String GetTraceSignature() {
+		if (trace_sig == null) {
+			StringBuilder builder = new StringBuilder();
+			Set<String> vkeys = vobs.keySet();
+			Iterator<String> vk_itr = vkeys.iterator();
+			while (vk_itr.hasNext()) {
+				String vk = vk_itr.next();
+				InfoOfBranch ib = vobs.get(vk);
+				String branch_sig = ib.GenerateBranchStateSignature();
+				builder.append(vk.hashCode() + "#" + branch_sig);
+			}
+			trace_sig =builder.toString();
 		}
-		return builder.toString();
+		return trace_sig;
 	}
 	
 }

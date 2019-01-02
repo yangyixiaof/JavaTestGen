@@ -109,4 +109,24 @@ public class BranchStateSummary {
 //		return builder.toString();
 //	}
 	
+	public Map<String, TreeSet<String>> GetAlreadyCoveredBranch() {
+		return already_covered_branch;
+	}
+	
+	public Map<String, TreeMap<Integer, TreeSet<String>>> GetNotCoveredAndWithInfluencePositionBranchesPair() {
+		return not_covered_and_with_influence_position_branches_pair;
+	}
+	
+	public Map<Integer, TreeSet<String>> GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(TraceInfo trace_info) {
+		return not_covered_and_with_influence_position_branches_pair.get(trace_info.GetTraceSignature());
+	}
+	
+	public Map<String, TreeMap<String, TreeSet<Integer>>> GetNotCoveredAndWithInfluenceBranchPositionsPair() {
+		return not_covered_and_with_influence_branch_positions_pair;
+	}
+	
+	public TreeMap<String, TreeSet<Integer>> GetNotCoveredAndWithInfluenceBranchPositionsPairForTrace(TraceInfo trace_info) {
+		return not_covered_and_with_influence_branch_positions_pair.get(trace_info.GetTraceSignature());
+	}
+	
 }

@@ -26,7 +26,7 @@ public class SimpleInfluenceComputer {
 		int string_mutation_position = string_mutation.GetPosition();
 		
 		String previous_trace_sig = previous_trace_info == null ? "EmptyTraceSig"
-				: previous_trace_info.GenerateBranchStateSignature();
+				: previous_trace_info.GetTraceSignature();
 		TreeSet<String> already_covered_for_previous_vobs = branch_state.already_covered_branch.get(previous_trace_sig);
 		if (already_covered_for_previous_vobs == null) {
 			already_covered_for_previous_vobs = new TreeSet<String>();
