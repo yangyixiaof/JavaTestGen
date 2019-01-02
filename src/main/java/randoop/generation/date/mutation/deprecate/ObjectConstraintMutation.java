@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfBranchChange;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
-import randoop.generation.date.sequence.LinkedSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 
 public class ObjectConstraintMutation extends Mutation {
@@ -25,10 +24,11 @@ public class ObjectConstraintMutation extends Mutation {
 
 	@Override
 	public BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg) {
-		PseudoSequenceContainer new_container = GeneratedMutatedNewContainer(dg);
-		LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
-		LinkedSequence after_linked_sequence = new_container.GenerateLinkedSequence();
-		return new BeforeAfterLinkedSequence(null, new ObjectConstraintMutated(container), before_linked_sequence, after_linked_sequence);
+//		PseudoSequenceContainer new_container = GeneratedMutatedNewContainer(dg);
+//		LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
+//		LinkedSequence after_linked_sequence = new_container.GenerateLinkedSequence();
+//		return new BeforeAfterLinkedSequence(null, new ObjectConstraintMutated(container), before_linked_sequence, after_linked_sequence);
+		return null;
 	}
 	
 }
