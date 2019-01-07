@@ -36,7 +36,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	// int recent_tried_position = -1;
 //	Map<String, ArrayList<Integer>> tried_value_in_order = new TreeMap<String, ArrayList<Integer>>();
 
-	String content = null;
+	String content = "";
 
 	boolean is_mutating = false;
 	boolean is_making_plan = true;
@@ -145,7 +145,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		LinkedSequence before_linked_sequence = recent_mutate_result == null ? this.container.GenerateLinkedSequence() : null;
 		if (is_mutating) {
 			if (is_making_plan) {
-				if (content == null) {
+				if (content.equals("")) {
 					plan.put(-1, 1);
 				} else {
 					Map<Integer, TreeSet<String>> uncovered_position_branches = dg.branch_state
@@ -160,7 +160,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 				is_making_plan = false;
 			}
-			String modified_content = null;
+			String modified_content = "";
 			Set<Integer> pkeys = plan.keySet();
 			Iterator<Integer> pk_itr = pkeys.iterator();
 			Integer pk = null;

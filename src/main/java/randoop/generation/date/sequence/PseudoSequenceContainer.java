@@ -355,7 +355,9 @@ public class PseudoSequenceContainer implements Rewardable {
 	}
 
 	public void AddRecentInfluence(TraceInfo previous_trace_info, InfluenceOfTraceCompare all_branches_influences) {
-		influences_compared_to_previous_trace.put(previous_trace_info, all_branches_influences);
+		if (previous_trace_info != null) {
+			influences_compared_to_previous_trace.put(previous_trace_info, all_branches_influences);
+		}
 	}
 
 	public PseudoSequence GetLogicalMappingSequence(PseudoSequence b_this) {

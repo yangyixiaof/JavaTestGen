@@ -1083,7 +1083,7 @@ public class DateGenerator extends AbstractGenerator {
 			// primitives creation initialization
 			// TypedOperation str_ob =
 			// TypedOperation.forMethod(DateRuntimeSupport.class.getMethod("CreateString"));
-			TypedOperation str_ob = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), null);
+			TypedOperation str_ob = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), "");
 			MapUtil.Insert(str_ob, String.class, StringPseudoSequence.class, true, false, OperationKind.no_branch, this
 			// for_use_object_create_sequence_type, for_use_object_create_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
