@@ -40,21 +40,21 @@ public class PseudoVariable implements Rewardable {
 			DateGenerator dg) {// Map<PseudoVariable, PseudoSequence> class_object_headed_sequence
 		PseudoSequence copied_sequence = sequence.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
 		PseudoVariable copied_pv = new PseudoVariable(copied_sequence, index);
-		if (!dg.pseudo_variable_headed_sequence.containsKey(copied_pv)) {
-			PseudoSequence headed_sequence = dg.pseudo_variable_headed_sequence.get(this);
+//		if (!dg.pseudo_variable_headed_sequence.containsKey(copied_pv)) {
+//			PseudoSequence headed_sequence = dg.pseudo_variable_headed_sequence.get(this);
 //			System.out.println("sequence.getClass():" + sequence.getClass());
-			if (headed_sequence == null) {
-				Assert.isTrue(sequence.getClass().equals(DisposablePseudoSequence.class) || dg.pseudo_variable_with_null_value.contains(this), "Unexpected sequence.getClass():" + sequence.getClass() + "#variable value is null?" +  dg.pseudo_variable_with_null_value.contains(this));
-			} else {
-				if (origin_copied_sequence_map.containsKey(headed_sequence)) {
-					PseudoSequence copied_headed_sequence = origin_copied_sequence_map.get(headed_sequence);
-					dg.pseudo_variable_headed_sequence.put(copied_pv, copied_headed_sequence);
-				} else {
-					PseudoSequence copied_headed_sequence = headed_sequence.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
-					dg.pseudo_variable_headed_sequence.put(copied_pv, copied_headed_sequence);
-				}
-			}
-		}
+//			if (headed_sequence == null) {
+//				Assert.isTrue(sequence.getClass().equals(DisposablePseudoSequence.class) || dg.pseudo_variable_with_null_value.contains(this), "Unexpected sequence.getClass():" + sequence.getClass() + "#variable value is null?" +  dg.pseudo_variable_with_null_value.contains(this));
+//			} else {
+//				if (origin_copied_sequence_map.containsKey(headed_sequence)) {
+//					PseudoSequence copied_headed_sequence = origin_copied_sequence_map.get(headed_sequence);
+//					dg.pseudo_variable_headed_sequence.put(copied_pv, copied_headed_sequence);
+//				} else {
+//					PseudoSequence copied_headed_sequence = headed_sequence.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
+//					dg.pseudo_variable_headed_sequence.put(copied_pv, copied_headed_sequence);
+//				}
+//			}
+//		}
 		return copied_pv;
 	}
 

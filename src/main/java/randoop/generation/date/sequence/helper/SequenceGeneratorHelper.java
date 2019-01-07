@@ -2,7 +2,6 @@ package randoop.generation.date.sequence.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,6 @@ import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
-import randoop.generation.date.util.ClassUtil;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
 
@@ -25,29 +23,29 @@ public class SequenceGeneratorHelper {
 		}
 	}
 
-	public static ArrayList<ArrayList<PseudoVariable>> GetMatchedPseudoVariables(List<Type> type_list, DateGenerator dg) {
-		ArrayList<ArrayList<PseudoVariable>> each_position_candidates = new ArrayList<ArrayList<PseudoVariable>>();
-		Iterator<Type> r_t_itr = type_list.iterator();
-		while (r_t_itr.hasNext()) {
-			ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
-			Type tp = r_t_itr.next();
-			Set<Class<?>> selected_classes = new HashSet<Class<?>>();
-			Set<Class<?>> class_set = dg.class_pseudo_variable.keySet();
-			Iterator<Class<?>> citr = class_set.iterator();
-			while (citr.hasNext()) {
-				Class<?> cls = citr.next();
-				if (ClassUtil.TypeOneIsAssignableFromTypeTwo(tp, Type.forClass(cls))) {
-					selected_classes.add(cls);
-//					candidates.addAll(class_pseudo_variable.get(cls));
-				}
-			}
-			SelectToListFromMap(selected_classes, dg.class_pseudo_variable, candidates);
-			if (candidates.size() > 0) {
-				each_position_candidates.add(candidates);
-			}
-		}
-		return each_position_candidates;
-	}
+//	public static ArrayList<ArrayList<PseudoVariable>> GetMatchedPseudoVariables(List<Type> type_list, DateGenerator dg) {
+//		ArrayList<ArrayList<PseudoVariable>> each_position_candidates = new ArrayList<ArrayList<PseudoVariable>>();
+//		Iterator<Type> r_t_itr = type_list.iterator();
+//		while (r_t_itr.hasNext()) {
+//			ArrayList<PseudoVariable> candidates = new ArrayList<PseudoVariable>();
+//			Type tp = r_t_itr.next();
+//			Set<Class<?>> selected_classes = new HashSet<Class<?>>();
+//			Set<Class<?>> class_set = dg.class_pseudo_variable.keySet();
+//			Iterator<Class<?>> citr = class_set.iterator();
+//			while (citr.hasNext()) {
+//				Class<?> cls = citr.next();
+//				if (ClassUtil.TypeOneIsAssignableFromTypeTwo(tp, Type.forClass(cls))) {
+//					selected_classes.add(cls);
+////					candidates.addAll(class_pseudo_variable.get(cls));
+//				}
+//			}
+//			SelectToListFromMap(selected_classes, dg.class_pseudo_variable, candidates);
+//			if (candidates.size() > 0) {
+//				each_position_candidates.add(candidates);
+//			}
+//		}
+//		return each_position_candidates;
+//	}
 	
 	public static void GenerateInputPseudoVariables(ArrayList<ArrayList<PseudoVariable>> each_position_candidates, PseudoSequenceContainer container, ArrayList<PseudoVariable> input_pseudo_variables, List<Type> r_type_list, DateGenerator dg) {
 		if (each_position_candidates.size() == r_type_list.size()) {

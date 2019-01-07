@@ -51,7 +51,7 @@ public class MapUtil {
 		dg.operation_class.put(op, op_for_class);
 		dg.operation_is_to_create.put(op, is_to_create);
 		dg.operation_is_delta_change.put(op, is_delta_change);
-		dg.operation_kind.put(op, op_kind);
+//		dg.operation_kind.put(op, op_kind);
 	}
 	
 	public static <T> void MapOneMergeMapTwo(Map<T, Double> map_1, Map<T, Double> map_2) {
