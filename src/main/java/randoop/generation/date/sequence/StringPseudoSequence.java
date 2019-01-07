@@ -1,5 +1,6 @@
 package randoop.generation.date.sequence;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.TreeSet;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.mutation.StringMutation;
 import randoop.operation.TypedOperation;
@@ -26,14 +28,20 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	// position inserted, the position range is 0 ... n, n is the length of content
 	// of headed_variable
-	Map<Integer, TreeSet<Integer>> tried_value = new TreeMap<Integer, TreeSet<Integer>>();
+	
+	// TODO currently, entirely determined, add random factors. 
+	// TODO optimize the already encountered situations.
+	Map<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>> tried_value = new TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>>();
+	
 	// int recent_tried_position = -1;
+//	Map<String, ArrayList<Integer>> tried_value_in_order = new TreeMap<String, ArrayList<Integer>>();
 
 	String content = null;
 
 	boolean is_mutating = false;
 	boolean is_making_plan = true;
 	TreeMap<Integer, Integer> plan = new TreeMap<Integer, Integer>();
+	TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer, ArrayList<String>>();
 
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 
@@ -134,6 +142,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
 		//  String trace_sig = container.trace_info.GetTraceSignature();
 		BeforeAfterLinkedSequence result = null;
+		LinkedSequence before_linked_sequence = recent_mutate_result == null ? this.container.GenerateLinkedSequence() : null;
 		if (is_mutating) {
 			if (is_making_plan) {
 				if (content == null) {
@@ -146,6 +155,7 @@ public class StringPseudoSequence extends PseudoSequence {
 						TreeSet<String> branches = uncovered_position_branches.get(i);
 						int bunch_size = (branches != null ? branches.size() : 0) + 1;
 						plan.put(i, bunch_size * OneTryTimes);
+						plan_for_branches.put(i, new ArrayList<String>(branches));
 					}
 				}
 				is_making_plan = false;
@@ -164,15 +174,51 @@ public class StringPseudoSequence extends PseudoSequence {
 					break;
 				} else {
 					Integer remain = plan.get(pk);
+					ArrayList<String> cared_branches = plan_for_branches.get(pk);
 					Assert.isTrue(remain > 0);
 					remain--;
+					StringBuilder modified_content_builder = new StringBuilder(content);
 					if (recent_mutate_result != null) {
-						// TODO real mutation
-						InfluenceOfTraceCompare influence = recent_mutate_result.after_linked_sequence.container.influences_compared_to_previous_trace.get(container.trace_info);
-						StringBuilder modified_content_builder = new StringBuilder(modified_content);
+						InfluenceOfTraceCompare influence = recent_mutate_result.after_linked_sequence.container.influences_compared_to_previous_trace.get(recent_mutate_result.before_linked_sequence.container.trace_info);
+						int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
+						if (index_of_influenced_branch >= 0) {
+							Assert.isTrue(index_of_influenced_branch < cared_branches.size());
+							String cared_branch = cared_branches.get(index_of_influenced_branch);
+//							String position_and_branch = pk + "#" + cared_branch;
+//							ArrayList<Integer> value_in_order = tried_value_in_order.get(position_and_branch);
+//							if (value_in_order == null) {
+//								value_in_order = new ArrayList<Integer>();
+//								tried_value_in_order.put(position_and_branch, value_in_order);
+//							}
+							StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.GetLogicalMappingSequence(this);
+							if (before_mapping == null) {
+								before_mapping = this;
+							}
+							String before_content = before_mapping.content;
+							int before_v_p = before_content.charAt(pk);
+							StringPseudoSequence after_mapping = (StringPseudoSequence) recent_mutate_result.after_linked_sequence.container.GetLogicalMappingSequence(this);
+							String after_content = after_mapping.content;
+							int after_v_p = after_content.charAt(pk);
+							int gap_v_p = after_v_p - before_v_p;
+							Influence influ = influence.GetInfluences().get(cared_branch);
+							if (influ.GetInfluence() > 0.2) {
+								before_linked_sequence = recent_mutate_result.after_linked_sequence;
+								int new_gap_v_p = (int) Math.ceil(gap_v_p *(1 + Math.random()));
+								modified_content_builder.setCharAt(pk, (char) (after_v_p+new_gap_v_p));
+							} else {
+								before_linked_sequence = recent_mutate_result.before_linked_sequence;
+								int new_gap_v_p = gap_v_p / 2;
+								if (new_gap_v_p == 0) {
+									new_gap_v_p = -gap_v_p;
+								}
+								modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
+							}
+						}
 						
-						modified_content = modified_content_builder.toString();
+					} else {
+						modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk)+1));
 					}
+					modified_content = modified_content_builder.toString();
 					if (remain == 0) {
 						removed_pk = pk;
 						recent_mutate_result = null;
@@ -182,14 +228,18 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 			if (removed_pk != null) {
 				plan.remove(removed_pk);
+				plan_for_branches.remove(removed_pk);
 			}
 			if (pk != null && modified_content != null) {
-				PseudoSequence copied_this = this.CopySelfAndCitersInDeepCloneWay(dg);
+				StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
+				copied_this.container.SetLogicMapping(this, copied_this);
 				TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
-				LinkedSequence before_linked_sequence = this.container.GenerateLinkedSequence();
+				copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
+				copied_this.content = modified_content;
 				LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
 				StringMutation string_mutation = new StringMutation(pk, (modified_content.charAt(pk)-content.charAt(pk)));
 				result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence);
+				recent_mutate_result = result;
 			}
 			if (result == null) {
 				is_mutating = false;

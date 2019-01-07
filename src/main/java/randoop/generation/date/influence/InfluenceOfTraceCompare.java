@@ -11,4 +11,8 @@ public class InfluenceOfTraceCompare {
 	// A#2
 	Map<String, Influence> influences = new TreeMap<String, Influence>();
 	
+	public Map<String, Influence> GetInfluences() {
+		return influences;
+	}
+	
 }

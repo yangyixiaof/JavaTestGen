@@ -1,11 +1,14 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
@@ -27,6 +30,10 @@ public class PseudoSequenceContainer implements Rewardable {
 	
 	// the key is meaning the previous trace info
 	Map<TraceInfo, InfluenceOfTraceCompare> influences_compared_to_previous_trace = new TreeMap<TraceInfo, InfluenceOfTraceCompare>();
+	
+	// key is before mutating, value is the after mutating.
+	// note that this is just the logical mapping, the real values may mutated from intermediate results.
+	HashMap<PseudoSequence, PseudoSequence> logical_mutate_mapping = new HashMap<PseudoSequence, PseudoSequence>();
 	
 	// BranchValueState val_state = null;
 
@@ -349,6 +356,15 @@ public class PseudoSequenceContainer implements Rewardable {
 
 	public void AddRecentInfluence(TraceInfo previous_trace_info, InfluenceOfTraceCompare all_branches_influences) {
 		influences_compared_to_previous_trace.put(previous_trace_info, all_branches_influences);
+	}
+
+	public PseudoSequence GetLogicalMappingSequence(PseudoSequence b_this) {
+		return logical_mutate_mapping.get(b_this);
+	}
+
+	public void SetLogicMapping(PseudoSequence b_this, PseudoSequence copied_this) {
+		Assert.isTrue(contained_sequences.contains(copied_this));
+		logical_mutate_mapping.put(b_this, copied_this);
 	}
 
 }

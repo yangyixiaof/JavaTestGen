@@ -155,7 +155,7 @@ public class SimpleInfluenceComputer {
 					if (gap_delta > 0) {
 						sig_influence = 1;
 					} else {
-						sig_influence = 0.25;
+						sig_influence = 0.2;
 					}
 					influence.influences.put(sig_of_this_vob, new Influence(sig_influence));
 					TreeSet<Integer> positions = branch_positions_with_influence.get(sig_of_this_vob);
