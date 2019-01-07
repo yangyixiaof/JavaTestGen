@@ -1,6 +1,5 @@
 package randoop.generation.date.util;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -24,12 +23,12 @@ public class MapUtil {
 			) {
 		if (is_to_create) {
 			dg.create_operations.add(op);
-			ArrayList<TypedOperation> tos = dg.for_use_object_create_operations.get(op_for_class);
-			if (tos == null) {
-				tos = new ArrayList<TypedOperation>();
-				dg.for_use_object_create_operations.put(op_for_class, tos);
-			}
-			dg.for_use_object_create_operations.put(op_for_class, tos);
+//			ArrayList<TypedOperation> tos = dg.for_use_object_create_operations.get(op_for_class);
+//			if (tos == null) {
+//				tos = new ArrayList<TypedOperation>();
+//				dg.for_use_object_create_operations.put(op_for_class, tos);
+//			}
+//			dg.for_use_object_create_operations.put(op_for_class, tos);
 			// set up sequence type
 			Class<?> already_sequence_type = dg.for_use_object_create_sequence_type.get(op_for_class);
 			if (already_sequence_type == null) {
@@ -38,19 +37,19 @@ public class MapUtil {
 				Assert.isTrue(already_sequence_type.equals(sequence_type));
 			}
 		} else {
-			dg.modify_operations.add(op);
-			ArrayList<TypedOperation> tos = dg.for_use_object_modify_operations.get(op_for_class);
-			if (tos == null) {
-				tos = new ArrayList<TypedOperation>();
-				dg.for_use_object_modify_operations.put(op_for_class, tos);
-			}
-			tos.add(op);
+//			dg.modify_operations.add(op);
+//			ArrayList<TypedOperation> tos = dg.for_use_object_modify_operations.get(op_for_class);
+//			if (tos == null) {
+//				tos = new ArrayList<TypedOperation>();
+//				dg.for_use_object_modify_operations.put(op_for_class, tos);
+//			}
+//			tos.add(op);
 			// only modify operations have influence change. 
 //			dg.typed_operation_branch_influence.put(op, new InfluenceOfBranchChange());
 		}
 		dg.operation_class.put(op, op_for_class);
-		dg.operation_is_to_create.put(op, is_to_create);
-		dg.operation_is_delta_change.put(op, is_delta_change);
+//		dg.operation_is_to_create.put(op, is_to_create);
+//		dg.operation_is_delta_change.put(op, is_delta_change);
 //		dg.operation_kind.put(op, op_kind);
 	}
 	

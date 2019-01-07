@@ -22,6 +22,20 @@ public class SequenceGeneratorHelper {
 			candidates.addAll(class_pseudo_variable.get(sc));
 		}
 	}
+	
+	public static ArrayList<PseudoVariable> GetExactlyMatchedPseudoVariableAsOneList(List<Type> type_list, Map<Class<?>, PseudoVariable> variables) {
+		ArrayList<PseudoVariable> variable_list = new ArrayList<PseudoVariable>();
+		Iterator<Type> r_t_itr = type_list.iterator();
+		while (r_t_itr.hasNext()) {
+			Type tp = r_t_itr.next();
+			Class<?> tp_cls = tp.getRuntimeClass();
+			PseudoVariable pv = variables.get(tp_cls);
+			if (pv != null) {
+				variable_list.add(pv);
+			}
+		}
+		return variable_list;
+	}
 
 //	public static ArrayList<ArrayList<PseudoVariable>> GetMatchedPseudoVariables(List<Type> type_list, DateGenerator dg) {
 //		ArrayList<ArrayList<PseudoVariable>> each_position_candidates = new ArrayList<ArrayList<PseudoVariable>>();
