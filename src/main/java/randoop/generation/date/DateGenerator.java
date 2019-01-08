@@ -1,7 +1,6 @@
 package randoop.generation.date;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,9 +32,7 @@ import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.sequence.StringPseudoSequence;
-import randoop.generation.date.sequence.TraceableSequence;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
-import randoop.generation.date.test.SequenceGenerator;
 import randoop.generation.date.util.MapUtil;
 import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
@@ -62,13 +59,15 @@ public class DateGenerator extends AbstractGenerator {
 	// for_use_object_modify_operations = new HashMap<Class<?>,
 	// ArrayList<TypedOperation>>();
 	public Map<TypedOperation, Class<?>> operation_class = new HashMap<TypedOperation, Class<?>>();
+	// this means this operation should not be the last.
+//	public Map<TypedOperation, Boolean> operation_is_hidden = new HashMap<TypedOperation, Boolean>();
+	public Map<Class<?>, PseudoVariable> hidden_variables = new HashMap<Class<?>, PseudoVariable>();
 	// public Map<TypedOperation, Boolean> operation_is_to_create = new
 	// HashMap<TypedOperation, Boolean>();
 	// public Map<TypedOperation, Boolean> operation_is_delta_change = new
 	// HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
-	public Map<Class<?>, PseudoVariable> created_variables = new HashMap<Class<?>, PseudoVariable>();
-
+	
 	// influence for typed operation
 	// public Map<TypedOperation, InfluenceOfBranchChange>
 	// typed_operation_branch_influence = new HashMap<TypedOperation,
@@ -77,8 +76,7 @@ public class DateGenerator extends AbstractGenerator {
 	// InfluenceOfBranchChange();
 
 	// typed operation runtime information
-	// public Map<TypedOperation, OperationKind> operation_kind = new
-	// HashMap<TypedOperation, OperationKind>();
+	public Map<TypedOperation, OperationKind> operation_kind = new HashMap<TypedOperation, OperationKind>();
 
 	// runtime information
 	// public Map<PseudoVariable, PseudoSequence> pseudo_variable_headed_sequence =
@@ -162,8 +160,8 @@ public class DateGenerator extends AbstractGenerator {
 		// encountered_types.add(Type.forClass(Integer.class));
 		// this.instantiator = componentManager.getTypeInstantiator();
 		// add simple confuse examples
-		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
-		allSequences.add(new_seq);
+//		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
+//		allSequences.add(new_seq);
 		// needExploreSequences.put(new_seq.toLongFormString(), new_seq);
 		// initialize generation used data
 		// this.d = new ReplayMemory();
@@ -220,6 +218,12 @@ public class DateGenerator extends AbstractGenerator {
 		BeforeAfterLinkedSequence n_cmp_sequence = null;
 		while (n_cmp_sequence == null) {
 			n_cmp_sequence = CreateNewCompareSequence();
+			// debugging code, waiting to be deleted.
+			if (n_cmp_sequence != null) {
+				System.out.println(n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
+			} else {
+				System.out.println("Failed One Generation! The generated sequence is null!");
+			}
 		}
 		PseudoSequenceContainer previous_container = n_cmp_sequence.GetBeforeLinkedSequence()
 				.GetPseudoSequenceContainer();
@@ -283,7 +287,7 @@ public class DateGenerator extends AbstractGenerator {
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 
-		// String branch_state_representation_before =
+		// String branch_state_representation_before = 
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
@@ -459,6 +463,9 @@ public class DateGenerator extends AbstractGenerator {
 		// ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace,
 		// newly_created_container,
 		// address_variable_map);
+//		if (after_trace.BranchesExistInTrace()) {
+		containers.add(newly_created_container);
+//		}
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
 			// pseudo_sequence_containers.remove(newly_created_container);
@@ -481,8 +488,8 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			// }
 			// current_container = null;
-		} else {
-			containers.add(newly_created_container);
+		} 
+//		else {
 			// int mutated_number = newly_created_container.GetMutatedNumber();
 			// HashSet<PseudoSequenceContainer> sequence_set =
 			// mutated_number_pseudo_sequence_container_map
@@ -505,7 +512,7 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			// operation_kind.put(ended_to, ok);
 			// current_container = newly_created_container;
-		}
+//		}
 		// if (newly_created_container.HasUnsolvedConstraint()) {
 		// pseudo_sequence_optional_constraint_containers.add(newly_created_container);
 		// pseudo_sequence_containers.remove(newly_created_container);
@@ -616,7 +623,6 @@ public class DateGenerator extends AbstractGenerator {
 					BeforeAfterLinkedSequence new_created_sequence = CreatePseudoSequenceWithCreateOperation(
 							sequence_type, to);
 					if (new_created_sequence != null) {
-						operation_been_created.put(to, true);
 						return new_created_sequence;
 					}
 				}
@@ -718,11 +724,16 @@ public class DateGenerator extends AbstractGenerator {
 				BeforeAfterLinkedSequence result = current_container.Mutate(this);
 				if (result == null) {
 					current_container.ResetMutate(this);
-					current_container = (PseudoSequenceContainer) RandomSelect
-							.RandomElementFromSetByRewardableElements(containers, null, null);
+					current_container = null;
 				} else {
 					return result;
 				}
+			}
+			if (current_container == null) {
+				current_container = (PseudoSequenceContainer) RandomSelect
+						.RandomElementFromSetByRewardableElements(containers, null, null);
+				System.out.println("size of containers: " + containers.size());
+				System.out.println("The content of selected container:" + current_container.toString());
 			}
 
 			// (PseudoSequenceContainer) RandomSelect
@@ -815,7 +826,7 @@ public class DateGenerator extends AbstractGenerator {
 			TypedOperation selected_to) {
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(selected_to.getInputTypes());
 		ArrayList<PseudoVariable> input_pseudo_variables = SequenceGeneratorHelper
-				.GetExactlyMatchedPseudoVariableAsOneList(type_list, created_variables);
+				.GetExactlyMatchedPseudoVariableAsOneList(type_list, hidden_variables);
 		if (input_pseudo_variables.size() == type_list.size()) {
 			PseudoSequenceContainer container = new PseudoSequenceContainer(null);
 			// SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, container,
@@ -828,10 +839,11 @@ public class DateGenerator extends AbstractGenerator {
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
 			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables);// , false
 			ps.SetHeadedVariable(created_pv);
-			if (created_pv != null) {
+			if (operation_kind.get(selected_to) == OperationKind.no_branch && created_pv != null) {
 				Class<?> selected_to_class = operation_class.get(selected_to);
-				created_variables.put(selected_to_class, created_pv);
+				hidden_variables.put(selected_to_class, created_pv);
 			}
+			operation_been_created.put(selected_to, true);
 			// pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
 			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence);
@@ -1163,7 +1175,7 @@ public class DateGenerator extends AbstractGenerator {
 			// if (!to.isConstructorCall()) {
 			// continue;
 			// }
-			if (to.toString().startsWith("java.lang.Object")) {
+			if (!to.isStatic() || to.toString().startsWith("java.lang.Object")) {
 				continue;
 			}
 			System.out.println("operation is generic or wild? " + (to.isGeneric() || to.hasWildcardTypes())
@@ -1177,7 +1189,7 @@ public class DateGenerator extends AbstractGenerator {
 			int wild_idx = class_name.indexOf('<');
 			String exclude_generic_class_name = class_name.substring(0, wild_idx < 0 ? class_name.length() : wild_idx);
 			MapUtil.Insert(to, Class.forName(exclude_generic_class_name), PseudoSequence.class,
-					to.isConstructorCall() || to.isStatic(), false, OperationKind.unknown, this);
+					to.isConstructorCall() || to.isStatic(), false, OperationKind.branch, this);
 			// for_use_object_create_sequence_type, create_operations,
 			// for_use_object_create_operations, modify_operations,
 			// for_use_object_modify_operations, operation_class, operation_is_to_create,
@@ -1290,11 +1302,11 @@ public class DateGenerator extends AbstractGenerator {
 
 }
 
-class ClassDoubleMapValueComparator implements Comparator<Map.Entry<Class<?>, Double>> {
-
-	@Override
-	public int compare(Map.Entry<Class<?>, Double> me1, Map.Entry<Class<?>, Double> me2) {
-		return -me1.getValue().compareTo(me2.getValue());
-	}
-
-}
+//class ClassDoubleMapValueComparator implements Comparator<Map.Entry<Class<?>, Double>> {
+//
+//	@Override
+//	public int compare(Map.Entry<Class<?>, Double> me1, Map.Entry<Class<?>, Double> me2) {
+//		return -me1.getValue().compareTo(me2.getValue());
+//	}
+//
+//}

@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -29,7 +28,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	TraceInfo trace_info = null;
 	
 	// the key is meaning the previous trace info
-	Map<TraceInfo, InfluenceOfTraceCompare> influences_compared_to_previous_trace = new TreeMap<TraceInfo, InfluenceOfTraceCompare>();
+	Map<TraceInfo, InfluenceOfTraceCompare> influences_compared_to_previous_trace = new HashMap<TraceInfo, InfluenceOfTraceCompare>();
 	
 	// key is before mutating, value is the after mutating.
 	// note that this is just the logical mapping, the real values may mutated from intermediate results.

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
+
 public class TraceInfo {
 	
 	Map<String, InfoOfBranch> vobs = new HashMap<String, InfoOfBranch>();
@@ -145,8 +147,9 @@ public class TraceInfo {
 				String branch_sig = ib.GenerateBranchStateSignature();
 				builder.append(vk.hashCode() + "#" + branch_sig);
 			}
-			trace_sig =builder.toString();
+			trace_sig = builder.toString();
 		}
+		Assert.isTrue(trace_sig != null);
 		return trace_sig;
 	}
 	
