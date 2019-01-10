@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -34,6 +33,8 @@ public class PseudoSequenceContainer implements Rewardable {
 	// note that this is just the logical mapping, the real values may mutated from intermediate results.
 	HashMap<PseudoSequence, PseudoSequence> logical_mutate_mapping = new HashMap<PseudoSequence, PseudoSequence>();
 	
+	LinkedSequence linked_sequence = null;
+	
 	// BranchValueState val_state = null;
 
 	// must satisfied constraint in next generation
@@ -53,15 +54,15 @@ public class PseudoSequenceContainer implements Rewardable {
 	// HashSet<PseudoVariableConstraint> optional_tcs = new
 	// HashSet<PseudoVariableConstraint>();
 
-	PseudoSequenceContainer previous = null;
-	Set<PseudoSequenceContainer> nexts = new HashSet<PseudoSequenceContainer>();
+//	PseudoSequenceContainer previous = null;
+//	Set<PseudoSequenceContainer> nexts = new HashSet<PseudoSequenceContainer>();
 
 	int mutated_number = 0;
 
 	public PseudoSequenceContainer(PseudoSequenceContainer previous) {
 		if (previous != null) {
-			previous.nexts.add(this);
-			this.previous = previous;
+//			previous.nexts.add(this);
+//			this.previous = previous;
 			this.mutated_number = previous.mutated_number;
 		}
 	}
@@ -102,8 +103,11 @@ public class PseudoSequenceContainer implements Rewardable {
 		return trace_info;
 	}
 
-	public LinkedSequence GenerateLinkedSequence() {
-		return end.GenerateLinkedSequence();
+	public LinkedSequence GetLinkedSequence() {
+		if (linked_sequence == null) {
+			linked_sequence = end.GenerateLinkedSequence();
+		}
+		return linked_sequence;
 	}
 
 	// private PseudoSequenceContainer
@@ -226,6 +230,7 @@ public class PseudoSequenceContainer implements Rewardable {
 		// // here should be specified Mutation for string
 		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
 		int s_len = string_sequences.size();
+//		System.out.println("number of StringPseudoSequence:" + s_len);
 		if (s_len > 0) {
 			for (int i = 0; i < s_len; i++) {
 				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);

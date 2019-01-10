@@ -3,6 +3,7 @@ package randoop.generation.date.sequence;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -25,6 +26,8 @@ public class StringPseudoSequence extends PseudoSequence {
 	// int position = 0;
 	// int delta = 0;
 	// }
+	
+	Random random = new Random();
 
 	// position inserted, the position range is 0 ... n, n is the length of content
 	// of headed_variable
@@ -49,6 +52,8 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
+//		System.out.println("StringPseudoSequence created!!!");
+//		System.exit(1);
 	}
 
 	// public StringDeltaChangePseudoSequence(PseudoVariable pv,
@@ -142,7 +147,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
 		//  String trace_sig = container.trace_info.GetTraceSignature();
 		BeforeAfterLinkedSequence result = null;
-		LinkedSequence before_linked_sequence = recent_mutate_result == null ? this.container.GenerateLinkedSequence() : null;
+		LinkedSequence before_linked_sequence = recent_mutate_result == null ? this.container.GetLinkedSequence() : null;
 		if (is_mutating) {
 			if (is_making_plan) {
 				if (content.equals("")) {
@@ -176,7 +181,6 @@ public class StringPseudoSequence extends PseudoSequence {
 					Integer remain = plan.get(pk);
 					ArrayList<String> cared_branches = plan_for_branches.get(pk);
 					Assert.isTrue(remain > 0);
-					remain--;
 					StringBuilder modified_content_builder = new StringBuilder(content);
 					if (recent_mutate_result != null) {
 						InfluenceOfTraceCompare influence = recent_mutate_result.after_linked_sequence.container.influences_compared_to_previous_trace.get(recent_mutate_result.before_linked_sequence.container.trace_info);
@@ -213,11 +217,14 @@ public class StringPseudoSequence extends PseudoSequence {
 								}
 								modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
 							}
+						} else {
+							before_linked_sequence = this.container.GetLinkedSequence();
+							modified_content_builder.setCharAt(pk, (char) (content.charAt(pk)+random.nextInt(65535)));
 						}
-						
 					} else {
 						modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk)+1));
 					}
+					remain--;
 					modified_content = modified_content_builder.toString();
 					if (remain == 0) {
 						removed_pk = pk;
@@ -236,7 +243,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
 				copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
 				copied_this.content = modified_content;
-				LinkedSequence after_linked_sequence = copied_this.container.GenerateLinkedSequence();
+				LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
 				StringMutation string_mutation = null;
 				if (pk >= 0) {
 					string_mutation = new StringMutation(pk, (modified_content.charAt(pk)-content.charAt(pk)));

@@ -719,21 +719,21 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			// }
 			// }
-
+			if (current_container == null) {
+				current_container = (PseudoSequenceContainer) RandomSelect
+						.RandomElementFromSetByRewardableElements(containers, null, null);
+				System.out.println("size of containers: " + containers.size());
+				System.out.println("The content of selected container:" + current_container.toString());
+			}
 			if (current_container != null) {
 				BeforeAfterLinkedSequence result = current_container.Mutate(this);
 				if (result == null) {
 					current_container.ResetMutate(this);
 					current_container = null;
 				} else {
+					Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
 					return result;
 				}
-			}
-			if (current_container == null) {
-				current_container = (PseudoSequenceContainer) RandomSelect
-						.RandomElementFromSetByRewardableElements(containers, null, null);
-				System.out.println("size of containers: " + containers.size());
-				System.out.println("The content of selected container:" + current_container.toString());
 			}
 
 			// (PseudoSequenceContainer) RandomSelect
@@ -836,16 +836,20 @@ public class DateGenerator extends AbstractGenerator {
 			ps.SetContainer(container);
 			container.AddPseudoSequence(ps);
 			container.SetEndPseudoSequence(ps);
+			for (PseudoVariable pv : input_pseudo_variables) {
+				container.AddPseudoSequence(pv.sequence);
+			}
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
 			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables);// , false
 			ps.SetHeadedVariable(created_pv);
+			operation_been_created.put(selected_to, true);
 			if (operation_kind.get(selected_to) == OperationKind.no_branch && created_pv != null) {
 				Class<?> selected_to_class = operation_class.get(selected_to);
 				hidden_variables.put(selected_to_class, created_pv);
+				return null;
 			}
-			operation_been_created.put(selected_to, true);
 			// pseudo_variable_headed_sequence.put(created_pv, ps);
-			LinkedSequence after_linked_sequence = container.GenerateLinkedSequence();
+			LinkedSequence after_linked_sequence = container.GetLinkedSequence();
 			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence);
 			// new TypedOperationMutated(ps, true, created_pv, true, created_pv)
 		}
