@@ -255,6 +255,9 @@ public class StringPseudoSequence extends PseudoSequence {
 				is_mutating = false;
 			}
 		}
+		if (result != null) {
+			Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
+		}
 		return result;
 	}
 
