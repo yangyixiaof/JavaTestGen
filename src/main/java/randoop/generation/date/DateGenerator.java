@@ -825,6 +825,7 @@ public class DateGenerator extends AbstractGenerator {
 	private BeforeAfterLinkedSequence CreatePseudoSequenceWithCreateOperation(Class<?> sequence_type,
 			TypedOperation selected_to) {
 		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(selected_to.getInputTypes());
+		ArrayList<PseudoVariable> copied_input_pseudo_variables = new ArrayList<PseudoVariable>();
 		ArrayList<PseudoVariable> input_pseudo_variables = SequenceGeneratorHelper
 				.GetExactlyMatchedPseudoVariableAsOneList(type_list, hidden_variables);
 		if (input_pseudo_variables.size() == type_list.size()) {
@@ -836,12 +837,14 @@ public class DateGenerator extends AbstractGenerator {
 			ps.SetContainer(container);
 			container.AddPseudoSequence(ps);
 			container.SetEndPseudoSequence(ps);
+			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 			for (PseudoVariable pv : input_pseudo_variables) {
-				container.AddPseudoSequence(pv.sequence);
+				PseudoVariable copied_pv = pv.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, this);
+				copied_input_pseudo_variables.add(copied_pv);
 			}
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
-			PseudoVariable created_pv = ps.Append(selected_to, input_pseudo_variables);// , false
-			ps.SetHeadedVariable(created_pv);
+			PseudoVariable created_pv = ps.Append(selected_to, copied_input_pseudo_variables);// , false
+//			ps.SetHeadedVariable(created_pv);
 			operation_been_created.put(selected_to, true);
 			if (operation_kind.get(selected_to) == OperationKind.no_branch && created_pv != null) {
 				Class<?> selected_to_class = operation_class.get(selected_to);

@@ -1,16 +1,11 @@
 package randoop.generation.date.sequence.helper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import randoop.generation.date.DateGenerator;
-import randoop.generation.date.random.RandomSelect;
-import randoop.generation.date.sequence.PseudoSequence;
-import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.types.Type;
 import randoop.types.TypeTuple;
@@ -61,18 +56,18 @@ public class SequenceGeneratorHelper {
 //		return each_position_candidates;
 //	}
 	
-	public static void GenerateInputPseudoVariables(ArrayList<ArrayList<PseudoVariable>> each_position_candidates, PseudoSequenceContainer container, ArrayList<PseudoVariable> input_pseudo_variables, List<Type> r_type_list, DateGenerator dg) {
-		if (each_position_candidates.size() == r_type_list.size()) {
-			Iterator<ArrayList<PseudoVariable>> ipv_itr = each_position_candidates.iterator();
-			while (ipv_itr.hasNext()) {
-				ArrayList<PseudoVariable> pvs = ipv_itr.next();
-				PseudoVariable param_selected_pv = RandomSelect.RandomPseudoVariableListAccordingToLength(pvs);
-				Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
-				PseudoVariable cpoied_pv = param_selected_pv.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
-				input_pseudo_variables.add(cpoied_pv);
-			}
-		}
-	}
+//	public static void GenerateInputPseudoVariables(ArrayList<ArrayList<PseudoVariable>> each_position_candidates, PseudoSequenceContainer container, ArrayList<PseudoVariable> input_pseudo_variables, List<Type> r_type_list, DateGenerator dg) {
+//		if (each_position_candidates.size() == r_type_list.size()) {
+//			Iterator<ArrayList<PseudoVariable>> ipv_itr = each_position_candidates.iterator();
+//			while (ipv_itr.hasNext()) {
+//				ArrayList<PseudoVariable> pvs = ipv_itr.next();
+//				PseudoVariable param_selected_pv = RandomSelect.RandomPseudoVariableListAccordingToLength(pvs);
+//				Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+//				PseudoVariable cpoied_pv = param_selected_pv.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
+//				input_pseudo_variables.add(cpoied_pv);
+//			}
+//		}
+//	}
 	
 	public static List<Type> TypeTupleToTypeList(TypeTuple tt) {
 		List<Type> type_list = new ArrayList<Type>();

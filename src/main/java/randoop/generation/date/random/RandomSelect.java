@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.random.filter.SelectFileter;
-import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.util.NormalizeUtil;
 import randoop.generation.date.util.RewardUtil;
 import randoop.util.Randomness;
@@ -293,14 +292,14 @@ public class RandomSelect {
 	// return RandomKeyFromMapByValue(final_wait_select);
 	// }
 
-	public static PseudoVariable RandomPseudoVariableListAccordingToLength(ArrayList<PseudoVariable> pvs) {
-		Map<PseudoVariable, Double> wait_select = new HashMap<PseudoVariable, Double>();
-		for (PseudoVariable pv : pvs) {
-			double reward = pv.sequence.SizeOfUsers() * 0.5 + pv.sequence.Size() * 0.25 + pv.index * 0.5 + 0.1;
-			wait_select.put(pv, 1 / reward);
-		}
-		return RandomKeyFromMapByValue(wait_select);
-	}
+//	public static PseudoVariable RandomPseudoVariableListAccordingToLength(ArrayList<PseudoVariable> pvs) {
+//		Map<PseudoVariable, Double> wait_select = new HashMap<PseudoVariable, Double>();
+//		for (PseudoVariable pv : pvs) {
+//			double reward = pv.sequence.SizeOfUsers() * 0.5 + pv.sequence.Size() * 0.25 + pv.index * 0.5 + 0.1;
+//			wait_select.put(pv, 1 / reward);
+//		}
+//		return RandomKeyFromMapByValue(wait_select);
+//	}
 
 }
 

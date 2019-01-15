@@ -251,6 +251,14 @@ public class StringPseudoSequence extends PseudoSequence {
 				copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
 				copied_this.content = modified_content;
 				LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
+				
+				// debug
+				System.out.println("Begin" );
+				System.out.println("content of after_linked_sequence:" + after_linked_sequence .toString());
+				System.out.println("end sequence of after_linked_sequence:" + copied_this.container.end.toString());
+				System.out.println("end sequence of this:" + this.container.end.toString());
+				System.out.println("End" );
+				
 				StringMutation string_mutation = null;
 				if (pk >= 0) {
 					string_mutation = new StringMutation(pk, (modified_content.charAt(pk)-content.charAt(pk)));

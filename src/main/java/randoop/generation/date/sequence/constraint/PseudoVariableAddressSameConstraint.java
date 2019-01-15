@@ -12,20 +12,20 @@ public class PseudoVariableAddressSameConstraint extends PseudoVariableConstrain
 		this.pv1 = pv1;
 	}
 
-	public PseudoVariable GetShouldBeSamePseudoVariableOne() {
-		if (pv1.sequence.SizeOfUsers() >= pv2.sequence.SizeOfUsers()) {
-			return pv1;
-		} else {
-			return pv2;
-		}
-	}
-
-	public PseudoVariable GetShouldBeSamePseudoVariableTwo() {
-		if (pv1.sequence.SizeOfUsers() >= pv2.sequence.SizeOfUsers()) {
-			return pv2;
-		} else {
-			return pv1;
-		}
-	}
+//	public PseudoVariable GetShouldBeSamePseudoVariableOne() {
+//		if (pv1.sequence.SizeOfUsers() >= pv2.sequence.SizeOfUsers()) {
+//			return pv1;
+//		} else {
+//			return pv2;
+//		}
+//	}
+//
+//	public PseudoVariable GetShouldBeSamePseudoVariableTwo() {
+//		if (pv1.sequence.SizeOfUsers() >= pv2.sequence.SizeOfUsers()) {
+//			return pv2;
+//		} else {
+//			return pv1;
+//		}
+//	}
 
 }
