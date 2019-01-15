@@ -14,11 +14,15 @@ import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.mutation.StringMutation;
+import randoop.generation.date.util.RandomStringUtil;
 import randoop.operation.TypedOperation;
 import randoop.types.Type;
 
 public class StringPseudoSequence extends PseudoSequence {
 
+	int ready_try_length = 0;
+	public static final int MaxSequenceLength = 20;
+	
 	// {
 	// deprecated block. it seems delta change is unnecessary
 	// position delta, based on DeltaChangePseudoSequence this child class only
@@ -174,7 +178,8 @@ public class StringPseudoSequence extends PseudoSequence {
 				pk = pk_itr.next();
 				if (pk < 0) {
 					before_linked_sequence = this.container.GetLinkedSequence();
-					modified_content = "0000000000";
+//					modified_content = "0000000000";
+					modified_content = RandomStringUtil.GenerateStringByDefaultChars(random.nextInt(MaxSequenceLength)+1);
 					removed_pk = pk;
 					recent_mutate_result = null;
 					break;
