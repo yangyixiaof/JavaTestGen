@@ -7,8 +7,10 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -20,6 +22,7 @@ import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
 import randoop.generation.date.influence.BranchStateSummary;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
+import randoop.generation.date.influence.RewardableInteger;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.influence.TraceReader;
@@ -130,7 +133,8 @@ public class DateGenerator extends AbstractGenerator {
 	// public TreeMap<Integer, HashSet<PseudoSequenceContainer>>
 	// mutated_number_pseudo_sequence_container_map = new TreeMap<Integer,
 	// HashSet<PseudoSequenceContainer>>();
-	HashSet<PseudoSequenceContainer> containers = new HashSet<PseudoSequenceContainer>();
+	
+	TreeMap<Integer, PriorityQueue<PseudoSequenceContainer>> containers = new TreeMap<Integer, PriorityQueue<PseudoSequenceContainer>>();
 
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
 			GenInputsAbstract.Limits limits, ComponentManager componentManager,
@@ -464,7 +468,12 @@ public class DateGenerator extends AbstractGenerator {
 		// newly_created_container,
 		// address_variable_map);
 //		if (after_trace.BranchesExistInTrace()) {
-		containers.add(newly_created_container);
+		int sl = newly_created_container.GetStringLength();
+		PriorityQueue<PseudoSequenceContainer> c_arr = containers.get(sl);
+		if (c_arr == null) {
+			c_arr = new PriorityQueue<PseudoSequenceContainer>();
+		}
+		containers.put(sl, c_arr);
 //		}
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
@@ -720,8 +729,16 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			// }
 			if (current_container == null) {
+				TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer, RewardableInteger>();
+				Set<Integer> c_keys = containers.keySet();
+				Iterator<Integer> c_k_itr = c_keys.iterator();
+				while (c_k_itr.hasNext()) {
+					Integer c_k = c_k_itr.next();
+					rewardables.put(c_k, new RewardableInteger(c_k+5));
+				}
+				Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
 				current_container = (PseudoSequenceContainer) RandomSelect
-						.RandomElementFromSetByRewardableElements(containers, null, null);
+						.RandomElementFromSetByRewardableElements(containers.get(c_k), this, null);
 				System.out.println("size of containers: " + containers.size());
 				System.out.println("The content of selected container:" + current_container.toString());
 			}

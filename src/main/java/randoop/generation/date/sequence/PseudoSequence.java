@@ -19,19 +19,22 @@ public class PseudoSequence implements Rewardable {
 
 	PseudoSequenceContainer container = null;
 
-//	PseudoVariable headed_variable = null;
+	// PseudoVariable headed_variable = null;
 
 	// ArrayList<TypedOperation> operations = null;// these operations only contain
 	// object modify operations.
-//	Map<TypedOperation, Integer> operation_use_count = new HashMap<TypedOperation, Integer>();
+	// Map<TypedOperation, Integer> operation_use_count = new
+	// HashMap<TypedOperation, Integer>();
 
 	ArrayList<PseudoStatement> statements = new ArrayList<PseudoStatement>();
 
-//	HashSet<PseudoSequence> sequences_which_use_headed_variable = new HashSet<PseudoSequence>();
+	// HashSet<PseudoSequence> sequences_which_use_headed_variable = new
+	// HashSet<PseudoSequence>();
 
 	PseudoSequence previous = null;
 
-//	InfluenceOfBranchChange headed_variable_branch_influence = new InfluenceOfBranchChange();
+	// InfluenceOfBranchChange headed_variable_branch_influence = new
+	// InfluenceOfBranchChange();
 
 	public PseudoSequence() {// ArrayList<TypedOperation> operations
 		// this.operations = operations;
@@ -41,9 +44,9 @@ public class PseudoSequence implements Rewardable {
 		this.container = container;
 	}
 
-//	public void SetHeadedVariable(PseudoVariable headed_variable) {
-//		this.headed_variable = headed_variable;
-//	}
+	// public void SetHeadedVariable(PseudoVariable headed_variable) {
+	// this.headed_variable = headed_variable;
+	// }
 
 	// public PseudoSequence(PseudoVariable headed_variable,
 	// ArrayList<TypedOperation> operations) {
@@ -51,46 +54,53 @@ public class PseudoSequence implements Rewardable {
 	// this.operations = operations;
 	// }
 
-	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch, DateGenerator dg) {
+	public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to, ArrayList<String> interested_branch,
+			DateGenerator dg) {
 		BeforeAfterLinkedSequence result = null;
-//		// add parameters.
-//		TypeTuple input_types = selected_to.getInputTypes();
-//		List<Type> type_list = SequenceGeneratorHelper.TypeTupleToTypeList(input_types);
-//		List<Type> r_type_list = type_list.subList(1, type_list.size());
-//		// initialize candidates.
-//		ArrayList<ArrayList<PseudoVariable>> candidates = SequenceGeneratorHelper.GetMatchedPseudoVariables(r_type_list,
-//				dg);
-//		if (candidates.size() == r_type_list.size()) {
-//			// HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new
-//			// HashMap<PseudoSequence, PseudoSequence>();
-//			PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(dg);// origin_copied_sequence_map,
-//			ps.SetPreviousSequence(this);
-//			ArrayList<PseudoVariable> input_pseudo_variables = new ArrayList<PseudoVariable>();
-//			SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, ps.container, input_pseudo_variables,
-//					r_type_list, dg);
-//			input_pseudo_variables.add(0, ps.headed_variable);
-//			LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
-//			// boolean append_to_second_last = false;
-//			// if (this == container.end) {
-//			// TypedOperation last_to = GetLastStatement().operation;
-//			// OperationKind ok = dg.operation_kind.get(last_to);
-//			// if (ok.equals(OperationKind.branch) && !last_to.isConstructorCall()) {
-//			// append_to_second_last = true;
-//			// }
-//			// }
-//			ps.Append(selected_to, input_pseudo_variables);// , append_to_second_last,
-//															// dg.pseudo_variable_headed_sequence
-//			LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
-//			result = new BeforeAfterLinkedSequence(selected_to,
-//					null, before_linked_sequence, after_linked_sequence);
-//			// boolean has_return_value = !selected_to.getOutputType().isVoid();
-//			// new TypedOperationMutated(ps, has_return_value, has_return_value ? new PseudoVariable(ps, ps.Size() - 1) : null, true, ps.headed_variable)
-//		}
-//		if (result != null) {
-//			Assert.isTrue(headed_variable != null);
-//			OperationApplied(selected_to);
-//			container.mutated_number++;
-//		}
+		// // add parameters.
+		// TypeTuple input_types = selected_to.getInputTypes();
+		// List<Type> type_list =
+		// SequenceGeneratorHelper.TypeTupleToTypeList(input_types);
+		// List<Type> r_type_list = type_list.subList(1, type_list.size());
+		// // initialize candidates.
+		// ArrayList<ArrayList<PseudoVariable>> candidates =
+		// SequenceGeneratorHelper.GetMatchedPseudoVariables(r_type_list,
+		// dg);
+		// if (candidates.size() == r_type_list.size()) {
+		// // HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new
+		// // HashMap<PseudoSequence, PseudoSequence>();
+		// PseudoSequence ps = this.CopySelfAndCitersInDeepCloneWay(dg);//
+		// origin_copied_sequence_map,
+		// ps.SetPreviousSequence(this);
+		// ArrayList<PseudoVariable> input_pseudo_variables = new
+		// ArrayList<PseudoVariable>();
+		// SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates,
+		// ps.container, input_pseudo_variables,
+		// r_type_list, dg);
+		// input_pseudo_variables.add(0, ps.headed_variable);
+		// LinkedSequence before_linked_sequence = container.GenerateLinkedSequence();
+		// // boolean append_to_second_last = false;
+		// // if (this == container.end) {
+		// // TypedOperation last_to = GetLastStatement().operation;
+		// // OperationKind ok = dg.operation_kind.get(last_to);
+		// // if (ok.equals(OperationKind.branch) && !last_to.isConstructorCall()) {
+		// // append_to_second_last = true;
+		// // }
+		// // }
+		// ps.Append(selected_to, input_pseudo_variables);// , append_to_second_last,
+		// // dg.pseudo_variable_headed_sequence
+		// LinkedSequence after_linked_sequence = ps.container.GenerateLinkedSequence();
+		// result = new BeforeAfterLinkedSequence(selected_to,
+		// null, before_linked_sequence, after_linked_sequence);
+		// // boolean has_return_value = !selected_to.getOutputType().isVoid();
+		// // new TypedOperationMutated(ps, has_return_value, has_return_value ? new
+		// PseudoVariable(ps, ps.Size() - 1) : null, true, ps.headed_variable)
+		// }
+		// if (result != null) {
+		// Assert.isTrue(headed_variable != null);
+		// OperationApplied(selected_to);
+		// container.mutated_number++;
+		// }
 		return result;
 	}
 
@@ -117,7 +127,7 @@ public class PseudoSequence implements Rewardable {
 		// statements.add(new PseudoStatement(operation, inputVariables));
 		// }
 		statements.add(new PseudoStatement(operation, inputVariables));
-//		AddReferenceForAllVariables(inputVariables);
+		// AddReferenceForAllVariables(inputVariables);
 		return pv;
 	}
 
@@ -148,11 +158,12 @@ public class PseudoSequence implements Rewardable {
 	// in_use_sequence.sequences_which_use_this_sequence.remove(this);
 	// }
 
-//	private void AddReferenceForAllVariables(List<PseudoVariable> inputVariables) {
-//		for (PseudoVariable pv : inputVariables) {
-//			pv.sequence.sequences_which_use_headed_variable.add(this);
-//		}
-//	}
+	// private void AddReferenceForAllVariables(List<PseudoVariable> inputVariables)
+	// {
+	// for (PseudoVariable pv : inputVariables) {
+	// pv.sequence.sequences_which_use_headed_variable.add(this);
+	// }
+	// }
 
 	public PseudoSequence CopySelfInDeepCloneWay(PseudoSequenceContainer container,
 			Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map, DateGenerator dg) {// Map<PseudoVariable,
@@ -179,30 +190,37 @@ public class PseudoSequence implements Rewardable {
 		copy_version.SetContainer(container);
 		container.AddPseudoSequence(copy_version);
 		origin_copied_sequence_map.put(this, copy_version);
-//		PseudoVariable copied_headed_variable = headed_variable.CopySelfInDeepCloneWay(container,
-//				origin_copied_sequence_map, dg);
-//		copy_version.SetHeadedVariable(copied_headed_variable);
-//		copy_version.operation_use_count.putAll(operation_use_count);
-//		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.all_count, headed_variable_branch_influence.all_count);
-//		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.positive_value_change_count, headed_variable_branch_influence.positive_value_change_count);
-//		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.negative_value_change_count, headed_variable_branch_influence.negative_value_change_count);
-//		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.reach_branch_count, headed_variable_branch_influence.reach_branch_count);
-//		MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.lose_branch_count, headed_variable_branch_influence.lose_branch_count);
-//		dg.pseudo_variable_headed_sequence.put(copied_headed_variable, copy_version);
+		// PseudoVariable copied_headed_variable =
+		// headed_variable.CopySelfInDeepCloneWay(container,
+		// origin_copied_sequence_map, dg);
+		// copy_version.SetHeadedVariable(copied_headed_variable);
+		// copy_version.operation_use_count.putAll(operation_use_count);
+		// MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.all_count,
+		// headed_variable_branch_influence.all_count);
+		// MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.positive_value_change_count,
+		// headed_variable_branch_influence.positive_value_change_count);
+		// MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.negative_value_change_count,
+		// headed_variable_branch_influence.negative_value_change_count);
+		// MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.reach_branch_count,
+		// headed_variable_branch_influence.reach_branch_count);
+		// MapUtil.MapOneMergeMapTwo(copy_version.headed_variable_branch_influence.lose_branch_count,
+		// headed_variable_branch_influence.lose_branch_count);
+		// dg.pseudo_variable_headed_sequence.put(copied_headed_variable, copy_version);
 		// clone statements
-//		int stmt_index = -1;
+		// int stmt_index = -1;
 		for (PseudoStatement stmt : statements) {
-//			stmt_index++;
+			// stmt_index++;
 			PseudoStatement copy_stmt = stmt.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
 			copy_version.Append(copy_stmt.operation, copy_stmt.inputVariables);// , false, class_object_headed_sequence
-//			if (!stmt.operation.getOutputType().isVoid()) {
-//				PseudoVariable stmt_returned_pv = new PseudoVariable(this, stmt_index);
-//				if (dg.pseudo_variable_class.containsKey(stmt_returned_pv)) {
-//					PseudoVariable copied_stmt_returned_pv = stmt_returned_pv.CopySelfInDeepCloneWay(container,
-//							origin_copied_sequence_map, dg);
-//					Assert.isTrue(copied_stmt_returned_pv != null);
-//				}
-//			}
+			// if (!stmt.operation.getOutputType().isVoid()) {
+			// PseudoVariable stmt_returned_pv = new PseudoVariable(this, stmt_index);
+			// if (dg.pseudo_variable_class.containsKey(stmt_returned_pv)) {
+			// PseudoVariable copied_stmt_returned_pv =
+			// stmt_returned_pv.CopySelfInDeepCloneWay(container,
+			// origin_copied_sequence_map, dg);
+			// Assert.isTrue(copied_stmt_returned_pv != null);
+			// }
+			// }
 		}
 		return copy_version;
 	}
@@ -213,11 +231,11 @@ public class PseudoSequence implements Rewardable {
 		// PseudoSequence new_end =
 		container.end.CopySelfInDeepCloneWay(null, origin_copied_sequence_map, dg);
 		PseudoSequence copied_this = origin_copied_sequence_map.get(this);
-		Assert.isTrue(copied_this != null,
-				"copied this is null, but this is not null? " + container.contained_sequences.contains(this)
-						+ "#this sequence' content is:" + toString() + "#over!"
-//						+ "#headed_variable sequence's content is:" + headed_variable.sequence.toString() + "#over!"
-						);
+		Assert.isTrue(copied_this != null, "copied this is null, but this is not null? "
+				+ container.contained_sequences.contains(this) + "#this sequence' content is:" + toString() + "#over!"
+		// + "#headed_variable sequence's content is:" +
+		// headed_variable.sequence.toString() + "#over!"
+		);
 		// System.out.println("container.contained_sequences.contains(this):" +
 		// container.contained_sequences.contains(this));
 		// System.out.println("container.end:" + container.end + "#this:" + this);
@@ -267,50 +285,55 @@ public class PseudoSequence implements Rewardable {
 		// return copy_version;
 	}
 
-//	public void ReplacePseudoVariableInDependency(DateGenerator dg, PseudoVariable be_replaced,
-//			PseudoVariable the_replace) {
-//		PseudoSequence be_replaced_self = dg.pseudo_variable_headed_sequence.get(be_replaced);
-//		HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
-//		this.BuildDependency(encountered);
-//		for (PseudoSequence ps : encountered) {
-//			if (ps == be_replaced_self) {
-//				continue;
-//			}
-//			for (PseudoStatement stmt : ps.statements) {
-//				ArrayList<PseudoVariable> ivs = stmt.inputVariables;
-//				int iv_len = ivs.size();
-//				for (int i = 0; i < iv_len; i++) {
-//					PseudoVariable pv = ivs.get(i);
-//					if (pv.equals(be_replaced)) {
-//						ivs.set(i, the_replace);
-//					}
-//				}
-//			}
-//		}
-//	}
+	// public void ReplacePseudoVariableInDependency(DateGenerator dg,
+	// PseudoVariable be_replaced,
+	// PseudoVariable the_replace) {
+	// PseudoSequence be_replaced_self =
+	// dg.pseudo_variable_headed_sequence.get(be_replaced);
+	// HashSet<PseudoSequence> encountered = new HashSet<PseudoSequence>();
+	// this.BuildDependency(encountered);
+	// for (PseudoSequence ps : encountered) {
+	// if (ps == be_replaced_self) {
+	// continue;
+	// }
+	// for (PseudoStatement stmt : ps.statements) {
+	// ArrayList<PseudoVariable> ivs = stmt.inputVariables;
+	// int iv_len = ivs.size();
+	// for (int i = 0; i < iv_len; i++) {
+	// PseudoVariable pv = ivs.get(i);
+	// if (pv.equals(be_replaced)) {
+	// ivs.set(i, the_replace);
+	// }
+	// }
+	// }
+	// }
+	// }
 
-//	public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable> variables,
-//			HashSet<PseudoSequence> encountered, DateGenerator dg) {
-//		if (encountered.contains(this)) {
-//			return;
-//		}
-//		encountered.add(this);
-//		if (!variables.contains(headed_variable)
-//				&& !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class)
-//				&& dg.pseudo_variable_class.containsKey(headed_variable)) {
-//			variables.add(headed_variable);
-//		}
-//		for (PseudoStatement stmt : this.statements) {
-//			for (PseudoVariable pv : stmt.inputVariables) {
-//				if (!variables.contains(pv) && !pv.sequence.getClass().equals(DisposablePseudoSequence.class)
-//						&& dg.pseudo_variable_class.containsKey(pv)) {
-//					variables.add(pv);
-//					PseudoSequence pv_sequence = pv.sequence;
-//					pv_sequence.BuildValidDependantPseudoVariables(variables, encountered, dg);
-//				}
-//			}
-//		}
-//	}
+	// public void BuildValidDependantPseudoVariables(HashSet<PseudoVariable>
+	// variables,
+	// HashSet<PseudoSequence> encountered, DateGenerator dg) {
+	// if (encountered.contains(this)) {
+	// return;
+	// }
+	// encountered.add(this);
+	// if (!variables.contains(headed_variable)
+	// &&
+	// !headed_variable.sequence.getClass().equals(DisposablePseudoSequence.class)
+	// && dg.pseudo_variable_class.containsKey(headed_variable)) {
+	// variables.add(headed_variable);
+	// }
+	// for (PseudoStatement stmt : this.statements) {
+	// for (PseudoVariable pv : stmt.inputVariables) {
+	// if (!variables.contains(pv) &&
+	// !pv.sequence.getClass().equals(DisposablePseudoSequence.class)
+	// && dg.pseudo_variable_class.containsKey(pv)) {
+	// variables.add(pv);
+	// PseudoSequence pv_sequence = pv.sequence;
+	// pv_sequence.BuildValidDependantPseudoVariables(variables, encountered, dg);
+	// }
+	// }
+	// }
+	// }
 
 	protected void BuildDependency(HashSet<PseudoSequence> encountered) {
 		if (encountered.contains(this)) {
@@ -325,15 +348,16 @@ public class PseudoSequence implements Rewardable {
 		}
 	}
 
-//	protected void BuildUsage(HashSet<PseudoSequence> encountered) {
-//		if (headed_variable == null) {
-//			Assert.isTrue(statements.size() == 0);
-//		} else {
-//			for (PseudoSequence ps_which_uses_this : sequences_which_use_headed_variable) {
-//				ps_which_uses_this.BuildDependency(encountered);
-//			}
-//		}
-//	}
+	// protected void BuildUsage(HashSet<PseudoSequence> encountered) {
+	// if (headed_variable == null) {
+	// Assert.isTrue(statements.size() == 0);
+	// } else {
+	// for (PseudoSequence ps_which_uses_this : sequences_which_use_headed_variable)
+	// {
+	// ps_which_uses_this.BuildDependency(encountered);
+	// }
+	// }
+	// }
 
 	// private Map<TypedOperation, InfluenceOfBranchChange>
 	// EnsureTypedOperationBranchInfluence(Map<TypedOperation,
@@ -443,27 +467,27 @@ public class PseudoSequence implements Rewardable {
 		return false;
 	}
 
-//	public void OperationApplied(TypedOperation to) {
-//		Integer count = operation_use_count.get(to);
-//		count = (count == null ? 0 : count) + 1;
-//		operation_use_count.put(to, count);
-//	}
-//
-//	public boolean OperationHasBeenApplied(TypedOperation to) {
-//		return operation_use_count.containsKey(to);
-//	}
-//
-//	public int SizeOfUsers() {
-//		return sequences_which_use_headed_variable.size();
-//	}
-//
-//	public void AddInfluenceOfBranchesForHeadedVariable(Map<String, Influence> all_branches_influences) {
-//		headed_variable_branch_influence.AddInfluenceOfBranches(all_branches_influences);
-//	}
+	// public void OperationApplied(TypedOperation to) {
+	// Integer count = operation_use_count.get(to);
+	// count = (count == null ? 0 : count) + 1;
+	// operation_use_count.put(to, count);
+	// }
+	//
+	// public boolean OperationHasBeenApplied(TypedOperation to) {
+	// return operation_use_count.containsKey(to);
+	// }
+	//
+	// public int SizeOfUsers() {
+	// return sequences_which_use_headed_variable.size();
+	// }
+	//
+	// public void AddInfluenceOfBranchesForHeadedVariable(Map<String, Influence>
+	// all_branches_influences) {
+	// headed_variable_branch_influence.AddInfluenceOfBranches(all_branches_influences);
+	// }
 
 	@Override
-	public Reward GetReward(ArrayList<String> interested_branch) {
-//		return headed_variable_branch_influence.GetReward(interested_branch);
+	public Reward GetReward(DateGenerator dg) {
 		return null;
 	}
 

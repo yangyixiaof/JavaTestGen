@@ -246,6 +246,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 			if (pk != null && !modified_content.equals("")) {
 				StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
+				copied_this.container.SetStringLength(modified_content.length());
 				copied_this.container.SetLogicMapping(this, copied_this);
 				TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
 				copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
@@ -253,7 +254,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
 				
 				// debug
-				System.out.println("Begin" );
+				System.out.println("Begin");
 				System.out.println("content of after_linked_sequence:" + after_linked_sequence .toString());
 				System.out.println("end sequence of after_linked_sequence:" + copied_this.container.end.toString());
 				System.out.println("end sequence of this:" + this.container.end.toString());

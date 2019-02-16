@@ -1,11 +1,9 @@
 package randoop.generation.date.influence;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Assert;
+import randoop.generation.date.DateGenerator;
 
 public class BranchValueState implements Rewardable {
 
@@ -19,24 +17,25 @@ public class BranchValueState implements Rewardable {
 	}
 
 	@Override
-	public Reward GetReward(ArrayList<String> interested_branch) {
-		double total_reward = 0.0;
-		double max_w = 1.0;
-		double min_w = 0.2;
-		double gap_w = (max_w - min_w) / ((interested_branch.size() + 1) * 1.0);
-		double w = max_w;
-		Iterator<String> ib_itr = interested_branch.iterator();
-		while (ib_itr.hasNext()) {
-			String ib = ib_itr.next();
-			Double gap = branch_average_gap.get(ib);
-			if (gap != null) {
-				Assert.isTrue(gap >= 0.0);
-				total_reward += (1.0 / (1.0 + gap) * w);
-			}
-			w -= gap_w;
-		}
-		Assert.isTrue(total_reward >= 0);
-		return new Reward(total_reward);
+	public Reward GetReward(DateGenerator dg) {
+//		double total_reward = 0.0;
+//		double max_w = 1.0;
+//		double min_w = 0.2;
+//		double gap_w = (max_w - min_w) / ((interested_branch.size() + 1) * 1.0);
+//		double w = max_w;
+//		Iterator<String> ib_itr = interested_branch.iterator();
+//		while (ib_itr.hasNext()) {
+//			String ib = ib_itr.next();
+//			Double gap = branch_average_gap.get(ib);
+//			if (gap != null) {
+//				Assert.isTrue(gap >= 0.0);
+//				total_reward += (1.0 / (1.0 + gap) * w);
+//			}
+//			w -= gap_w;
+//		}
+//		Assert.isTrue(total_reward >= 0);
+//		return new Reward(total_reward);
+		return null;
 	}
 
 }

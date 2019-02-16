@@ -1,6 +1,5 @@
 package randoop.generation.date.random;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,8 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.eclipse.core.runtime.Assert;
-
+import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.random.filter.SelectFileter;
@@ -145,14 +143,14 @@ public class RandomSelect {
 	// }
 
 	public static Object RandomElementFromSetByRewardableElements(Collection<? extends Rewardable> wait_select,
-			ArrayList<String> interested_branch, SelectFileter<?> filter) {
+			DateGenerator dg, SelectFileter<?> filter) {
 		Map<Object, Reward> final_wait_select = new HashMap<Object, Reward>();
 		Iterator<? extends Rewardable> kitr = wait_select.iterator();
 		while (kitr.hasNext()) {
 			Rewardable t = kitr.next();
 			// if (filter == null || filter.Retain(t))
 			{
-				Reward reward = t.GetReward(interested_branch);
+				Reward reward = t.GetReward(dg);
 				Reward copied_reward = reward.CopySelf();
 				// Rewardable to_branch_influence = wait_select.get(t);
 				// if (to_branch_influence != null) {
@@ -231,19 +229,17 @@ public class RandomSelect {
 	// return list.get(0).getKey();
 	// }
 
-	public static <T> T RandomKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select,
-			ArrayList<String> interested_branch, SelectFileter<T> filter) {
+	public static <T> T RandomKeyFromMapByRewardableValue(Map<T, ? extends Rewardable> wait_select, DateGenerator dg) {// ArrayList<String> interested_branch, SelectFileter<T> filter
 		Map<T, Reward> final_wait_select = new HashMap<T, Reward>();
 		Set<T> keys = wait_select.keySet();
 		Iterator<T> kitr = keys.iterator();
 		while (kitr.hasNext()) {
 			T t = kitr.next();
-			if (filter == null || filter.Retain(t)) {
-				Rewardable to_branch_influence = wait_select.get(t);
-				Assert.isTrue(to_branch_influence != null);
-				Reward reward = to_branch_influence.GetReward(interested_branch);
-				final_wait_select.put(t, reward);
-			}
+//			if (filter == null || filter.Retain(t)) {
+				Rewardable r = wait_select.get(t);
+				Reward reward = r.GetReward(dg);
+				final_wait_select.put(t, reward.CopySelf());
+//			}
 		}
 		if (final_wait_select.size() == 0) {
 			return null;

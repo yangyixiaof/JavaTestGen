@@ -15,7 +15,7 @@ import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.operation.TypedOperation;
 
-public class PseudoSequenceContainer implements Rewardable {
+public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSequenceContainer> {
 
 	PseudoSequence end = null;
 
@@ -25,6 +25,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	// the following are set up by execution trace
 	// ArrayList<TraceInfo> infos = null;
 	TraceInfo trace_info = null;
+//	BranchValueState val_state = null;
 	
 	// the key is meaning the previous trace info
 	Map<TraceInfo, InfluenceOfTraceCompare> influences_compared_to_previous_trace = new HashMap<TraceInfo, InfluenceOfTraceCompare>();
@@ -35,7 +36,7 @@ public class PseudoSequenceContainer implements Rewardable {
 	
 	LinkedSequence linked_sequence = null;
 	
-	// BranchValueState val_state = null;
+	int string_length = 0;
 
 	// must satisfied constraint in next generation
 	// HashSet<PseudoSequenceAddressConstraint> acs = new
@@ -57,14 +58,14 @@ public class PseudoSequenceContainer implements Rewardable {
 //	PseudoSequenceContainer previous = null;
 //	Set<PseudoSequenceContainer> nexts = new HashSet<PseudoSequenceContainer>();
 
-	int mutated_number = 0;
+//	int mutated_number = 0;
 
 	public PseudoSequenceContainer(PseudoSequenceContainer previous) {
-		if (previous != null) {
+//		if (previous != null) {
 //			previous.nexts.add(this);
 //			this.previous = previous;
-			this.mutated_number = previous.mutated_number;
-		}
+//			this.mutated_number = previous.mutated_number;
+//		}
 	}
 
 	public void SetEndPseudoSequence(PseudoSequence end) {
@@ -209,7 +210,8 @@ public class PseudoSequenceContainer implements Rewardable {
 	// }
 
 	@Override
-	public Reward GetReward(ArrayList<String> interested_branch) {
+	public Reward GetReward(DateGenerator dg) {
+		// TODO
 		// Assert.isTrue(infos != null && val_state != null);
 		// return val_state.GetReward(interested_branch);
 		return new Reward(0.1);
@@ -354,9 +356,9 @@ public class PseudoSequenceContainer implements Rewardable {
 		return pstmt.operation;
 	}
 
-	public int GetMutatedNumber() {
-		return mutated_number;
-	}
+//	public int GetMutatedNumber() {
+//		return mutated_number;
+//	}
 
 	public void AddRecentInfluence(TraceInfo previous_trace_info, InfluenceOfTraceCompare all_branches_influences) {
 		if (previous_trace_info != null) {
@@ -371,6 +373,19 @@ public class PseudoSequenceContainer implements Rewardable {
 	public void SetLogicMapping(PseudoSequence b_this, PseudoSequence copied_this) {
 		Assert.isTrue(contained_sequences.contains(copied_this));
 		logical_mutate_mapping.put(b_this, copied_this);
+	}
+	
+	public void SetStringLength(int string_length) {
+		this.string_length = string_length;
+	}
+	
+	public int GetStringLength() {
+		return string_length;
+	}
+
+	@Override
+	public int compareTo(PseudoSequenceContainer o) {
+		return 0;
 	}
 
 }

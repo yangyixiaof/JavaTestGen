@@ -1,9 +1,9 @@
 package randoop.generation.date.influence;
 
-import java.util.ArrayList;
+import randoop.generation.date.DateGenerator;
 
 public interface Rewardable {
 
-	public Reward GetReward(ArrayList<String> interested_branch);
+	public Reward GetReward(DateGenerator dg);
 	
 }

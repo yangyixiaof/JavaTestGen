@@ -17,8 +17,9 @@ public abstract class Mutation implements Rewardable {
 	}
 
 	@Override
-	public Reward GetReward(ArrayList<String> interested_branch) {
-		return influence.GetReward(interested_branch);
+	public Reward GetReward(DateGenerator dg) {// ArrayList<String> interested_branch
+		// return influence.GetReward(interested_branch);
+		return null;
 	}
 
 	public abstract BeforeAfterLinkedSequence Apply(ArrayList<String> interested_branch, DateGenerator dg);

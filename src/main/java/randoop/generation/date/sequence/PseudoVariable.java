@@ -1,9 +1,7 @@
 package randoop.generation.date.sequence;
 
-import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
@@ -92,9 +90,10 @@ public class PseudoVariable implements Rewardable {
 	}
 
 	@Override
-	public Reward GetReward(ArrayList<String> interested_branch) {
-		double[] concated_rewards = ArrayUtils.addAll(sequence.GetReward(interested_branch).GetRewards(), sequence.container.GetReward(interested_branch).GetRewards());
-		return new Reward(concated_rewards);
+	public Reward GetReward(DateGenerator dg) {
+//		double[] concated_rewards = ArrayUtils.addAll(sequence.GetReward(interested_branch).GetRewards(), sequence.container.GetReward(interested_branch).GetRewards());
+//		return new Reward(concated_rewards);
+		return null;
 	}
 
 }
