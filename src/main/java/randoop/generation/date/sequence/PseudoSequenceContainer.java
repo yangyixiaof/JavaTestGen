@@ -3,7 +3,6 @@ package randoop.generation.date.sequence;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
@@ -28,15 +27,17 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //	BranchValueState val_state = null;
 	
 	// the key is meaning the previous trace info
-	Map<TraceInfo, InfluenceOfTraceCompare> influences_compared_to_previous_trace = new HashMap<TraceInfo, InfluenceOfTraceCompare>();
+	Map<PseudoSequenceContainer, InfluenceOfTraceCompare> influences_mutated_compared_to_current = new HashMap<PseudoSequenceContainer, InfluenceOfTraceCompare>();
 	
 	// key is before mutating, value is the after mutating.
 	// note that this is just the logical mapping, the real values may mutated from intermediate results.
-	HashMap<PseudoSequence, PseudoSequence> logical_mutate_mapping = new HashMap<PseudoSequence, PseudoSequence>();
+//	HashMap<PseudoSequence, PseudoSequence> logical_mutate_mapping = new HashMap<PseudoSequence, PseudoSequence>();
 	
 	LinkedSequence linked_sequence = null;
 	
 	int string_length = 0;
+	
+	StringPseudoSequence string_sequence = null;
 
 	// must satisfied constraint in next generation
 	// HashSet<PseudoSequenceAddressConstraint> acs = new
@@ -77,6 +78,10 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 	}
 
 	public void AddPseudoSequence(PseudoSequence e) {
+		if (e != null && e instanceof StringPseudoSequence) {
+			Assert.isTrue(string_sequence == null);
+			string_sequence = (StringPseudoSequence) e;
+		}
 		contained_sequences.add(e);
 	}
 
@@ -244,16 +249,21 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 		}
 		return null;
 	}
+	
+	public StringPseudoSequence FetchStringPseudoSequence() {
+		return string_sequence;
+	}
 
 	private ArrayList<StringPseudoSequence> FetchAllStringPseudoSequences() {
 		ArrayList<StringPseudoSequence> string_sequences = new ArrayList<StringPseudoSequence>();
-		Iterator<PseudoSequence> seq_itr = contained_sequences.iterator();
-		while (seq_itr.hasNext()) {
-			PseudoSequence ps = seq_itr.next();
-			if (ps instanceof StringPseudoSequence) {
-				string_sequences.add((StringPseudoSequence) ps);
-			}
-		}
+//		Iterator<PseudoSequence> seq_itr = contained_sequences.iterator();
+//		while (seq_itr.hasNext()) {
+//			PseudoSequence ps = seq_itr.next();
+//			if (ps instanceof StringPseudoSequence) {
+//				string_sequences.add((StringPseudoSequence) ps);
+//			}
+//		}
+		string_sequences.add(string_sequence);
 		return string_sequences;
 	}
 
@@ -360,20 +370,20 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //		return mutated_number;
 //	}
 
-	public void AddRecentInfluence(TraceInfo previous_trace_info, InfluenceOfTraceCompare all_branches_influences) {
-		if (previous_trace_info != null) {
-			influences_compared_to_previous_trace.put(previous_trace_info, all_branches_influences);
+	public void AddRecentInfluence(PseudoSequenceContainer mutated, InfluenceOfTraceCompare all_branches_influences) {
+		if (mutated != null) {
+			influences_mutated_compared_to_current.put(mutated, all_branches_influences);
 		}
 	}
-
-	public PseudoSequence GetLogicalMappingSequence(PseudoSequence b_this) {
-		return logical_mutate_mapping.get(b_this);
-	}
-
-	public void SetLogicMapping(PseudoSequence b_this, PseudoSequence copied_this) {
-		Assert.isTrue(contained_sequences.contains(copied_this));
-		logical_mutate_mapping.put(b_this, copied_this);
-	}
+//
+//	public PseudoSequence GetLogicalMappingSequence(PseudoSequence b_this) {
+//		return logical_mutate_mapping.get(b_this);
+//	}
+//
+//	public void SetLogicMapping(PseudoSequence b_this, PseudoSequence copied_this) {
+//		Assert.isTrue(contained_sequences.contains(copied_this));
+//		logical_mutate_mapping.put(b_this, copied_this);
+//	}
 	
 	public void SetStringLength(int string_length) {
 		this.string_length = string_length;

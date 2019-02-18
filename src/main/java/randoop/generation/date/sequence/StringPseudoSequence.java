@@ -189,7 +189,8 @@ public class StringPseudoSequence extends PseudoSequence {
 					Assert.isTrue(remain > 0);
 					StringBuilder modified_content_builder = new StringBuilder(content);
 					if (recent_mutate_result != null) {
-						InfluenceOfTraceCompare influence = recent_mutate_result.after_linked_sequence.container.influences_compared_to_previous_trace.get(recent_mutate_result.before_linked_sequence.container.trace_info);
+						Assert.isTrue(recent_mutate_result.before_linked_sequence.container == this.container);
+						InfluenceOfTraceCompare influence = this.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
 						int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
 						if (index_of_influenced_branch >= 0) {
 							Assert.isTrue(index_of_influenced_branch < cared_branches.size());
@@ -200,13 +201,13 @@ public class StringPseudoSequence extends PseudoSequence {
 //								value_in_order = new ArrayList<Integer>();
 //								tried_value_in_order.put(position_and_branch, value_in_order);
 //							}
-							StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.GetLogicalMappingSequence(this);
+							StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.FetchStringPseudoSequence();
 							if (before_mapping == null) {
 								before_mapping = this;
 							}
 							String before_content = before_mapping.content;
 							int before_v_p = before_content.charAt(pk);
-							StringPseudoSequence after_mapping = (StringPseudoSequence) recent_mutate_result.after_linked_sequence.container.GetLogicalMappingSequence(this);
+							StringPseudoSequence after_mapping = recent_mutate_result.after_linked_sequence.container.FetchStringPseudoSequence();
 							String after_content = after_mapping.content;
 							int after_v_p = after_content.charAt(pk);
 							int gap_v_p = after_v_p - before_v_p;
@@ -247,7 +248,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			if (pk != null && !modified_content.equals("")) {
 				StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
 				copied_this.container.SetStringLength(modified_content.length());
-				copied_this.container.SetLogicMapping(this, copied_this);
+//				copied_this.container.SetLogicMapping(this, copied_this);
 				TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
 				copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
 				copied_this.content = modified_content;
