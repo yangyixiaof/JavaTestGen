@@ -37,8 +37,10 @@ public class StringPseudoSequence extends PseudoSequence {
 	// of headed_variable
 	
 	// TODO currently, entirely determined, add random factors. 
-	// TODO optimize the already encountered situations.
-	Map<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>> tried_value = new TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>>();
+	// TODO optimize the already encountered situations. 
+//	Map<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>> tried_value = new TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>>();
+	// key: position; value: tried gap;
+	Map<Integer, TreeSet<Integer>> tried_gap_value = new TreeMap<Integer, TreeSet<Integer>>();
 	
 	// int recent_tried_position = -1;
 //	Map<String, ArrayList<Integer>> tried_value_in_order = new TreeMap<String, ArrayList<Integer>>();
@@ -189,8 +191,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					Assert.isTrue(remain > 0);
 					StringBuilder modified_content_builder = new StringBuilder(content);
 					if (recent_mutate_result != null) {
-						Assert.isTrue(recent_mutate_result.before_linked_sequence.container == this.container);
-						InfluenceOfTraceCompare influence = this.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
+						InfluenceOfTraceCompare influence = recent_mutate_result.before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
 						int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
 						if (index_of_influenced_branch >= 0) {
 							Assert.isTrue(index_of_influenced_branch < cared_branches.size());
@@ -261,9 +262,17 @@ public class StringPseudoSequence extends PseudoSequence {
 				System.out.println("end sequence of this:" + this.container.end.toString());
 				System.out.println("End" );
 				
+				StringPseudoSequence before_string_sequence = before_linked_sequence.container.FetchStringPseudoSequence();
 				StringMutation string_mutation = null;
 				if (pk >= 0) {
-					string_mutation = new StringMutation(pk, (modified_content.charAt(pk)-content.charAt(pk)));
+					int modified_gap = modified_content.charAt(pk)-before_string_sequence.content.charAt(pk);
+					TreeSet<Integer> gaps = before_string_sequence.tried_gap_value.get(pk);
+					if (gaps == null) {
+						gaps = new TreeSet<Integer>();
+						before_string_sequence.tried_gap_value.put(pk, gaps);
+					}
+					gaps.add(modified_gap);
+					string_mutation = new StringMutation(pk, modified_gap);
 				}
 				result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence);
 				recent_mutate_result = result;
