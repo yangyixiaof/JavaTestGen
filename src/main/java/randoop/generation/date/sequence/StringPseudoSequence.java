@@ -36,8 +36,8 @@ public class StringPseudoSequence extends PseudoSequence {
 	// position inserted, the position range is 0 ... n, n is the length of content
 	// of headed_variable
 	
-	// TODO currently, entirely determined, add random factors. 
-	// TODO optimize the already encountered situations. 
+	// currently, entirely determined, add random factors. 
+	// optimize the already encountered situations. 
 //	Map<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>> tried_value = new TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, BeforeAfterLinkedSequence>>>();
 	// key: position; value: tried gap;
 	Map<Integer, TreeSet<Integer>> tried_gap_value = new TreeMap<Integer, TreeSet<Integer>>();
