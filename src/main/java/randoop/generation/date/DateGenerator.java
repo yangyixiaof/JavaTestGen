@@ -751,7 +751,8 @@ public class DateGenerator extends AbstractGenerator {
 			if (current_container != null) {
 				BeforeAfterLinkedSequence result = current_container.Mutate(this);
 				if (result == null) {
-					current_container.ResetMutate(this);
+					containers.get(current_container.GetStringLength()).remove(current_container);
+//					current_container.ResetMutate(this);
 					current_container = null;
 				} else {
 					Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
