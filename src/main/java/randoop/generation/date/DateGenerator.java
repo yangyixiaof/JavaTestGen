@@ -224,7 +224,8 @@ public class DateGenerator extends AbstractGenerator {
 			n_cmp_sequence = CreateNewCompareSequence();
 			// debugging code, waiting to be deleted.
 			if (n_cmp_sequence != null) {
-				System.out.println(n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
+//				System.out.println("Newly generated sequence:" + n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
+				System.out.println("Newly generated sequence, original form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContent() + "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 			} else {
 				System.out.println("Failed One Generation! The generated sequence is null!");
 			}
@@ -477,6 +478,7 @@ public class DateGenerator extends AbstractGenerator {
 			c_arr = new PriorityQueue<PseudoSequenceContainer>();
 		}
 		containers.put(sl, c_arr);
+		c_arr.add(newly_created_container);
 //		}
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
@@ -740,10 +742,11 @@ public class DateGenerator extends AbstractGenerator {
 					rewardables.put(c_k, new RewardableInteger(c_k+5));
 				}
 				Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
+				PriorityQueue<PseudoSequenceContainer> all_c_k_cs = containers.get(c_k);
 				current_container = (PseudoSequenceContainer) RandomSelect
-						.RandomElementFromSetByRewardableElements(containers.get(c_k), this, null);
-				System.out.println("size of containers: " + containers.size());
-				System.out.println("The content of selected container:" + current_container.toString());
+						.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
+//				System.out.println("size of containers: " + containers.size());
+				System.out.println("ck container size:" + all_c_k_cs.size() + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 			}
 			if (current_container != null) {
 				BeforeAfterLinkedSequence result = current_container.Mutate(this);

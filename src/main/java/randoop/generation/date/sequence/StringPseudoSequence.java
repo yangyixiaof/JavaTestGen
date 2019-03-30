@@ -21,7 +21,7 @@ import randoop.types.Type;
 public class StringPseudoSequence extends PseudoSequence {
 
 	int ready_try_length = 0;
-	public static final int MaxSequenceLength = 20;
+	public static final int MaxSequenceLength = 2;
 	
 	private static int current_tried_string_length = 0;
 	
@@ -51,12 +51,13 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	boolean is_mutating = false;
 	boolean is_making_plan = true;
-	TreeMap<Integer, Integer> plan = new TreeMap<Integer, Integer>();
+	TreeMap<Integer, TreeMap<String, Integer>> plan = new TreeMap<Integer, TreeMap<String, Integer>>();
 	TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer, ArrayList<String>>();
 
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 
-	public static final int OneTryTimes = 5;
+	public static final int OneTryTimes = 6;
+	public static final String DefaultBranch = "DefaultBranch";
 
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
@@ -159,16 +160,32 @@ public class StringPseudoSequence extends PseudoSequence {
 		if (is_mutating) {
 			if (is_making_plan) {
 				if (content.equals("")) {
-					plan.put(-1, 1);
+					plan.put(-1, null);
 				} else {
 					Map<Integer, TreeSet<String>> uncovered_position_branches = dg.branch_state
 							.GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(container.trace_info);
 					int clen = content.length();
 					for (int i = 0; i < clen; i++) {
+						TreeMap<String, Integer> branch_try_times = new TreeMap<String, Integer>();
+						branch_try_times.put(DefaultBranch, OneTryTimes);
 						TreeSet<String> branches = uncovered_position_branches == null ? null : uncovered_position_branches.get(i);
-						int bunch_size = (branches != null ? branches.size() : 0) + 1;
-						plan.put(i, bunch_size * OneTryTimes);
-						plan_for_branches.put(i, branches == null ? new ArrayList<String>() : new ArrayList<String>(branches));
+//						int bunch_size = (branches != null ? branches.size() : 0) + 1;
+						if (branches != null) {
+							Iterator<String> bitr = branches.iterator();
+							while (bitr.hasNext()) {
+								String branch = bitr.next();
+								branch_try_times.put(branch, OneTryTimes);
+							}
+						}
+//						int trying_times = bunch_size * OneTryTimes;
+//						System.out.println("trying_times:" + trying_times);
+						plan.put(i, branch_try_times);
+						ArrayList<String> p_bs = new ArrayList<String>();
+						p_bs.add(DefaultBranch);
+						if (branches != null) {
+							p_bs.addAll(branches);
+						}
+						plan_for_branches.put(i, p_bs);
 					}
 				}
 				is_making_plan = false;
@@ -193,16 +210,27 @@ public class StringPseudoSequence extends PseudoSequence {
 					recent_mutate_result = null;
 					break;
 				} else {
-					Integer remain = plan.get(pk);
-					ArrayList<String> cared_branches = plan_for_branches.get(pk);
-					Assert.isTrue(remain > 0);
+					TreeMap<String, Integer> remain = plan.get(pk);
+//					ArrayList<String> cared_branches = plan_for_branches.get(pk);
+//					Assert.isTrue(remain > 0);
 					StringBuilder modified_content_builder = new StringBuilder(content);
+					String cared_branch = remain.keySet().iterator().next();
+					Integer r_num = remain.get(cared_branch);
+					int direction = 1;
+					if (r_num % OneTryTimes == 0) {
+						recent_mutate_result = null;
+						direction = 1;
+					}
+					if (r_num % (OneTryTimes/2) == 0) {
+						recent_mutate_result = null;
+						direction = -1;
+					}
 					if (recent_mutate_result != null) {
 						InfluenceOfTraceCompare influence = recent_mutate_result.before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
-						int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
-						if (index_of_influenced_branch >= 0) {
-							Assert.isTrue(index_of_influenced_branch < cared_branches.size());
-							String cared_branch = cared_branches.get(index_of_influenced_branch);
+//						int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
+						if (!cared_branch.equals(DefaultBranch)) {
+//							Assert.isTrue(index_of_influenced_branch < cared_branches.size());
+//							String cared_branch = cared_branches.get(index_of_influenced_branch);
 //							String position_and_branch = pk + "#" + cared_branch;
 //							ArrayList<Integer> value_in_order = tried_value_in_order.get(position_and_branch);
 //							if (value_in_order == null) {
@@ -228,23 +256,27 @@ public class StringPseudoSequence extends PseudoSequence {
 								before_linked_sequence = recent_mutate_result.before_linked_sequence;
 								int new_gap_v_p = gap_v_p / 2;
 								if (new_gap_v_p == 0) {
-									new_gap_v_p = -gap_v_p;
+									new_gap_v_p = random.nextInt(1000) * direction;
+									r_num = r_num - (r_num-1) % (OneTryTimes / 2);
 								}
 								modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
 							}
 						} else {
 							before_linked_sequence = this.container.GetLinkedSequence();
-							modified_content_builder.setCharAt(pk, (char) (content.charAt(pk)+random.nextInt(65535)));
+							modified_content_builder.setCharAt(pk, (char) random.nextInt(65535));
 						}
 					} else {
 						before_linked_sequence = this.container.GetLinkedSequence();
-						modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk)+1));
+						modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk) + (1*direction)));
 					}
-					remain--;
+					r_num--;
+					if (r_num == 0) {
+						remain.remove(cared_branch);
+					}
 					modified_content = modified_content_builder.toString();
-					if (remain == 0) {
+					if (remain.size() == 0) {
 						removed_pk = pk;
-						recent_mutate_result = null;
+//						recent_mutate_result = null;
 					}
 					break;
 				}
@@ -263,11 +295,11 @@ public class StringPseudoSequence extends PseudoSequence {
 				LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
 				
 				// debug
-				System.out.println("Begin");
-				System.out.println("content of after_linked_sequence:" + after_linked_sequence .toString());
-				System.out.println("end sequence of after_linked_sequence:" + copied_this.container.end.toString());
-				System.out.println("end sequence of this:" + this.container.end.toString());
-				System.out.println("End" );
+//				System.out.println("Begin");
+//				System.out.println("content of after_linked_sequence:" + after_linked_sequence .toString());
+//				System.out.println("end sequence of after_linked_sequence:" + copied_this.container.end.toString());
+//				System.out.println("end sequence of this:" + this.container.end.toString());
+//				System.out.println("End" );
 				
 				StringPseudoSequence before_string_sequence = before_linked_sequence.container.FetchStringPseudoSequence();
 				StringMutation string_mutation = null;
@@ -405,7 +437,20 @@ public class StringPseudoSequence extends PseudoSequence {
 	// }
 	// return 0.0;
 	// }
-
+	
+	public String GetContent() {
+		return content;
+	}
+	
+	public String GetContentWithTheFormOfEachCharIntegerValue() {
+		StringBuilder sb = new StringBuilder();
+		int cl = content.length();
+		for (int i=0;i<cl;i++) {
+			sb.append(((int)content.charAt(i)) + "#");
+		}
+		return sb.toString();
+	}
+	
 }
 
 // class TriedChars {
