@@ -49,7 +49,7 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	String content = "";
 
-	boolean is_mutating = false;
+	boolean is_mutating = true;
 	boolean is_making_plan = true;
 	TreeMap<Integer, TreeMap<String, Integer>> plan = new TreeMap<Integer, TreeMap<String, Integer>>();
 	TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer, ArrayList<String>>();
@@ -197,6 +197,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			Integer removed_pk = null;
 			while (pk_itr.hasNext()) {
 				pk = pk_itr.next();
+				System.out.println("pk:" + pk + "; recent_mutate_result:" + recent_mutate_result);
 				if (pk < 0) {
 					before_linked_sequence = this.container.GetLinkedSequence();
 //					modified_content = "0000000000";
@@ -272,6 +273,8 @@ public class StringPseudoSequence extends PseudoSequence {
 					r_num--;
 					if (r_num == 0) {
 						remain.remove(cared_branch);
+					} else {
+						remain.put(cared_branch, r_num);
 					}
 					modified_content = modified_content_builder.toString();
 					if (remain.size() == 0) {

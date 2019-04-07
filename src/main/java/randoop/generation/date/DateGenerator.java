@@ -220,12 +220,13 @@ public class DateGenerator extends AbstractGenerator {
 		// ExecutableSequence eSeq = new
 		// ExecutableSequence(allSequences.values().iterator().next());
 		BeforeAfterLinkedSequence n_cmp_sequence = null;
-		while (n_cmp_sequence == null) {
+		while (true) {
 			n_cmp_sequence = CreateNewCompareSequence();
 			// debugging code, waiting to be deleted.
 			if (n_cmp_sequence != null) {
 //				System.out.println("Newly generated sequence:" + n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
 				System.out.println("Newly generated sequence, original form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContent() + "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+				break;
 			} else {
 				System.out.println("Failed One Generation! The generated sequence is null!");
 			}
@@ -749,10 +750,9 @@ public class DateGenerator extends AbstractGenerator {
 //				System.out.println("size of containers: " + containers.size());
 //				System.out.println("==== Begin ====");
 // 				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container);//  + "#The container of selected:" + current_container.FetchStringPseudoSequence()
-				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container.toString().trim() + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 //				System.out.println("==== End ====");
-			}
-			if (current_container != null) {
+			} else {
 				BeforeAfterLinkedSequence result = current_container.Mutate(this);
 				if (result == null) {
 //					containers.get(current_container.GetStringLength()).remove(current_container);

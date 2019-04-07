@@ -235,19 +235,20 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 
 	public BeforeAfterLinkedSequence Mutate(DateGenerator dg) {
 		// // here should be specified Mutation for string
-		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
-		int s_len = string_sequences.size();
+//		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
+//		int s_len = string_sequences.size();
 //		System.out.println("number of StringPseudoSequence:" + s_len);
-		if (s_len > 0) {
-			for (int i = 0; i < s_len; i++) {
-				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
-				BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
-				if (mutated != null) {
-					return mutated;
-				}
-			}
-		}
-		return null;
+//		if (s_len > 0) {
+//			for (int i = 0; i < s_len; i++) {
+//				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
+		StringPseudoSequence to_mutate_sequence = FetchStringPseudoSequence();
+		BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
+//		if (mutated != null) {
+		return mutated;
+//		}
+//			}
+//		}
+//		return null;
 	}
 	
 	public StringPseudoSequence FetchStringPseudoSequence() {
