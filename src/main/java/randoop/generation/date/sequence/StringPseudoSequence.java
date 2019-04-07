@@ -203,11 +203,13 @@ public class StringPseudoSequence extends PseudoSequence {
 //					modified_content = "0000000000";
 					// random.nextInt(MaxSequenceLength)+1
 					if (current_tried_string_length > MaxSequenceLength) {
-						return null;
+						current_tried_string_length = 0;
+						modified_content = null;
+						removed_pk = pk;
+					} else {
+						current_tried_string_length++;
+						modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
 					}
-					current_tried_string_length++;
-					modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
-					removed_pk = pk;
 					recent_mutate_result = null;
 					break;
 				} else {
@@ -288,7 +290,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				plan.remove(removed_pk);
 				plan_for_branches.remove(removed_pk);
 			}
-			if (pk != null && !modified_content.equals("")) {
+			if (pk != null && modified_content != null && !modified_content.equals("")) {
 				StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
 				copied_this.container.SetStringLength(modified_content.length());
 //				copied_this.container.SetLogicMapping(this, copied_this);
