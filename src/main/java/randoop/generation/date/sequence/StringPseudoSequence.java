@@ -21,9 +21,11 @@ import randoop.types.Type;
 public class StringPseudoSequence extends PseudoSequence {
 
 	int ready_try_length = 0;
-	public static final int MaxSequenceLength = 2;
 	
-	private static int current_tried_string_length = 0;
+	int current_tried_string_length = 0;
+	
+	public static final int MaxSequenceLength = 1;
+	private static final int max_range = Byte.MAX_VALUE - Byte.MIN_VALUE;
 	
 	// {
 	// deprecated block. it seems delta change is unnecessary
@@ -202,7 +204,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					before_linked_sequence = this.container.GetLinkedSequence();
 //					modified_content = "0000000000";
 					// random.nextInt(MaxSequenceLength)+1
-					if (current_tried_string_length > MaxSequenceLength) {
+					if (current_tried_string_length >= MaxSequenceLength) {
 						current_tried_string_length = 0;
 						modified_content = null;
 						removed_pk = pk;
@@ -253,20 +255,20 @@ public class StringPseudoSequence extends PseudoSequence {
 							Influence influ = influence.GetInfluences().get(cared_branch);
 							if (influ.GetInfluence() > 0.2) {
 								before_linked_sequence = recent_mutate_result.after_linked_sequence;
-								int new_gap_v_p = (int) Math.ceil(gap_v_p *(1 + Math.random()));
+								int new_gap_v_p = (int) Math.ceil(gap_v_p *(2));
 								modified_content_builder.setCharAt(pk, (char) (after_v_p+new_gap_v_p));
 							} else {
 								before_linked_sequence = recent_mutate_result.before_linked_sequence;
 								int new_gap_v_p = gap_v_p / 2;
 								if (new_gap_v_p == 0) {
-									new_gap_v_p = random.nextInt(1000) * direction;
+									new_gap_v_p = random.nextInt((max_range+1)/2) * direction;
 									r_num = r_num - (r_num-1) % (OneTryTimes / 2);
 								}
 								modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
 							}
 						} else {
 							before_linked_sequence = this.container.GetLinkedSequence();
-							modified_content_builder.setCharAt(pk, (char) random.nextInt(65535));
+							modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
 						}
 					} else {
 						before_linked_sequence = this.container.GetLinkedSequence();
