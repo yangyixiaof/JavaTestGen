@@ -743,16 +743,20 @@ public class DateGenerator extends AbstractGenerator {
 				}
 				Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
 				PriorityQueue<PseudoSequenceContainer> all_c_k_cs = containers.get(c_k);
+				Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
 				current_container = (PseudoSequenceContainer) RandomSelect
 						.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
 //				System.out.println("size of containers: " + containers.size());
-				System.out.println("ck container size:" + all_c_k_cs.size() + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+//				System.out.println("==== Begin ====");
+// 				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container);//  + "#The container of selected:" + current_container.FetchStringPseudoSequence()
+				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+//				System.out.println("==== End ====");
 			}
 			if (current_container != null) {
 				BeforeAfterLinkedSequence result = current_container.Mutate(this);
 				if (result == null) {
-					containers.get(current_container.GetStringLength()).remove(current_container);
-//					current_container.ResetMutate(this);
+//					containers.get(current_container.GetStringLength()).remove(current_container);
+					current_container.ResetMutate(this);
 					current_container = null;
 				} else {
 					Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
