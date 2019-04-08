@@ -7,9 +7,14 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
-public class TraceInfo {
+import randoop.generation.date.DateGenerator;
+
+public class TraceInfo implements Rewardable {
 	
 	Map<String, InfoOfBranch> vobs = new HashMap<String, InfoOfBranch>();
+	Map<String, Integer> vob_counts = new HashMap<String, Integer>();
+	int total_count = 0;
+	
 //	List<StatementReturn> stmt_rets = new LinkedList<StatementReturn>();
 	
 //	Map<String, Integer> branch_state = new HashMap<String, Integer>();
@@ -35,11 +40,17 @@ public class TraceInfo {
 //		vob.SetUpOrderedMayInfluenceAddresses(ordered_address);
 		// add value of branch to list.
 		InfoOfBranch iob = vobs.get(sig_info);
+		Integer iob_count = vob_counts.get(sig_info);
 		if (iob == null) {
+			Assert.isTrue(iob_count == null);
 			iob = new InfoOfBranch();
 			vobs.put(sig_info, iob);
+			iob_count = 0;
 		}
 		iob.HandleOneValueOfBranch(vob);
+		iob_count++;
+		vob_counts.put(sig_info, iob_count);
+		total_count++;
 	}
 	
 //	public void AddOneObjectAddress(String catted, int object_address) {
@@ -151,6 +162,11 @@ public class TraceInfo {
 		}
 		Assert.isTrue(trace_sig != null);
 		return trace_sig;
+	}
+
+	@Override
+	public Reward GetReward(DateGenerator dg) {
+		return new Reward(vobs.size() + total_count);
 	}
 	
 }

@@ -219,6 +219,7 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 		// TODO
 		// Assert.isTrue(infos != null && val_state != null);
 		// return val_state.GetReward(interested_branch);
+		
 		return new Reward(0.1);
 	}
 
