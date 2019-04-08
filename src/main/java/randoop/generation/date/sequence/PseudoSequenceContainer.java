@@ -216,11 +216,10 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 
 	@Override
 	public Reward GetReward(DateGenerator dg) {
-		// TODO
 		// Assert.isTrue(infos != null && val_state != null);
 		// return val_state.GetReward(interested_branch);
-		
-		return new Reward(0.1);
+		// TODO combine history & mutation number of the branch state of seed (many seeds)
+		return new Reward(trace_info == null ? 0.0 : trace_info.GetReward(dg).rs[0]);
 	}
 
 	public void ResetMutate(DateGenerator dg) {
