@@ -43,7 +43,9 @@ public class InfoOfBranch {
 
 	public String GenerateBranchStateSignature() {
 		String[] state_array = new String[states.size()];
-		states.toArray(state_array);
+		for (int i=0;i<states.size();i++) {
+			state_array[i] = states.get(i) + "";
+		}
 		return String.join("#", state_array);
 	}
 	
