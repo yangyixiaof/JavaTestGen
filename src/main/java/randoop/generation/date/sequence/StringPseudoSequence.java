@@ -24,7 +24,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	
 	int current_tried_string_length = 0;
 	
-	public static final int MaxSequenceLength = 1;
+	public static final int MaxSequenceLength = 100;
 	private static final int max_range = Byte.MAX_VALUE - Byte.MIN_VALUE;
 	
 	// {
