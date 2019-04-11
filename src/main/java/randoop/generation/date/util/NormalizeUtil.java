@@ -146,33 +146,6 @@ public class NormalizeUtil {
 			}
 		}
 	}
-
-	// /**
-	// * 0 average: X(norm) = (X - ¦Ì) / ¦Ò X(norm) = (X - average) / standard
-	// deviation
-	// *
-	// * @param points
-	// * original data
-	// * @return
-	// */
-	// public static double[][] normalize4ZScore(double[][] points) {
-	// if (points == null || points.length < 1) {
-	// return points;
-	// }
-	// double[][] p = new double[points.length][points[0].length];
-	// double[] matrixJ;
-	// double avg;
-	// double std;
-	// for (int j = 0; j < points[0].length; j++) {
-	// matrixJ = getMatrixCol(points, j);
-	// avg = average(matrixJ);
-	// std = standardDeviation(matrixJ);
-	// for (int i = 0; i < points.length; i++) {
-	// p[i][j] = std == 0 ? points[i][j] : (points[i][j] - avg) / std;
-	// }
-	// }
-	// return p;
-	// }
 	
 	public static double variance(Double[] x) {
 		int m = x.length;
@@ -212,13 +185,6 @@ public class NormalizeUtil {
 		return Math.sqrt(variance(x));
 	}
 	
-	/**
-	 * ¦Ò = sqrt(s^2)
-	 *
-	 * @param x
-	 *            x
-	 * @return standard deviation
-	 */
 	public static double standardDeviation(double[] x) {
 		return Math.sqrt(variance(x));
 	}

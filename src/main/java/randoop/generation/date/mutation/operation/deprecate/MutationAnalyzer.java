@@ -39,20 +39,7 @@ public class MutationAnalyzer {
 		// modify
 		GenerateModifyOperations(mutates);
 	}
-
-	/**
-	 * 妯�?�豢 ForwardGenerator 鐨� createNewUniqueSequence
-	 *
-	 * <p>
-	 * 鍏朵�? instantiator 鐨勬潵婧愭槸 OperationModel -> ComponentManager ->
-	 * ForwardGenerator
-	 *
-	 * <p>
-	 * 浼间箮鏄紑灞�纭畾銆佽凯浠ｄ腑涓嶅彉锛燂紙鍠滐級
-	 *
-	 * @param operation
-	 * @return
-	 */
+	
 	private TypedOperation instantiateGenericType(TypedOperation operation) {
 		try {
 			return instantiator.instantiate((TypedClassOperation) operation);

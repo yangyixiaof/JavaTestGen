@@ -133,7 +133,7 @@ public class DateRuntimeSupport {
 	}
 
 //	private static char getRandomCharacter(char ch1, char ch2) {
-//		return (char) (ch1 + Math.random() * (ch2 - ch1 + 1));// 因为random<1.0，所以需要+1，才能取到ch2
+//		return (char) (ch1 + Math.random() * (ch2 - ch1 + 1));
 //	}
 	
 	public static void main(String[] args) {
