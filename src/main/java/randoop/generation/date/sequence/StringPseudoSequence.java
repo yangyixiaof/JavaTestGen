@@ -272,8 +272,8 @@ public class StringPseudoSequence extends PseudoSequence {
 								modified_content_builder.setCharAt(pk, (char) (before_v_p + GapRanges[DefaultPosNegTryTimes-r_num]));
 								before_linked_sequence = this.container.GetLinkedSequence();
 								
-								LinkedList<MutationPlan> mps = in_trying.get(pk);
-								Assert.isTrue(mps != null);
+//								LinkedList<MutationPlan> mps = in_trying.get(pk);
+//								Assert.isTrue(mps != null);
 								Map<String, Influence> influs = influence.GetInfluences();
 								Set<String> influ_keys = influs.keySet();
 								Iterator<String> in_itr = influ_keys.iterator();
@@ -281,7 +281,7 @@ public class StringPseudoSequence extends PseudoSequence {
 									String in_branch = in_itr.next();
 									Influence influ = influs.get(in_branch);
 									if (influ.GetInfluence() > 0.2) {
-										mps.add(new MutationPlan(cared_mutation + in_branch, DefaultPosNegTryTimes));
+										remain.add(new MutationPlan(cared_mutation + in_branch, DefaultPosNegTryTimes));
 									}
 								}
 							} else {
