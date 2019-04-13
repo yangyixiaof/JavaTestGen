@@ -2,6 +2,7 @@ package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -24,8 +25,9 @@ public class StringPseudoSequence extends PseudoSequence {
 	
 	int current_tried_string_length = 0;
 	
-	public static final int MaxSequenceLength = 100;
+	public static final int MaxSequenceLength = 1;
 	private static final int max_range = Byte.MAX_VALUE - Byte.MIN_VALUE;
+	private static final int[] GapRanges = new int[] {1, 2, 4, 8};
 	
 	// {
 	// deprecated block. it seems delta change is unnecessary
@@ -53,13 +55,19 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	boolean is_mutating = true;
 	boolean is_making_plan = true;
-	TreeMap<Integer, TreeMap<String, Integer>> plan = new TreeMap<Integer, TreeMap<String, Integer>>();
-	TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer, ArrayList<String>>();
+	TreeMap<Integer, LinkedList<MutationPlan>> in_trying = new TreeMap<Integer, LinkedList<MutationPlan>>();
+//	TreeMap<Integer, TreeSet<String>> already_tried_position_branches = new TreeMap<Integer, TreeSet<String>>();
+//	TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer, ArrayList<String>>();
 
 	BeforeAfterLinkedSequence recent_mutate_result = null;
+	boolean recent_mutate_result_set_to_null = true;
 
-	public static final int OneTryTimes = 6;
-	public static final String DefaultBranch = "DefaultBranch";
+	public static final int DefaultRandom_TryTimes = 1;
+	
+	public static final String DefaultRandom = "DefaultRandom";
+	public static final String NegativePrefix = "Negative_";
+	public static final String PositivePrefix = "Positive_";
+	public static final int DefaultPosNegTryTimes = 1;
 
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
@@ -162,38 +170,40 @@ public class StringPseudoSequence extends PseudoSequence {
 		if (is_mutating) {
 			if (is_making_plan) {
 				if (content.equals("")) {
-					plan.put(-1, null);
+					in_trying.put(-1, null);
 				} else {
-					Map<Integer, TreeSet<String>> uncovered_position_branches = dg.branch_state
-							.GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(container.trace_info);
+//					Map<Integer, TreeSet<String>> uncovered_position_branches = dg.branch_state
+//							.GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(container.trace_info);
 					int clen = content.length();
 					for (int i = 0; i < clen; i++) {
-						TreeMap<String, Integer> branch_try_times = new TreeMap<String, Integer>();
-						branch_try_times.put(DefaultBranch, OneTryTimes);
-						TreeSet<String> branches = uncovered_position_branches == null ? null : uncovered_position_branches.get(i);
+						LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
+						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultRandom_TryTimes));
+						branch_try_times.add(new MutationPlan(NegativePrefix, DefaultRandom_TryTimes));
+						branch_try_times.add(new MutationPlan(PositivePrefix, DefaultRandom_TryTimes));
+//						TreeSet<String> branches = uncovered_position_branches == null ? null : uncovered_position_branches.get(i);
 //						int bunch_size = (branches != null ? branches.size() : 0) + 1;
-						if (branches != null) {
-							Iterator<String> bitr = branches.iterator();
-							while (bitr.hasNext()) {
-								String branch = bitr.next();
-								branch_try_times.put(branch, OneTryTimes);
-							}
-						}
+//						if (branches != null) {
+//							Iterator<String> bitr = branches.iterator();
+//							while (bitr.hasNext()) {
+//								String branch = bitr.next();
+//								branch_try_times.put(branch, OneTryTimes);
+//							}
+//						}
 //						int trying_times = bunch_size * OneTryTimes;
 //						System.out.println("trying_times:" + trying_times);
-						plan.put(i, branch_try_times);
-						ArrayList<String> p_bs = new ArrayList<String>();
-						p_bs.add(DefaultBranch);
-						if (branches != null) {
-							p_bs.addAll(branches);
-						}
-						plan_for_branches.put(i, p_bs);
+						in_trying.put(i, branch_try_times);
+//						ArrayList<String> p_bs = new ArrayList<String>();
+//						p_bs.add(DefaultBranch);
+//						if (branches != null) {
+//							p_bs.addAll(branches);
+//						}
+//						plan_for_branches.put(i, p_bs);
 					}
 				}
 				is_making_plan = false;
 			}
 			String modified_content = "";
-			Set<Integer> pkeys = plan.keySet();
+			Set<Integer> pkeys = in_trying.keySet();
 			Iterator<Integer> pk_itr = pkeys.iterator();
 			Integer pk = null;
 			Integer removed_pk = null;
@@ -212,73 +222,110 @@ public class StringPseudoSequence extends PseudoSequence {
 						current_tried_string_length++;
 						modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
 					}
-					recent_mutate_result = null;
+//					recent_mutate_result = null;
+					recent_mutate_result_set_to_null = true;
 					break;
 				} else {
-					TreeMap<String, Integer> remain = plan.get(pk);
+					LinkedList<MutationPlan> remain = in_trying.get(pk);
 //					ArrayList<String> cared_branches = plan_for_branches.get(pk);
 //					Assert.isTrue(remain > 0);
 					StringBuilder modified_content_builder = new StringBuilder(content);
-					String cared_branch = remain.keySet().iterator().next();
-					Integer r_num = remain.get(cared_branch);
-					int direction = 1;
-					if (r_num % OneTryTimes == 0) {
-						recent_mutate_result = null;
-						direction = 1;
-					}
-					if (r_num % (OneTryTimes/2) == 0) {
-						recent_mutate_result = null;
-						direction = -1;
-					}
-					if (recent_mutate_result != null) {
-						InfluenceOfTraceCompare influence = recent_mutate_result.before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
-//						int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
-						if (!cared_branch.equals(DefaultBranch)) {
-//							Assert.isTrue(index_of_influenced_branch < cared_branches.size());
-//							String cared_branch = cared_branches.get(index_of_influenced_branch);
-//							String position_and_branch = pk + "#" + cared_branch;
-//							ArrayList<Integer> value_in_order = tried_value_in_order.get(position_and_branch);
-//							if (value_in_order == null) {
-//								value_in_order = new ArrayList<Integer>();
-//								tried_value_in_order.put(position_and_branch, value_in_order);
-//							}
-							StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.FetchStringPseudoSequence();
-							if (before_mapping == null) {
-								before_mapping = this;
-							}
-							String before_content = before_mapping.content;
-							int before_v_p = before_content.charAt(pk);
-							StringPseudoSequence after_mapping = recent_mutate_result.after_linked_sequence.container.FetchStringPseudoSequence();
-							String after_content = after_mapping.content;
-							int after_v_p = after_content.charAt(pk);
-							int gap_v_p = after_v_p - before_v_p;
-							Influence influ = influence.GetInfluences().get(cared_branch);
-							if (influ.GetInfluence() > 0.2) {
-								before_linked_sequence = recent_mutate_result.after_linked_sequence;
-								int new_gap_v_p = (int) Math.ceil(gap_v_p *(2));
-								modified_content_builder.setCharAt(pk, (char) (after_v_p+new_gap_v_p));
-							} else {
-								before_linked_sequence = recent_mutate_result.before_linked_sequence;
-								int new_gap_v_p = gap_v_p / 2;
-								if (new_gap_v_p == 0) {
-									new_gap_v_p = random.nextInt((max_range+1)/2) * direction;
-									r_num = r_num - (r_num-1) % (OneTryTimes / 2);
+					MutationPlan mp = remain.get(0);
+					String cared_mutation = mp.in_try_mutate;
+//					Integer r_num = remain.get(cared_mutation);
+					Integer r_num = mp.try_num;
+					if (cared_mutation.equals(DefaultRandom)) {
+//						recent_mutate_result = null;
+//						before_linked_sequence = this.container.GetLinkedSequence();
+						modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
+						recent_mutate_result_set_to_null = true;
+					} else {
+						String cared_branch = null;
+						int direction = 0;
+						if (cared_mutation.startsWith(NegativePrefix)) {
+							cared_branch = cared_mutation.substring(NegativePrefix.length(), cared_mutation.length());
+							direction = -1;
+//							recent_mutate_result = null;
+						} else if (cared_mutation.startsWith(PositivePrefix)) {
+							cared_branch = cared_mutation.substring(PositivePrefix.length(), cared_mutation.length());
+							direction = 1;
+//							recent_mutate_result = null;
+						}
+						Assert.isTrue(cared_branch != null);
+						if (recent_mutate_result != null) {
+							InfluenceOfTraceCompare influence = recent_mutate_result.before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
+//							int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
+//							if (!cared_mutation.equals(DefaultBranch)) {
+//								Assert.isTrue(index_of_influenced_branch < cared_branches.size());
+//								String cared_branch = cared_branches.get(index_of_influenced_branch);
+//								String position_and_branch = pk + "#" + cared_branch;
+//								ArrayList<Integer> value_in_order = tried_value_in_order.get(position_and_branch);
+//								if (value_in_order == null) {
+//									value_in_order = new ArrayList<Integer>();
+//									tried_value_in_order.put(position_and_branch, value_in_order);
+//								}
+								StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.FetchStringPseudoSequence();
+								if (before_mapping == null) {
+									before_mapping = this;
 								}
-								modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
+							if (cared_branch.equals("")) {
+								int before_v_p = this.content.charAt(pk);
+								modified_content_builder.setCharAt(pk, (char) (before_v_p + GapRanges[DefaultPosNegTryTimes-r_num]));
+								before_linked_sequence = this.container.GetLinkedSequence();
+								
+								LinkedList<MutationPlan> mps = in_trying.get(pk);
+								Assert.isTrue(mps != null);
+								Map<String, Influence> influs = influence.GetInfluences();
+								Set<String> influ_keys = influs.keySet();
+								Iterator<String> in_itr = influ_keys.iterator();
+								while (in_itr.hasNext()) {
+									String in_branch = in_itr.next();
+									mps.add(new MutationPlan(PositivePrefix + in_branch, DefaultPosNegTryTimes));
+									mps.add(new MutationPlan(NegativePrefix + in_branch, DefaultPosNegTryTimes));
+								}
+							} else {
+								String before_content = before_mapping.content;
+								int before_v_p = before_content.charAt(pk);
+								StringPseudoSequence after_mapping = recent_mutate_result.after_linked_sequence.container.FetchStringPseudoSequence();
+								String after_content = after_mapping.content;
+								int after_v_p = after_content.charAt(pk);
+								int gap_v_p = after_v_p - before_v_p;
+								Influence influ = influence.GetInfluences().get(cared_branch);
+								if (influ.GetInfluence() > 0.2) {
+									before_linked_sequence = recent_mutate_result.after_linked_sequence;
+									int new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
+									int modified_v_p = after_v_p + new_gap_v_p;
+									modified_content_builder.setCharAt(pk, (char) (modified_v_p));
+									int origin_v_p = this.content.charAt(pk);
+									if (Math.abs(modified_v_p - origin_v_p) >= (max_range+1)/2) {
+										r_num = 0;
+									}
+								} else {
+									before_linked_sequence = recent_mutate_result.before_linked_sequence;
+									int new_gap_v_p = gap_v_p / 2;
+									if (new_gap_v_p == 0) {
+										new_gap_v_p = random.nextInt((max_range+1)/2) * direction;
+										r_num = 0;
+									}
+									modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
+								}
 							}
 						} else {
 							before_linked_sequence = this.container.GetLinkedSequence();
-							modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
+							modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk) + (1*direction)));
 						}
-					} else {
-						before_linked_sequence = this.container.GetLinkedSequence();
-						modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk) + (1*direction)));
+						if (!cared_mutation.startsWith(NegativePrefix) && !cared_mutation.startsWith(PositivePrefix)) {
+							System.err.println("Wrong! Error Mutation Plan:" + cared_mutation);
+							System.exit(1);
+						}
 					}
 					r_num--;
-					if (r_num == 0) {
-						remain.remove(cared_branch);
+					if (r_num <= 0) {
+						remain.remove(0);// cared_mutation
+						recent_mutate_result_set_to_null = true;
 					} else {
-						remain.put(cared_branch, r_num);
+//						remain.put(cared_mutation, r_num);
+						mp.try_num = r_num;
 					}
 					modified_content = modified_content_builder.toString();
 					if (remain.size() == 0) {
@@ -289,8 +336,8 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 			}
 			if (removed_pk != null) {
-				plan.remove(removed_pk);
-				plan_for_branches.remove(removed_pk);
+				in_trying.remove(removed_pk);
+//				plan_for_branches.remove(removed_pk);
 			}
 			if (pk != null && modified_content != null && !modified_content.equals("")) {
 				StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
@@ -469,3 +516,15 @@ public class StringPseudoSequence extends PseudoSequence {
 // PseudoVariable>();
 //
 // }
+
+class MutationPlan {
+	
+	String in_try_mutate = null;
+	int try_num = 0;
+	
+	public MutationPlan(String in_try_mutate, int try_num) {
+		this.in_try_mutate = in_try_mutate;
+		this.try_num = try_num;
+	}
+	
+}

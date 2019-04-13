@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.StringMutation;
@@ -25,24 +23,23 @@ public class SimpleInfluenceComputer {
 		StringMutation string_mutation = (StringMutation) mutation;
 		int string_mutation_position = string_mutation.GetPosition();
 		
-		String previous_trace_sig = previous_trace_info == null ? "EmptyTraceSig"
-				: previous_trace_info.GetTraceSignature();
-		TreeSet<String> already_covered_for_previous_vobs = branch_state.already_covered_branch.get(previous_trace_sig);
-		if (already_covered_for_previous_vobs == null) {
-			already_covered_for_previous_vobs = new TreeSet<String>();
-			branch_state.already_covered_branch.put(previous_trace_sig, already_covered_for_previous_vobs);
-		}
-		TreeMap<String, TreeSet<Integer>> branch_positions_with_influence = branch_state.not_covered_and_with_influence_branch_positions_pair.get(previous_trace_sig);
-		if (branch_positions_with_influence == null) {
-			branch_positions_with_influence = new TreeMap<String, TreeSet<Integer>>();
-			branch_state.not_covered_and_with_influence_branch_positions_pair.put(previous_trace_sig, branch_positions_with_influence);
-		}
-		TreeMap<Integer, TreeSet<String>> position_branches_with_influence = branch_state.not_covered_and_with_influence_position_branches_pair.get(previous_trace_sig);
-		if (position_branches_with_influence == null) {
-			position_branches_with_influence = new TreeMap<Integer, TreeSet<String>>();
-			branch_state.not_covered_and_with_influence_position_branches_pair.put(previous_trace_sig, position_branches_with_influence);
-		}
-		
+//		String previous_trace_sig = previous_trace_info == null ? "EmptyTraceSig"
+//				: previous_trace_info.GetTraceSignature();
+//		TreeSet<String> already_covered_for_previous_vobs = branch_state.already_covered_branch.get(previous_trace_sig);
+//		if (already_covered_for_previous_vobs == null) {
+//			already_covered_for_previous_vobs = new TreeSet<String>();
+//			branch_state.already_covered_branch.put(previous_trace_sig, already_covered_for_previous_vobs);
+//		}
+//		TreeMap<String, TreeSet<Integer>> branch_positions_with_influence = branch_state.not_covered_and_with_influence_branch_positions_pair.get(previous_trace_sig);
+//		if (branch_positions_with_influence == null) {
+//			branch_positions_with_influence = new TreeMap<String, TreeSet<Integer>>();
+//			branch_state.not_covered_and_with_influence_branch_positions_pair.put(previous_trace_sig, branch_positions_with_influence);
+//		}
+//		TreeMap<Integer, TreeSet<String>> position_branches_with_influence = branch_state.not_covered_and_with_influence_position_branches_pair.get(previous_trace_sig);
+//		if (position_branches_with_influence == null) {
+//			position_branches_with_influence = new TreeMap<Integer, TreeSet<String>>();
+//			branch_state.not_covered_and_with_influence_position_branches_pair.put(previous_trace_sig, position_branches_with_influence);
+//		}
 		Map<String, InfoOfBranch> previous_branches = previous_trace_info == null ? null
 				: previous_trace_info.GetInfoOfBranches();
 		Map<String, InfoOfBranch> current_branches = current_trace_info.GetInfoOfBranches();
@@ -99,7 +96,8 @@ public class SimpleInfluenceComputer {
 							ValuesOfBranch previous_vob = previous_vob_list.get(i);
 							ValuesOfBranch current_vob = current_vob_list.get(i);
 							String sig_of_this_vob = sig + "#" + i;
-							HandleOneLogOfBranchInTrace(sig_of_this_vob, string_mutation_position, previous_vob, current_vob, already_covered_for_previous_vobs, branch_positions_with_influence, position_branches_with_influence, influence);
+							HandleOneLogOfBranchInTrace(sig_of_this_vob, string_mutation_position, previous_vob, current_vob, influence);
+							// , already_covered_for_previous_vobs, branch_positions_with_influence, position_branches_with_influence
 						}
 					} else {
 						// thought as not exactly matched
@@ -111,7 +109,8 @@ public class SimpleInfluenceComputer {
 								break;
 							}
 							String sig_of_this_vob = sig + "#" + i;
-							HandleOneLogOfBranchInTrace(sig_of_this_vob, string_mutation_position, previous_vob, current_vob, already_covered_for_previous_vobs, branch_positions_with_influence, position_branches_with_influence, influence);
+							HandleOneLogOfBranchInTrace(sig_of_this_vob, string_mutation_position, previous_vob, current_vob, influence);
+							// , already_covered_for_previous_vobs, branch_positions_with_influence, position_branches_with_influence
 						}
 					}
 //					double prev_gap_avg = AverageGapOfBranch(previous_branch_info_for_sig);
@@ -132,21 +131,22 @@ public class SimpleInfluenceComputer {
 		return influence;
 	}
 	
-	private static void HandleOneLogOfBranchInTrace(String sig_of_this_vob, int string_mutation_position, ValuesOfBranch previous_vob, ValuesOfBranch current_vob, TreeSet<String> already_covered_for_previous_vobs, TreeMap<String, TreeSet<Integer>> branch_positions_with_influence, TreeMap<Integer, TreeSet<String>> position_branches_with_influence, InfluenceOfTraceCompare influence) {
+	private static void HandleOneLogOfBranchInTrace(String sig_of_this_vob, int string_mutation_position, ValuesOfBranch previous_vob, ValuesOfBranch current_vob, InfluenceOfTraceCompare influence) {
+		// TreeSet<String> already_covered_for_previous_vobs, TreeMap<String, TreeSet<Integer>> branch_positions_with_influence, TreeMap<Integer, TreeSet<String>> position_branches_with_influence, 
 		if (current_vob.GetState() != previous_vob.GetState()) {
 			// set up already covered branches
-			already_covered_for_previous_vobs.add(sig_of_this_vob);
+//			already_covered_for_previous_vobs.add(sig_of_this_vob);
 			// remove the influence for the already covered
-			TreeSet<Integer> positions = branch_positions_with_influence.remove(sig_of_this_vob);
-			if (positions != null && positions.size() > 0) {
-				Iterator<Integer> pitr = positions.iterator();
-				while (pitr.hasNext()) {
-					Integer pos = pitr.next();
-					position_branches_with_influence.get(pos).remove(sig_of_this_vob);
-				}
-			}
+//			TreeSet<Integer> positions = branch_positions_with_influence.remove(sig_of_this_vob);
+//			if (positions != null && positions.size() > 0) {
+//				Iterator<Integer> pitr = positions.iterator();
+//				while (pitr.hasNext()) {
+//					Integer pos = pitr.next();
+//					position_branches_with_influence.get(pos).remove(sig_of_this_vob);
+//				}
+//			}
 		} else {
-			if (!already_covered_for_previous_vobs.contains(sig_of_this_vob)) {
+//			if (!already_covered_for_previous_vobs.contains(sig_of_this_vob)) {
 				double prev_vob_gap = previous_vob.GetGap();
 				double curr_vob_gap = current_vob.GetGap();
 				double gap_delta = prev_vob_gap - curr_vob_gap;
@@ -158,20 +158,20 @@ public class SimpleInfluenceComputer {
 						sig_influence = 0.2;
 					}
 					influence.influences.put(sig_of_this_vob, new Influence(sig_influence));
-					TreeSet<Integer> positions = branch_positions_with_influence.get(sig_of_this_vob);
-					if (positions == null) {
-						positions = new TreeSet<Integer>();
-						branch_positions_with_influence.put(sig_of_this_vob, positions);
-					}
-					positions.add(string_mutation_position);
-					TreeSet<String> branches = position_branches_with_influence.get(string_mutation_position);
-					if (branches == null) {
-						branches = new TreeSet<String>();
-						position_branches_with_influence.put(string_mutation_position, branches);
-					}
-					branches.add(sig_of_this_vob);
+//					TreeSet<Integer> positions = branch_positions_with_influence.get(sig_of_this_vob);
+//					if (positions == null) {
+//						positions = new TreeSet<Integer>();
+//						branch_positions_with_influence.put(sig_of_this_vob, positions);
+//					}
+//					positions.add(string_mutation_position);
+//					TreeSet<String> branches = position_branches_with_influence.get(string_mutation_position);
+//					if (branches == null) {
+//						branches = new TreeSet<String>();
+//						position_branches_with_influence.put(string_mutation_position, branches);
+//					}
+//					branches.add(sig_of_this_vob);
 				}
-			}
+//			}
 		}
 	}
 

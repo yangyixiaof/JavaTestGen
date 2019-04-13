@@ -1,9 +1,5 @@
 package randoop.generation.date.influence;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 /**
  * A data repository class, storing the coverage states of all visited
  * (byte code) branch nodes.
@@ -20,9 +16,12 @@ public class BranchStateSummary {
 	
 	// the following key is the representation for a trace
 	// the following value is as described in variable name
-	Map<String, TreeSet<String>> already_covered_branch = new TreeMap<String, TreeSet<String>>();
-	Map<String, TreeMap<Integer, TreeSet<String>>> not_covered_and_with_influence_position_branches_pair = new TreeMap<String, TreeMap<Integer, TreeSet<String>>>();
-	Map<String, TreeMap<String, TreeSet<Integer>>> not_covered_and_with_influence_branch_positions_pair = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();
+	
+//	Map<Integer, TreeSet<String>> already_covered_position_branches = new TreeMap<Integer, TreeSet<String>>();
+	
+//	Map<String, TreeSet<String>> already_covered_branch = new TreeMap<String, TreeSet<String>>();
+//	Map<String, TreeMap<Integer, TreeSet<String>>> not_covered_and_with_influence_position_branches_pair = new TreeMap<String, TreeMap<Integer, TreeSet<String>>>();
+//	Map<String, TreeMap<String, TreeSet<Integer>>> not_covered_and_with_influence_branch_positions_pair = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();
 	
 	public BranchStateSummary() {
 	}
@@ -109,24 +108,33 @@ public class BranchStateSummary {
 //		return builder.toString();
 //	}
 	
-	public Map<String, TreeSet<String>> GetAlreadyCoveredBranch() {
-		return already_covered_branch;
-	}
+//	public void RecordAlreadyCoverredBranches(Integer position_to_mutate, String branch_with_state) {
+//		TreeSet<String> branch_with_states = already_covered_position_branches.get(position_to_mutate);
+//		if (branch_with_states == null) {
+//			branch_with_states = new TreeSet<String>();
+//			already_covered_position_branches.put(position_to_mutate, branch_with_states);
+//		}
+//		branch_with_states.add(branch_with_state);
+//	}
 	
-	public Map<String, TreeMap<Integer, TreeSet<String>>> GetNotCoveredAndWithInfluencePositionBranchesPair() {
-		return not_covered_and_with_influence_position_branches_pair;
-	}
-	
-	public Map<Integer, TreeSet<String>> GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(TraceInfo trace_info) {
-		return not_covered_and_with_influence_position_branches_pair.get(trace_info.GetTraceSignature());
-	}
-	
-	public Map<String, TreeMap<String, TreeSet<Integer>>> GetNotCoveredAndWithInfluenceBranchPositionsPair() {
-		return not_covered_and_with_influence_branch_positions_pair;
-	}
-	
-	public TreeMap<String, TreeSet<Integer>> GetNotCoveredAndWithInfluenceBranchPositionsPairForTrace(TraceInfo trace_info) {
-		return not_covered_and_with_influence_branch_positions_pair.get(trace_info.GetTraceSignature());
-	}
+//	public Map<String, TreeSet<String>> GetAlreadyCoveredBranch() {
+//		return already_covered_branch;
+//	}
+//	
+//	public Map<String, TreeMap<Integer, TreeSet<String>>> GetNotCoveredAndWithInfluencePositionBranchesPair() {
+//		return not_covered_and_with_influence_position_branches_pair;
+//	}
+//	
+//	public Map<Integer, TreeSet<String>> GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(TraceInfo trace_info) {
+//		return not_covered_and_with_influence_position_branches_pair.get(trace_info.GetTraceSignature());
+//	}
+//	
+//	public Map<String, TreeMap<String, TreeSet<Integer>>> GetNotCoveredAndWithInfluenceBranchPositionsPair() {
+//		return not_covered_and_with_influence_branch_positions_pair;
+//	}
+//	
+//	public TreeMap<String, TreeSet<Integer>> GetNotCoveredAndWithInfluenceBranchPositionsPairForTrace(TraceInfo trace_info) {
+//		return not_covered_and_with_influence_branch_positions_pair.get(trace_info.GetTraceSignature());
+//	}
 	
 }
