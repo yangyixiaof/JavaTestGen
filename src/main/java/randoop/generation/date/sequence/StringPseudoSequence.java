@@ -269,7 +269,7 @@ public class StringPseudoSequence extends PseudoSequence {
 								}
 							if (cared_branch.equals("")) {
 								int before_v_p = this.content.charAt(pk);
-								modified_content_builder.setCharAt(pk, (char) (before_v_p + GapRanges[DefaultPosNegTryTimes-r_num]));
+								modified_content_builder.setCharAt(pk, (char) (before_v_p + direction * GapRanges[DefaultPosNegTryTimes-r_num]));
 								before_linked_sequence = this.container.GetLinkedSequence();
 								
 //								LinkedList<MutationPlan> mps = in_trying.get(pk);
@@ -307,7 +307,7 @@ public class StringPseudoSequence extends PseudoSequence {
 									before_linked_sequence = recent_mutate_result.before_linked_sequence;
 									int new_gap_v_p = gap_v_p / 2;
 									if (new_gap_v_p == 0) {
-										new_gap_v_p = random.nextInt((max_range+1)/2) * direction;
+										new_gap_v_p = (random.nextInt((max_range+1)/2)+1) * direction;
 										r_num = 0;
 									}
 									modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
