@@ -335,6 +335,9 @@ public class StringPseudoSequence extends PseudoSequence {
 					break;
 				}
 			}
+			if (recent_mutate_result_set_to_null) {
+				recent_mutate_result = null;
+			}
 			if (removed_pk != null) {
 				in_trying.remove(removed_pk);
 //				plan_for_branches.remove(removed_pk);
