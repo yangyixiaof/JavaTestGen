@@ -37,7 +37,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	// int delta = 0;
 	// }
 	
-	Random random = new Random();
+	Random random = new Random(10);
 
 	// position inserted, the position range is 0 ... n, n is the length of content
 	// of headed_variable
@@ -279,8 +279,10 @@ public class StringPseudoSequence extends PseudoSequence {
 								Iterator<String> in_itr = influ_keys.iterator();
 								while (in_itr.hasNext()) {
 									String in_branch = in_itr.next();
-									mps.add(new MutationPlan(PositivePrefix + in_branch, DefaultPosNegTryTimes));
-									mps.add(new MutationPlan(NegativePrefix + in_branch, DefaultPosNegTryTimes));
+									Influence influ = influs.get(in_branch);
+									if (influ.GetInfluence() > 0.2) {
+										mps.add(new MutationPlan(cared_mutation + in_branch, DefaultPosNegTryTimes));
+									}
 								}
 							} else {
 								String before_content = before_mapping.content;
@@ -298,6 +300,8 @@ public class StringPseudoSequence extends PseudoSequence {
 									int origin_v_p = this.content.charAt(pk);
 									if (Math.abs(modified_v_p - origin_v_p) >= (max_range+1)/2) {
 										r_num = 0;
+									} else {
+										r_num = r_num + 1;
 									}
 								} else {
 									before_linked_sequence = recent_mutate_result.before_linked_sequence;
