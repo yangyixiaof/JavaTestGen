@@ -248,6 +248,7 @@ public class StringPseudoSequence extends PseudoSequence {
 							cared_branch = cared_mutation.substring(PositivePrefix.length(), cared_mutation.length());
 							direction = 1;
 						}
+						Assert.isTrue(cared_mutation.startsWith(NegativePrefix) || cared_mutation.startsWith(PositivePrefix));
 						Assert.isTrue(cared_branch != null);
 						if (recent_mutate_result != null) {
 							InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
@@ -311,10 +312,6 @@ public class StringPseudoSequence extends PseudoSequence {
 						} else {
 							before_linked_sequence = this.container.GetLinkedSequence();
 							modified_content_builder.setCharAt(pk, (char) (modified_content_builder.charAt(pk) + (1*direction)));
-						}
-						if (!cared_mutation.startsWith(NegativePrefix) && !cared_mutation.startsWith(PositivePrefix)) {
-							System.err.println("Wrong! Error Mutation Plan:" + cared_mutation);
-							System.exit(1);
 						}
 					}
 					r_num--;

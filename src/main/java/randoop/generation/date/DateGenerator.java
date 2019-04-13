@@ -302,7 +302,7 @@ public class DateGenerator extends AbstractGenerator {
 //		if (previous_container != null) {
 //			previous_container.AddRecentInfluence(newly_created_container, all_branches_influences);
 //		}
-		System.out.println(all_branches_influences == null ? null : all_branches_influences.toString());
+		System.out.println(all_branches_influences == null ? "PrintInfluence! null" : all_branches_influences.toString());
 		n_cmp_sequence.SetInfluence(all_branches_influences);
 //		newly_created_container.AddRecentInfluence(before_trace, all_branches_influences);
 
@@ -476,11 +476,12 @@ public class DateGenerator extends AbstractGenerator {
 		// address_variable_map);
 //		if (after_trace.BranchesExistInTrace()) {
 		int sl = newly_created_container.GetStringLength();
+//		System.out.println("sl:" + sl);
 		PriorityQueue<PseudoSequenceContainer> c_arr = containers.get(sl);
 		if (c_arr == null) {
 			c_arr = new PriorityQueue<PseudoSequenceContainer>();
+			containers.put(sl, c_arr);
 		}
-		containers.put(sl, c_arr);
 		c_arr.add(newly_created_container);
 //		}
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
@@ -757,8 +758,17 @@ public class DateGenerator extends AbstractGenerator {
 			}
 			BeforeAfterLinkedSequence result = current_container.Mutate(this);
 			if (result == null) {
-//					containers.get(current_container.GetStringLength()).remove(current_container);
-				current_container.ResetMutate(this);
+//				System.out.println("result is null.");
+				int cc_len = current_container.GetStringLength();
+				PriorityQueue<PseudoSequenceContainer> ctn = containers.get(cc_len);
+				Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
+//				System.out.println("remove executed!");
+				ctn.remove(current_container);
+				if (ctn.size() == 0) {
+					System.out.println("container remove executed!");
+					containers.remove(cc_len);
+				}
+//				current_container.ResetMutate(this);
 				current_container = null;
 			} else {
 				Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
