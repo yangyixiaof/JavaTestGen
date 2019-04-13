@@ -1,5 +1,6 @@
 package randoop.generation.date.sequence;
 
+import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.mutation.Mutation;
 import randoop.operation.TypedOperation;
 
@@ -10,6 +11,7 @@ public class BeforeAfterLinkedSequence {
 	Mutation mutation = null;
 	LinkedSequence before_linked_sequence = null;
 	LinkedSequence after_linked_sequence = null;
+	InfluenceOfTraceCompare all_branches_influences = null;
 
 	// PseudoVariable pseudo_variable, PseudoSequence pseudo_sequence,
 	// Mutated mutated
@@ -40,6 +42,14 @@ public class BeforeAfterLinkedSequence {
 
 	public LinkedSequence GetAfterLinkedSequence() {
 		return after_linked_sequence;
+	}
+
+	public void SetInfluence(InfluenceOfTraceCompare all_branches_influences) {
+		this.all_branches_influences = all_branches_influences;
+	}
+	
+	public InfluenceOfTraceCompare GetInfluence() {
+		return all_branches_influences;
 	}
 
 }

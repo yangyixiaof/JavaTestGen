@@ -235,8 +235,7 @@ public class StringPseudoSequence extends PseudoSequence {
 //					Integer r_num = remain.get(cared_mutation);
 					Integer r_num = mp.try_num;
 					if (cared_mutation.equals(DefaultRandom)) {
-//						recent_mutate_result = null;
-//						before_linked_sequence = this.container.GetLinkedSequence();
+						before_linked_sequence = this.container.GetLinkedSequence();
 						modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
 						recent_mutate_result_set_to_null = true;
 					} else {
@@ -245,15 +244,14 @@ public class StringPseudoSequence extends PseudoSequence {
 						if (cared_mutation.startsWith(NegativePrefix)) {
 							cared_branch = cared_mutation.substring(NegativePrefix.length(), cared_mutation.length());
 							direction = -1;
-//							recent_mutate_result = null;
 						} else if (cared_mutation.startsWith(PositivePrefix)) {
 							cared_branch = cared_mutation.substring(PositivePrefix.length(), cared_mutation.length());
 							direction = 1;
-//							recent_mutate_result = null;
 						}
 						Assert.isTrue(cared_branch != null);
 						if (recent_mutate_result != null) {
-							InfluenceOfTraceCompare influence = recent_mutate_result.before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
+							InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
+//									.before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
 //							int index_of_influenced_branch = (int)Math.ceil((remain*1.0) / (OneTryTimes*1.0))-2;
 //							if (!cared_mutation.equals(DefaultBranch)) {
 //								Assert.isTrue(index_of_influenced_branch < cared_branches.size());
@@ -324,13 +322,11 @@ public class StringPseudoSequence extends PseudoSequence {
 						remain.remove(0);// cared_mutation
 						recent_mutate_result_set_to_null = true;
 					} else {
-//						remain.put(cared_mutation, r_num);
 						mp.try_num = r_num;
 					}
 					modified_content = modified_content_builder.toString();
 					if (remain.size() == 0) {
 						removed_pk = pk;
-//						recent_mutate_result = null;
 					}
 					break;
 				}

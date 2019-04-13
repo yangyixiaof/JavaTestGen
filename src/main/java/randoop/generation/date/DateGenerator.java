@@ -299,9 +299,11 @@ public class DateGenerator extends AbstractGenerator {
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
 				n_cmp_sequence.GetMutation(), before_trace, after_trace);
 		newly_created_container.SetTraceInfo(after_trace);
-		if (previous_container != null) {
-			previous_container.AddRecentInfluence(newly_created_container, all_branches_influences);
-		}
+//		if (previous_container != null) {
+//			previous_container.AddRecentInfluence(newly_created_container, all_branches_influences);
+//		}
+		System.out.println(all_branches_influences.toString());
+		n_cmp_sequence.SetInfluence(all_branches_influences);
 //		newly_created_container.AddRecentInfluence(before_trace, all_branches_influences);
 
 		// n_cmp_sequence.GetPseudoSequence().SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
@@ -752,18 +754,16 @@ public class DateGenerator extends AbstractGenerator {
 // 				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container);//  + "#The container of selected:" + current_container.FetchStringPseudoSequence()
 				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container.toString().trim() + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 //				System.out.println("==== End ====");
-			} else {
-				BeforeAfterLinkedSequence result = current_container.Mutate(this);
-				if (result == null) {
-//					containers.get(current_container.GetStringLength()).remove(current_container);
-					current_container.ResetMutate(this);
-					current_container = null;
-				} else {
-					Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
-					return result;
-				}
 			}
-
+			BeforeAfterLinkedSequence result = current_container.Mutate(this);
+			if (result == null) {
+//					containers.get(current_container.GetStringLength()).remove(current_container);
+				current_container.ResetMutate(this);
+				current_container = null;
+			} else {
+				Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
+				return result;
+			}
 			// (PseudoSequenceContainer) RandomSelect
 			// .RandomElementFromSetByRewardableElements(pseudo_sequence_containers,
 			// interested_branch,

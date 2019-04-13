@@ -1,14 +1,11 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
-import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
 import randoop.generation.date.influence.TraceInfo;
@@ -27,7 +24,7 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //	BranchValueState val_state = null;
 	
 	// the key is meaning the previous trace info
-	Map<PseudoSequenceContainer, InfluenceOfTraceCompare> influences_mutated_compared_to_current = new HashMap<PseudoSequenceContainer, InfluenceOfTraceCompare>();
+//	Map<PseudoSequenceContainer, InfluenceOfTraceCompare> influences_mutated_compared_to_current = new HashMap<PseudoSequenceContainer, InfluenceOfTraceCompare>();
 	
 	// key is before mutating, value is the after mutating.
 	// note that this is just the logical mapping, the real values may mutated from intermediate results.
@@ -371,11 +368,11 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //		return mutated_number;
 //	}
 
-	public void AddRecentInfluence(PseudoSequenceContainer mutated, InfluenceOfTraceCompare all_branches_influences) {
-		if (mutated != null) {
-			influences_mutated_compared_to_current.put(mutated, all_branches_influences);
-		}
-	}
+//	public void AddRecentInfluence(PseudoSequenceContainer mutated, InfluenceOfTraceCompare all_branches_influences) {
+//		if (mutated != null) {
+//			influences_mutated_compared_to_current.put(mutated, all_branches_influences);
+//		}
+//	}
 //
 //	public PseudoSequence GetLogicalMappingSequence(PseudoSequence b_this) {
 //		return logical_mutate_mapping.get(b_this);
