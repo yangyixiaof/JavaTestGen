@@ -302,7 +302,7 @@ public class DateGenerator extends AbstractGenerator {
 //		if (previous_container != null) {
 //			previous_container.AddRecentInfluence(newly_created_container, all_branches_influences);
 //		}
-		System.out.println(all_branches_influences.toString());
+		System.out.println(all_branches_influences == null ? null : all_branches_influences.toString());
 		n_cmp_sequence.SetInfluence(all_branches_influences);
 //		newly_created_container.AddRecentInfluence(before_trace, all_branches_influences);
 
