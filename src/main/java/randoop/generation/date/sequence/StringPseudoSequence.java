@@ -65,7 +65,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	// ArrayList<String>>();
 
 	BeforeAfterLinkedSequence recent_mutate_result = null;
-	boolean recent_mutate_result_set_to_null = true;
+	boolean recent_mutate_result_set_to_null = false;
 
 	public static final int DefaultTryTimes = 1;
 
@@ -73,8 +73,8 @@ public class StringPseudoSequence extends PseudoSequence {
 	public static final String NegativePrefix = "Negative_";
 	public static final String PositivePrefix = "Positive_";
 
-	public static final String NegativeRecord = "NegativeRecord";
-	public static final String PositiveRecord = "PositiveRecord";
+	public static final String NegativeRecord = "Negative_Record";
+	public static final String PositiveRecord = "Positive_Record";
 
 	public static final int DefaultPosNegTryTimes = 1;
 
@@ -214,12 +214,13 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 				is_making_plan = false;
 			}
+			recent_mutate_result_set_to_null = false;
 			String modified_content = "";
 			Set<Integer> pkeys = in_trying.keySet();
 			Iterator<Integer> pk_itr = pkeys.iterator();
 			Integer pk = null;
 			Integer removed_pk = null;
-			while (pk_itr.hasNext()) {
+			if (pk_itr.hasNext()) {
 				pk = pk_itr.next();
 				System.out.println("pk:" + pk + "; recent_mutate_result:" + recent_mutate_result);
 				if (pk < 0) {
@@ -236,7 +237,6 @@ public class StringPseudoSequence extends PseudoSequence {
 					}
 					// recent_mutate_result = null;
 					recent_mutate_result_set_to_null = true;
-					break;
 				} else {
 					LinkedList<MutationPlan> remain = in_trying.get(pk);
 					// ArrayList<String> cared_branches = plan_for_branches.get(pk);
@@ -284,36 +284,22 @@ public class StringPseudoSequence extends PseudoSequence {
 						Assert.isTrue(
 								cared_mutation.startsWith(NegativePrefix) || cared_mutation.startsWith(PositivePrefix));
 						Assert.isTrue(cared_branch != null);
-						// if (recent_mutate_result != null) {
-						// .before_linked_sequence.container.influences_mutated_compared_to_current.get(recent_mutate_result.after_linked_sequence.container);
-						// int index_of_influenced_branch = (int)Math.ceil((remain*1.0) /
-						// (OneTryTimes*1.0))-2;
-						// if (!cared_mutation.equals(DefaultBranch)) {
-						// Assert.isTrue(index_of_influenced_branch < cared_branches.size());
-						// String cared_branch = cared_branches.get(index_of_influenced_branch);
-						// String position_and_branch = pk + "#" + cared_branch;
-						// ArrayList<Integer> value_in_order =
-						// tried_value_in_order.get(position_and_branch);
-						// if (value_in_order == null) {
-						// value_in_order = new ArrayList<Integer>();
-						// tried_value_in_order.put(position_and_branch, value_in_order);
-						// }
-						StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container
-								.FetchStringPseudoSequence();
-						if (before_mapping == null) {
-							before_mapping = this;
-						}
 						if (cared_branch.equals("") || recent_mutate_result == null) {
 							Assert.isTrue(recent_mutate_result == null);
 							int before_v_p = this.content.charAt(pk);
+							int gap_range_index = DefaultPosNegTryTimes - r_num;
+							if (!cared_branch.equals("")) {
+								gap_range_index++;
+							}
 							modified_content_builder.setCharAt(pk,
-									(char) (before_v_p + direction * GapRanges[DefaultPosNegTryTimes - r_num]));
+									(char) (before_v_p + direction * GapRanges[gap_range_index]));
 							before_linked_sequence = this.container.GetLinkedSequence();
-							// LinkedList<MutationPlan> mps = in_trying.get(pk);
-							// Assert.isTrue(mps != null);
 						} else {
 							Assert.isTrue(recent_mutate_result != null);
 							InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
+							StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container
+									.FetchStringPseudoSequence();
+							Assert.isTrue(before_mapping != null);
 							String before_content = before_mapping.content;
 							int before_v_p = before_content.charAt(pk);
 							StringPseudoSequence after_mapping = recent_mutate_result.after_linked_sequence.container
@@ -358,7 +344,6 @@ public class StringPseudoSequence extends PseudoSequence {
 					if (remain.size() == 0) {
 						removed_pk = pk;
 					}
-					break;
 				}
 			}
 			if (removed_pk != null) {
