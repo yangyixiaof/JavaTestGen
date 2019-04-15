@@ -62,11 +62,15 @@ public class StringPseudoSequence extends PseudoSequence {
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 	boolean recent_mutate_result_set_to_null = true;
 
-	public static final int DefaultRandom_TryTimes = 1;
+	public static final int DefaultTryTimes = 1;
 	
 	public static final String DefaultRandom = "DefaultRandom";
 	public static final String NegativePrefix = "Negative_";
 	public static final String PositivePrefix = "Positive_";
+	
+	public static final String NegativeRecord = "NegativeRecord";
+	public static final String PositiveRecord = "PositiveRecord";
+	
 	public static final int DefaultPosNegTryTimes = 1;
 
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
@@ -177,9 +181,11 @@ public class StringPseudoSequence extends PseudoSequence {
 					int clen = content.length();
 					for (int i = 0; i < clen; i++) {
 						LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
-						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultRandom_TryTimes));
-						branch_try_times.add(new MutationPlan(NegativePrefix, DefaultRandom_TryTimes));
-						branch_try_times.add(new MutationPlan(PositivePrefix, DefaultRandom_TryTimes));
+						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTryTimes));
+						branch_try_times.add(new MutationPlan(NegativePrefix, DefaultTryTimes));
+						branch_try_times.add(new MutationPlan(NegativeRecord, DefaultTryTimes));
+						branch_try_times.add(new MutationPlan(PositivePrefix, DefaultTryTimes));
+						branch_try_times.add(new MutationPlan(PositiveRecord, DefaultTryTimes));
 //						TreeSet<String> branches = uncovered_position_branches == null ? null : uncovered_position_branches.get(i);
 //						int bunch_size = (branches != null ? branches.size() : 0) + 1;
 //						if (branches != null) {
@@ -234,6 +240,22 @@ public class StringPseudoSequence extends PseudoSequence {
 					String cared_mutation = mp.in_try_mutate;
 //					Integer r_num = remain.get(cared_mutation);
 					Integer r_num = mp.try_num;
+					if (cared_mutation.equals(PositiveRecord) || cared_mutation.equals(NegativeRecord)) {
+						String cared_mutation_prefix = cared_mutation.substring(0, cared_mutation.indexOf('_')+1);
+						Assert.isTrue(recent_mutate_result != null);
+						InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
+						Map<String, Influence> influs = influence.GetInfluences();
+						Set<String> influ_keys = influs.keySet();
+						Iterator<String> in_itr = influ_keys.iterator();
+						while (in_itr.hasNext()) {
+							String in_branch = in_itr.next();
+							Influence influ = influs.get(in_branch);
+							if (influ.GetInfluence() > 0.2) {
+								remain.add(new MutationPlan(cared_mutation_prefix + in_branch, DefaultPosNegTryTimes));
+							}
+						}
+						recent_mutate_result_set_to_null = true;
+					}
 					if (cared_mutation.equals(DefaultRandom)) {
 						before_linked_sequence = this.container.GetLinkedSequence();
 						modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
@@ -271,19 +293,8 @@ public class StringPseudoSequence extends PseudoSequence {
 								int before_v_p = this.content.charAt(pk);
 								modified_content_builder.setCharAt(pk, (char) (before_v_p + direction * GapRanges[DefaultPosNegTryTimes-r_num]));
 								before_linked_sequence = this.container.GetLinkedSequence();
-								
 //								LinkedList<MutationPlan> mps = in_trying.get(pk);
 //								Assert.isTrue(mps != null);
-								Map<String, Influence> influs = influence.GetInfluences();
-								Set<String> influ_keys = influs.keySet();
-								Iterator<String> in_itr = influ_keys.iterator();
-								while (in_itr.hasNext()) {
-									String in_branch = in_itr.next();
-									Influence influ = influs.get(in_branch);
-									if (influ.GetInfluence() > 0.2) {
-										remain.add(new MutationPlan(cared_mutation + in_branch, DefaultPosNegTryTimes));
-									}
-								}
 							} else {
 								String before_content = before_mapping.content;
 								int before_v_p = before_content.charAt(pk);
@@ -312,6 +323,9 @@ public class StringPseudoSequence extends PseudoSequence {
 									}
 									modified_content_builder.setCharAt(pk, (char) (before_v_p+new_gap_v_p));
 								}
+								if (r_num <= 1) {
+									recent_mutate_result_set_to_null = true;
+								}
 							}
 						} else {
 							before_linked_sequence = this.container.GetLinkedSequence();
@@ -321,7 +335,6 @@ public class StringPseudoSequence extends PseudoSequence {
 					r_num--;
 					if (r_num <= 0) {
 						remain.remove(0);// cared_mutation
-						recent_mutate_result_set_to_null = true;
 					} else {
 						mp.try_num = r_num;
 					}
