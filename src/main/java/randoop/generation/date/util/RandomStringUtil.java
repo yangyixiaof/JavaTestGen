@@ -5,7 +5,7 @@ import java.util.Random;
 public class RandomStringUtil {
 	
 	public static final String SOURCES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-	private static Random random = new Random();
+	private static Random random = new Random(100);
 
 	/**
 	 * Generate a random string.
