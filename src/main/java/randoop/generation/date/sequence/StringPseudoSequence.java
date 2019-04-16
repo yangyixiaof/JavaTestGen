@@ -67,7 +67,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 	boolean recent_mutate_result_set_to_null = false;
 
-	public static final int DefaultTryTimes = 1;
+	public static final int DefaultTaskTryTimes = 1;
 
 	public static final String DefaultRandom = "DefaultRandom";
 	public static final String NegativePrefix = "Negative_";
@@ -75,8 +75,6 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	public static final String NegativeRecord = "Negative_Record";
 	public static final String PositiveRecord = "Positive_Record";
-
-	public static final int DefaultPosNegTryTimes = 1;
 
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
@@ -186,11 +184,11 @@ public class StringPseudoSequence extends PseudoSequence {
 					int clen = content.length();
 					for (int i = 0; i < clen; i++) {
 						LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
-						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTryTimes));
-						branch_try_times.add(new MutationPlan(NegativePrefix, DefaultTryTimes));
-						branch_try_times.add(new MutationPlan(NegativeRecord, DefaultTryTimes));
-						branch_try_times.add(new MutationPlan(PositivePrefix, DefaultTryTimes));
-						branch_try_times.add(new MutationPlan(PositiveRecord, DefaultTryTimes));
+						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTaskTryTimes));
+						branch_try_times.add(new MutationPlan(NegativePrefix, DefaultTaskTryTimes));
+						branch_try_times.add(new MutationPlan(NegativeRecord, DefaultTaskTryTimes));
+						branch_try_times.add(new MutationPlan(PositivePrefix, DefaultTaskTryTimes));
+						branch_try_times.add(new MutationPlan(PositiveRecord, DefaultTaskTryTimes));
 						// TreeSet<String> branches = uncovered_position_branches == null ? null :
 						// uncovered_position_branches.get(i);
 						// int bunch_size = (branches != null ? branches.size() : 0) + 1;
@@ -255,7 +253,7 @@ public class StringPseudoSequence extends PseudoSequence {
 							String in_branch = in_itr.next();
 							Influence influ = influs.get(in_branch);
 							if (influ.GetInfluence() > 0.2) {
-								remain.add(new MutationPlan(cared_mutation_prefix + in_branch, DefaultPosNegTryTimes));
+								remain.add(new MutationPlan(cared_mutation_prefix + in_branch, DefaultTaskTryTimes));
 							}
 						}
 						Assert.isTrue(r_num == 1);
@@ -287,7 +285,7 @@ public class StringPseudoSequence extends PseudoSequence {
 						if (cared_branch.equals("") || recent_mutate_result == null) {
 							Assert.isTrue(recent_mutate_result == null);
 							int before_v_p = this.content.charAt(pk);
-							int gap_range_index = DefaultPosNegTryTimes - r_num;
+							int gap_range_index = 0;
 							if (!cared_branch.equals("")) {
 								gap_range_index++;
 							}
