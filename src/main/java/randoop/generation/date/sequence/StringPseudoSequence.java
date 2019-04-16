@@ -26,7 +26,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	int current_tried_string_length = 0;
 
 	public static final int MaxSequenceLength = 1;
-	private static final int max_range = Byte.MAX_VALUE - Byte.MIN_VALUE;
+	private static final int max_range = 255;
 	private static final int[] GapRanges = new int[] { 1, 2, 4, 8 };
 
 	// {
@@ -184,7 +184,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					int clen = content.length();
 					for (int i = 0; i < clen; i++) {
 						LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
-						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTaskTryTimes));
+//						branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTaskTryTimes));
 						branch_try_times.add(new MutationPlan(NegativePrefix, DefaultTaskTryTimes));
 						branch_try_times.add(new MutationPlan(NegativeRecord, DefaultTaskTryTimes));
 						branch_try_times.add(new MutationPlan(PositivePrefix, DefaultTaskTryTimes));
@@ -265,11 +265,13 @@ public class StringPseudoSequence extends PseudoSequence {
 					cared_mutation = mp.in_try_mutate;
 					r_num = mp.try_num;
 					r_num--;
-					if (cared_mutation.equals(DefaultRandom)) {
-						before_linked_sequence = this.container.GetLinkedSequence();
-						modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
-						recent_mutate_result_set_to_null = true;
-					} else {
+//					if (cared_mutation.equals(DefaultRandom)) {
+//						before_linked_sequence = this.container.GetLinkedSequence();
+//						modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
+//						recent_mutate_result_set_to_null = true;
+//					}
+//					else
+					{
 						String cared_branch = null;
 						int direction = 0;
 						if (cared_mutation.startsWith(NegativePrefix)) {
