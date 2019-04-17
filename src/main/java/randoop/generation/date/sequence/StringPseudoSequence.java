@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -48,7 +47,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	// tried_value = new TreeMap<Integer, TreeMap<Integer, TreeMap<Integer,
 	// BeforeAfterLinkedSequence>>>();
 	// key: position; value: tried gap;
-	Map<Integer, TreeSet<Integer>> tried_gap_value = new TreeMap<Integer, TreeSet<Integer>>();
+//	Map<Integer, TreeSet<Integer>> tried_gap_value = new TreeMap<Integer, TreeSet<Integer>>();
 
 	// int recent_tried_position = -1;
 	// Map<String, ArrayList<Integer>> tried_value_in_order = new TreeMap<String,
@@ -219,6 +218,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		Assert.isTrue(pk_itr.hasNext());
 		// if (pk_itr.hasNext()) {
 		pk = pk_itr.next();
+		Integer new_gap_v_p = null;
 		System.out.println("pk:" + pk + "; recent_mutate_result:" + recent_mutate_result);
 		if (pk < 0) {
 			before_linked_sequence = this.container.GetLinkedSequence();
@@ -292,7 +292,8 @@ public class StringPseudoSequence extends PseudoSequence {
 				} else {
 					r_state = TaskState.Over;
 				}
-				modified_content_builder.setCharAt(pk, (char) (before_v_p + direction * GapRanges[gap_range_index]));
+				new_gap_v_p = direction * GapRanges[gap_range_index];
+				modified_content_builder.setCharAt(pk, (char) (before_v_p + new_gap_v_p));
 				before_linked_sequence = this.container.GetLinkedSequence();
 			} else {
 				Assert.isTrue(recent_mutate_result != null);
@@ -311,7 +312,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				if (r_state == TaskState.Normal) {
 					if (influ.GetInfluence() > 0.2) {
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
-						int new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
+						new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
 						int modified_v_p = after_v_p + new_gap_v_p;
 						modified_content_builder.setCharAt(pk, (char) (modified_v_p));
 						int origin_v_p = this.content.charAt(pk);
@@ -325,16 +326,19 @@ public class StringPseudoSequence extends PseudoSequence {
 					}
 				}
 				if (r_state == TaskState.LinearConverge) {
-					int new_gap_v_p = gap_v_p / 2;
+					new_gap_v_p = gap_v_p / 2;
 					if (new_gap_v_p == 0) {
 						new_gap_v_p = (random.nextInt((max_range+1)/2) + 1) * direction;
 						r_state = TaskState.Over;
 						modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
+						before_linked_sequence = recent_mutate_result.after_linked_sequence;
 					} else {
 						if (influ.GetInfluence() > 0.2) {
 							modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
+							before_linked_sequence = recent_mutate_result.after_linked_sequence;
 						} else {
 							modified_content_builder.setCharAt(pk, (char) (before_v_p + new_gap_v_p));
+							before_linked_sequence = recent_mutate_result.before_linked_sequence;
 						}
 					}
 				}
@@ -377,17 +381,17 @@ public class StringPseudoSequence extends PseudoSequence {
 			// System.out.println("end sequence of this:" + this.container.end.toString());
 			// System.out.println("End" );
 
-			StringPseudoSequence before_string_sequence = before_linked_sequence.container.FetchStringPseudoSequence();
+//			StringPseudoSequence before_string_sequence = before_linked_sequence.container.FetchStringPseudoSequence();
 			StringMutation string_mutation = null;
 			if (pk >= 0) {
-				int modified_gap = modified_content.charAt(pk) - before_string_sequence.content.charAt(pk);
-				TreeSet<Integer> gaps = before_string_sequence.tried_gap_value.get(pk);
-				if (gaps == null) {
-					gaps = new TreeSet<Integer>();
-					before_string_sequence.tried_gap_value.put(pk, gaps);
-				}
-				gaps.add(modified_gap);
-				string_mutation = new StringMutation(pk, modified_gap);
+//				int modified_gap = modified_content.charAt(pk) - before_string_sequence.content.charAt(pk);
+//				TreeSet<Integer> gaps = before_string_sequence.tried_gap_value.get(pk);
+//				if (gaps == null) {
+//					gaps = new TreeSet<Integer>();
+//					before_string_sequence.tried_gap_value.put(pk, gaps);
+//				}
+//				gaps.add(modified_gap);
+				string_mutation = new StringMutation(pk, new_gap_v_p);
 			}
 			result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence);
 			recent_mutate_result = result;

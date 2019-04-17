@@ -2,10 +2,10 @@ package randoop.generation.date.mutation;
 
 public class StringMutation extends Mutation {
 	
-	int position = -1;
-	int delta = -1;
+	Integer position = -1;
+	Integer delta = -1;
 	
-	public StringMutation(int position, int delta) {
+	public StringMutation(Integer position, Integer delta) {
 		this.position = position;
 		this.delta = delta;
 	}
@@ -14,7 +14,7 @@ public class StringMutation extends Mutation {
 		return position;
 	}
 	
-	public int GetDelta() {
+	public Integer GetDelta() {
 		return delta;
 	}
 	
