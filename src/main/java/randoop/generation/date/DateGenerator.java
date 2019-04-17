@@ -220,15 +220,23 @@ public class DateGenerator extends AbstractGenerator {
 		// ExecutableSequence eSeq = new
 		// ExecutableSequence(allSequences.values().iterator().next());
 		BeforeAfterLinkedSequence n_cmp_sequence = null;
+		boolean meet_null = false;
 		while (true) {
 			n_cmp_sequence = CreateNewCompareSequence();
 			// debugging code, waiting to be deleted.
 			if (n_cmp_sequence != null) {
+				Assert.isTrue(meet_null == false);
 //				System.out.println("Newly generated sequence:" + n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
 				System.out.println("Newly generated sequence, original form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContent() + "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 				break;
 			} else {
+				meet_null = true;
 				System.out.println("Failed One Generation! The generated sequence is null!");
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		PseudoSequenceContainer previous_container = n_cmp_sequence.GetBeforeLinkedSequence()
