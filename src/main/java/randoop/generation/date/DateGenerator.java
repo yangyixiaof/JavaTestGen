@@ -63,14 +63,15 @@ public class DateGenerator extends AbstractGenerator {
 	// ArrayList<TypedOperation>>();
 	public Map<TypedOperation, Class<?>> operation_class = new HashMap<TypedOperation, Class<?>>();
 	// this means this operation should not be the last.
-//	public Map<TypedOperation, Boolean> operation_is_hidden = new HashMap<TypedOperation, Boolean>();
+	// public Map<TypedOperation, Boolean> operation_is_hidden = new
+	// HashMap<TypedOperation, Boolean>();
 	public Map<Class<?>, PseudoVariable> hidden_variables = new HashMap<Class<?>, PseudoVariable>();
 	// public Map<TypedOperation, Boolean> operation_is_to_create = new
 	// HashMap<TypedOperation, Boolean>();
 	// public Map<TypedOperation, Boolean> operation_is_delta_change = new
 	// HashMap<TypedOperation, Boolean>();
 	public Map<TypedOperation, Boolean> operation_been_created = new HashMap<TypedOperation, Boolean>();
-	
+
 	// influence for typed operation
 	// public Map<TypedOperation, InfluenceOfBranchChange>
 	// typed_operation_branch_influence = new HashMap<TypedOperation,
@@ -133,7 +134,7 @@ public class DateGenerator extends AbstractGenerator {
 	// public TreeMap<Integer, HashSet<PseudoSequenceContainer>>
 	// mutated_number_pseudo_sequence_container_map = new TreeMap<Integer,
 	// HashSet<PseudoSequenceContainer>>();
-	
+
 	TreeMap<Integer, PriorityQueue<PseudoSequenceContainer>> containers = new TreeMap<Integer, PriorityQueue<PseudoSequenceContainer>>();
 
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
@@ -164,8 +165,9 @@ public class DateGenerator extends AbstractGenerator {
 		// encountered_types.add(Type.forClass(Integer.class));
 		// this.instantiator = componentManager.getTypeInstantiator();
 		// add simple confuse examples
-//		TraceableSequence new_seq = SequenceGenerator.GenerateTraceTestExampleSequence();
-//		allSequences.add(new_seq);
+		// TraceableSequence new_seq =
+		// SequenceGenerator.GenerateTraceTestExampleSequence();
+		// allSequences.add(new_seq);
 		// needExploreSequences.put(new_seq.toLongFormString(), new_seq);
 		// initialize generation used data
 		// this.d = new ReplayMemory();
@@ -220,17 +222,24 @@ public class DateGenerator extends AbstractGenerator {
 		// ExecutableSequence eSeq = new
 		// ExecutableSequence(allSequences.values().iterator().next());
 		BeforeAfterLinkedSequence n_cmp_sequence = null;
-		boolean meet_null = false;
+		boolean meet_null = true;
 		while (true) {
 			n_cmp_sequence = CreateNewCompareSequence();
 			// debugging code, waiting to be deleted.
 			if (n_cmp_sequence != null) {
-				Assert.isTrue(meet_null == false);
-//				System.out.println("Newly generated sequence:" + n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
-				System.out.println("Newly generated sequence, original form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContent() + "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer().FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+//				Assert.isTrue(meet_null == false);
+				meet_null = false;
+				// System.out.println("Newly generated sequence:" +
+				// n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
+				System.out.println("Newly generated sequence, original form:"
+						+ n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
+								.FetchStringPseudoSequence().GetContent()
+						+ "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
+								.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 				break;
 			} else {
-				meet_null = true;
+				Assert.isTrue(meet_null == true);
+//				meet_null = true;
 				System.out.println("Failed One Generation! The generated sequence is null!");
 				try {
 					Thread.sleep(2000);
@@ -301,18 +310,21 @@ public class DateGenerator extends AbstractGenerator {
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 
-		// String branch_state_representation_before = 
+		// String branch_state_representation_before =
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
 				n_cmp_sequence.GetMutation(), before_trace, after_trace);
 		newly_created_container.SetTraceInfo(after_trace);
-//		if (previous_container != null) {
-//			previous_container.AddRecentInfluence(newly_created_container, all_branches_influences);
-//		}
-		System.out.println(all_branches_influences == null ? "PrintInfluence! null" : all_branches_influences.toString());
+		// if (previous_container != null) {
+		// previous_container.AddRecentInfluence(newly_created_container,
+		// all_branches_influences);
+		// }
+		System.out
+				.println(all_branches_influences == null ? "PrintInfluence! null" : all_branches_influences.toString());
 		n_cmp_sequence.SetInfluence(all_branches_influences);
-//		newly_created_container.AddRecentInfluence(before_trace, all_branches_influences);
+		// newly_created_container.AddRecentInfluence(before_trace,
+		// all_branches_influences);
 
 		// n_cmp_sequence.GetPseudoSequence().SetAllBranchesInfluencesComparedToPrevious(all_branches_influences);
 		// String branch_state_representation_after =
@@ -482,16 +494,16 @@ public class DateGenerator extends AbstractGenerator {
 		// ProcessObjectAddressConstraintToPseudoVariableConstraint(after_trace,
 		// newly_created_container,
 		// address_variable_map);
-//		if (after_trace.BranchesExistInTrace()) {
+		// if (after_trace.BranchesExistInTrace()) {
 		int sl = newly_created_container.GetStringLength();
-//		System.out.println("sl:" + sl);
+		// System.out.println("sl:" + sl);
 		PriorityQueue<PseudoSequenceContainer> c_arr = containers.get(sl);
 		if (c_arr == null) {
 			c_arr = new PriorityQueue<PseudoSequenceContainer>();
 			containers.put(sl, c_arr);
 		}
 		c_arr.add(newly_created_container);
-//		}
+		// }
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
 			// pseudo_sequence_containers.remove(newly_created_container);
@@ -514,31 +526,31 @@ public class DateGenerator extends AbstractGenerator {
 			// }
 			// }
 			// current_container = null;
-		} 
-//		else {
-			// int mutated_number = newly_created_container.GetMutatedNumber();
-			// HashSet<PseudoSequenceContainer> sequence_set =
-			// mutated_number_pseudo_sequence_container_map
-			// .get(mutated_number);
-			// if (sequence_set == null) {
-			// sequence_set = new HashSet<PseudoSequenceContainer>();
-			// mutated_number_pseudo_sequence_container_map.put(mutated_number,
-			// sequence_set);
-			// }
-			// sequence_set.add(newly_created_container);
-			// TypedOperation ended_to = newly_created_container.GetEndedTypedOperation();
-			// OperationKind ok = operation_kind.get(ended_to);
-			// if (ok == null) {
-			// ok = OperationKind.unknown;
-			// }
-			// if (newly_created_container.HasBranches()) {
-			// ok = ok.BitOr(OperationKind.branch);
-			// } else {
-			// ok = ok.BitOr(OperationKind.no_branch);
-			// }
-			// operation_kind.put(ended_to, ok);
-			// current_container = newly_created_container;
-//		}
+		}
+		// else {
+		// int mutated_number = newly_created_container.GetMutatedNumber();
+		// HashSet<PseudoSequenceContainer> sequence_set =
+		// mutated_number_pseudo_sequence_container_map
+		// .get(mutated_number);
+		// if (sequence_set == null) {
+		// sequence_set = new HashSet<PseudoSequenceContainer>();
+		// mutated_number_pseudo_sequence_container_map.put(mutated_number,
+		// sequence_set);
+		// }
+		// sequence_set.add(newly_created_container);
+		// TypedOperation ended_to = newly_created_container.GetEndedTypedOperation();
+		// OperationKind ok = operation_kind.get(ended_to);
+		// if (ok == null) {
+		// ok = OperationKind.unknown;
+		// }
+		// if (newly_created_container.HasBranches()) {
+		// ok = ok.BitOr(OperationKind.branch);
+		// } else {
+		// ok = ok.BitOr(OperationKind.no_branch);
+		// }
+		// operation_kind.put(ended_to, ok);
+		// current_container = newly_created_container;
+		// }
 		// if (newly_created_container.HasUnsolvedConstraint()) {
 		// pseudo_sequence_optional_constraint_containers.add(newly_created_container);
 		// pseudo_sequence_containers.remove(newly_created_container);
@@ -648,190 +660,196 @@ public class DateGenerator extends AbstractGenerator {
 					Class<?> sequence_type = GetSequenceTypeFromTypedOperation(to);
 					BeforeAfterLinkedSequence new_created_sequence = CreatePseudoSequenceWithCreateOperation(
 							sequence_type, to);
-//					if (new_created_sequence != null) {
+					if (new_created_sequence != null) {
+						operation_been_created.put(to, true);
+					}
 					return new_created_sequence;
-//					}
 				}
 			}
 		}
 		// select useful TypedOperation.
 		// if (selected_to != null)
-		{
-			// TypedOperation could_use_to = selected_to;
-			// if (selected_to.isGeneric() || selected_to.hasWildcardTypes()) {
-			// System.out.println();
-			// System.out.println("selected typed operation:" + selected_to.getClass());
-			// could_use_to = instantiator.instantiate((TypedClassOperation) selected_to);
-			// System.out.println("instantiated typed operation is generic or wild? " +
-			// (could_use_to.isGeneric() || could_use_to.hasWildcardTypes()) +
-			// "#instantiated typed operation:" + could_use_to);
-			// System.exit(1);
-			// }
-			// ArrayList<String> interested_branch =
-			// branch_state.GetSortedUnCoveredBranches();
-			// System.out.println("interested branch size:" + interested_branch.size());
-			// for (String ib : interested_branch) {
-			// System.out.println("interested branch:" + ib);
-			// }
-			// if (interested_branch.size() > 0) {
-			// System.out.println("encountering interested branch!");
-			// System.exit(1);
-			// }
-			// if () {
-			//
-			// } else
-			// {
-			// if (selected_to.isStatic()) {
-			// create a new one, append to last, if implemented, add the
-			// mechanism for API sequence (object state).
-			// } else
-			// {
-			// List<Mutation> mutations = new LinkedList<Mutation>();
-			// if (mutations.size() == 0) {
-			// if (Math.random() > 0.6) {
-			// // handle obligatory constraint
-			// PseudoSequenceContainer selected_container = (PseudoSequenceContainer)
-			// RandomSelect
-			// .RandomElementFromSetByRewardableElements(
-			// pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
-			// if (selected_container != null) {
-			// if (selected_container.HasUnsolvedObligatoryConstraint()) {
-			// mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
-			// object_constraint_branch_influence));
-			// } else {
-			// pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
-			// }
-			// }
-			// }
-			// }
-			// if (mutations.size() == 0) {
-			// if (Math.random() > 0.6) {
-			// PseudoSequenceContainer selected_container = (PseudoSequenceContainer)
-			// RandomSelect
-			// .RandomElementFromSetByRewardableElements(pseudo_sequence_optional_constraint_containers,
-			// interested_branch, null);
-			// if (selected_container != null) {
-			// if (selected_container.HasUnsolvedConstraint()) {
-			// mutations.add(selected_container
-			// .GenerateObjectConstraintMutation(object_constraint_branch_influence));
-			// } else {
-			// pseudo_sequence_optional_constraint_containers.remove(selected_container);
-			// }
-			// }
-			// }
-			// }
-			// if (mutations.size() == 0) {
-			// handle non obligatory constraint and typed operation
-			// first select a container, then select typed operation
-			// PseudoSequenceContainer selected_container = null;
+		// {
+		// TypedOperation could_use_to = selected_to;
+		// if (selected_to.isGeneric() || selected_to.hasWildcardTypes()) {
+		// System.out.println();
+		// System.out.println("selected typed operation:" + selected_to.getClass());
+		// could_use_to = instantiator.instantiate((TypedClassOperation) selected_to);
+		// System.out.println("instantiated typed operation is generic or wild? " +
+		// (could_use_to.isGeneric() || could_use_to.hasWildcardTypes()) +
+		// "#instantiated typed operation:" + could_use_to);
+		// System.exit(1);
+		// }
+		// ArrayList<String> interested_branch =
+		// branch_state.GetSortedUnCoveredBranches();
+		// System.out.println("interested branch size:" + interested_branch.size());
+		// for (String ib : interested_branch) {
+		// System.out.println("interested branch:" + ib);
+		// }
+		// if (interested_branch.size() > 0) {
+		// System.out.println("encountering interested branch!");
+		// System.exit(1);
+		// }
+		// if () {
+		//
+		// } else
+		// {
+		// if (selected_to.isStatic()) {
+		// create a new one, append to last, if implemented, add the
+		// mechanism for API sequence (object state).
+		// } else
+		// {
+		// List<Mutation> mutations = new LinkedList<Mutation>();
+		// if (mutations.size() == 0) {
+		// if (Math.random() > 0.6) {
+		// // handle obligatory constraint
+		// PseudoSequenceContainer selected_container = (PseudoSequenceContainer)
+		// RandomSelect
+		// .RandomElementFromSetByRewardableElements(
+		// pseudo_sequence_obligatory_constraint_containers, interested_branch, null);
+		// if (selected_container != null) {
+		// if (selected_container.HasUnsolvedObligatoryConstraint()) {
+		// mutations.add(selected_container.GenerateObligatoryObjectConstraintMutation(
+		// object_constraint_branch_influence));
+		// } else {
+		// pseudo_sequence_obligatory_constraint_containers.remove(selected_container);
+		// }
+		// }
+		// }
+		// }
+		// if (mutations.size() == 0) {
+		// if (Math.random() > 0.6) {
+		// PseudoSequenceContainer selected_container = (PseudoSequenceContainer)
+		// RandomSelect
+		// .RandomElementFromSetByRewardableElements(pseudo_sequence_optional_constraint_containers,
+		// interested_branch, null);
+		// if (selected_container != null) {
+		// if (selected_container.HasUnsolvedConstraint()) {
+		// mutations.add(selected_container
+		// .GenerateObjectConstraintMutation(object_constraint_branch_influence));
+		// } else {
+		// pseudo_sequence_optional_constraint_containers.remove(selected_container);
+		// }
+		// }
+		// }
+		// }
+		// if (mutations.size() == 0) {
+		// handle non obligatory constraint and typed operation
+		// first select a container, then select typed operation
+		// PseudoSequenceContainer selected_container = null;
 
-			// if (current_container != null && trying_remain_steps > 0) {
-			// trying_remain_steps--;
-			// mutations.addAll(GenerateMutationsFromOneContainer(current_container));
-			// } else {
-			// trying_remain_steps = trying_maximum_steps;
-			// while (mutations.size() == 0
-			// && trying_total_steps <= mutated_number_pseudo_sequence_container_map.size())
-			// {
-			// HashSet<PseudoSequenceContainer> containers =
-			// mutated_number_pseudo_sequence_container_map
-			// .get(trying_total_steps);
-			// if (containers == null) {
-			// trying_total_steps += trying_step;
-			// continue;
-			// }
-			// for (PseudoSequenceContainer one_container : containers) {
-			// mutations.addAll(GenerateMutationsFromOneContainer(one_container));
-			// }
-			// }
-			// }
-			if (current_container == null) {
-				TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer, RewardableInteger>();
-				Set<Integer> c_keys = containers.keySet();
-				Iterator<Integer> c_k_itr = c_keys.iterator();
-				while (c_k_itr.hasNext()) {
-					Integer c_k = c_k_itr.next();
-					rewardables.put(c_k, new RewardableInteger(c_k+5));
-				}
-				Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
-				PriorityQueue<PseudoSequenceContainer> all_c_k_cs = containers.get(c_k);
-				Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
-				current_container = (PseudoSequenceContainer) RandomSelect
-						.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
-//				System.out.println("size of containers: " + containers.size());
-//				System.out.println("==== Begin ====");
-// 				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container);//  + "#The container of selected:" + current_container.FetchStringPseudoSequence()
-				System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:" + current_container.toString().trim() + "#The content of selected:" + current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:" + current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
-//				System.out.println("==== End ====");
+		// if (current_container != null && trying_remain_steps > 0) {
+		// trying_remain_steps--;
+		// mutations.addAll(GenerateMutationsFromOneContainer(current_container));
+		// } else {
+		// trying_remain_steps = trying_maximum_steps;
+		// while (mutations.size() == 0
+		// && trying_total_steps <= mutated_number_pseudo_sequence_container_map.size())
+		// {
+		// HashSet<PseudoSequenceContainer> containers =
+		// mutated_number_pseudo_sequence_container_map
+		// .get(trying_total_steps);
+		// if (containers == null) {
+		// trying_total_steps += trying_step;
+		// continue;
+		// }
+		// for (PseudoSequenceContainer one_container : containers) {
+		// mutations.addAll(GenerateMutationsFromOneContainer(one_container));
+		// }
+		// }
+		// }
+		if (current_container == null) {
+			TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer, RewardableInteger>();
+			Set<Integer> c_keys = containers.keySet();
+			Iterator<Integer> c_k_itr = c_keys.iterator();
+			while (c_k_itr.hasNext()) {
+				Integer c_k = c_k_itr.next();
+				rewardables.put(c_k, new RewardableInteger(c_k + 5));
 			}
-			BeforeAfterLinkedSequence result = current_container.Mutate(this);
-			if (result.IsEnd()) {
-//				System.out.println("result is null.");
-				int cc_len = current_container.GetStringLength();
-				PriorityQueue<PseudoSequenceContainer> ctn = containers.get(cc_len);
-				Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
-//				System.out.println("remove executed!");
-				ctn.remove(current_container);
-				if (ctn.size() == 0) {
-					System.out.println("container remove executed!");
-					containers.remove(cc_len);
-				}
-//				current_container.ResetMutate(this);
-				current_container = null;
-			}
-//			else {
-			Assert.isTrue(result != null);
-			Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
-			return result;
-//			}
-			// (PseudoSequenceContainer) RandomSelect
-			// .RandomElementFromSetByRewardableElements(pseudo_sequence_containers,
-			// interested_branch,
-			// null);
-			// if (selected_container != null) {
-			//
-			// }
-			// System.out.println("selected_container:" + selected_container);
-			// first select a typed operation, then select a container
-			// TypedOperation best_op =
-			// RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence,
-			// interested_branch, null);
-			// Class<?> best_op_cls = operation_class.get(best_op);
-			// Set<Class<?>> candidates = class_pseudo_variable.keySet();
-			// Set<Class<?>> selected_candidates =
-			// ClassUtil.GetDescendantClasses(candidates, best_op_cls);
-			// ArrayList<PseudoVariable> candidate_pvs = new ArrayList<PseudoVariable>();
-			// for (Class<?> selected : selected_candidates) {
-			// candidate_pvs.addAll(class_pseudo_variable.get(selected));
-			// }
-			// ArrayList<PseudoVariable> remove_pvs = new ArrayList<PseudoVariable>();
-			// Iterator<PseudoVariable> cpv_itr = candidate_pvs.iterator();
-			// while (cpv_itr.hasNext()) {
-			// PseudoVariable cpv = cpv_itr.next();
-			// PseudoSequence pv_ps = pseudo_variable_headed_sequence.get(cpv);
-			// if (pv_ps.OperationHasBeenApplied(best_op)) {
-			// remove_pvs.add(cpv);
-			// }
-			// }
-			// candidate_pvs.removeAll(remove_pvs);
-			// PseudoVariable selected_var = (PseudoVariable) RandomSelect
-			// .RandomElementFromSetByRewardableElements(candidate_pvs, interested_branch,
-			// null);
-			// HashSet<PseudoVariable> selected_vars = new HashSet<>();
-			// selected_vars.add(selected_var);
-			// mutations.add(new
-			// TypedOperationMutation(typed_operation_branch_influence.get(best_op),
-			// best_op, selected_vars));
-			// }
-
-			// Mutation one_mutate = (Mutation)
-			// RandomSelect.RandomElementFromSetByRewardableElements(mutations,
-			// interested_branch, null);
-			// if (one_mutate != null) {
-			// BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
-			// return result;
-			// }
+			Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
+			PriorityQueue<PseudoSequenceContainer> all_c_k_cs = containers.get(c_k);
+			Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
+			current_container = (PseudoSequenceContainer) RandomSelect
+					.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
+			// System.out.println("size of containers: " + containers.size());
+			// System.out.println("==== Begin ====");
+			// System.out.println("ck container size:" + all_c_k_cs.size() +
+			// "#current_container:" + current_container);// + "#The container of selected:"
+			// + current_container.FetchStringPseudoSequence()
+			System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:"
+					+ current_container.toString().trim() + "#The content of selected:"
+					+ current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:"
+					+ current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+			// System.out.println("==== End ====");
 		}
+		BeforeAfterLinkedSequence result = current_container.Mutate(this);
+		if (result.IsEnd()) {
+			// System.out.println("result is null.");
+			int cc_len = current_container.GetStringLength();
+			PriorityQueue<PseudoSequenceContainer> ctn = containers.get(cc_len);
+			Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
+			// System.out.println("remove executed!");
+			ctn.remove(current_container);
+			if (ctn.size() == 0) {
+				System.out.println("container remove executed!");
+				containers.remove(cc_len);
+			}
+			// current_container.ResetMutate(this);
+			current_container = null;
+		}
+		// else {
+		Assert.isTrue(result != null);
+		Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
+		return result;
+		// }
+		// (PseudoSequenceContainer) RandomSelect
+		// .RandomElementFromSetByRewardableElements(pseudo_sequence_containers,
+		// interested_branch,
+		// null);
+		// if (selected_container != null) {
+		//
+		// }
+		// System.out.println("selected_container:" + selected_container);
+		// first select a typed operation, then select a container
+		// TypedOperation best_op =
+		// RandomSelect.RandomKeyFromMapByRewardableValue(typed_operation_branch_influence,
+		// interested_branch, null);
+		// Class<?> best_op_cls = operation_class.get(best_op);
+		// Set<Class<?>> candidates = class_pseudo_variable.keySet();
+		// Set<Class<?>> selected_candidates =
+		// ClassUtil.GetDescendantClasses(candidates, best_op_cls);
+		// ArrayList<PseudoVariable> candidate_pvs = new ArrayList<PseudoVariable>();
+		// for (Class<?> selected : selected_candidates) {
+		// candidate_pvs.addAll(class_pseudo_variable.get(selected));
+		// }
+		// ArrayList<PseudoVariable> remove_pvs = new ArrayList<PseudoVariable>();
+		// Iterator<PseudoVariable> cpv_itr = candidate_pvs.iterator();
+		// while (cpv_itr.hasNext()) {
+		// PseudoVariable cpv = cpv_itr.next();
+		// PseudoSequence pv_ps = pseudo_variable_headed_sequence.get(cpv);
+		// if (pv_ps.OperationHasBeenApplied(best_op)) {
+		// remove_pvs.add(cpv);
+		// }
+		// }
+		// candidate_pvs.removeAll(remove_pvs);
+		// PseudoVariable selected_var = (PseudoVariable) RandomSelect
+		// .RandomElementFromSetByRewardableElements(candidate_pvs, interested_branch,
+		// null);
+		// HashSet<PseudoVariable> selected_vars = new HashSet<>();
+		// selected_vars.add(selected_var);
+		// mutations.add(new
+		// TypedOperationMutation(typed_operation_branch_influence.get(best_op),
+		// best_op, selected_vars));
+		// }
+
+		// Mutation one_mutate = (Mutation)
+		// RandomSelect.RandomElementFromSetByRewardableElements(mutations,
+		// interested_branch, null);
+		// if (one_mutate != null) {
+		// BeforeAfterLinkedSequence result = one_mutate.Apply(interested_branch, this);
+		// return result;
+		// }
+		// }
 		// }
 		// }
 	}
@@ -891,8 +909,7 @@ public class DateGenerator extends AbstractGenerator {
 			}
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
 			PseudoVariable created_pv = ps.Append(selected_to, copied_input_pseudo_variables);// , false
-//			ps.SetHeadedVariable(created_pv);
-			operation_been_created.put(selected_to, true);
+			// ps.SetHeadedVariable(created_pv);
 			if (operation_kind.get(selected_to) == OperationKind.no_branch && created_pv != null) {
 				Class<?> selected_to_class = operation_class.get(selected_to);
 				hidden_variables.put(selected_to_class, created_pv);
@@ -903,7 +920,8 @@ public class DateGenerator extends AbstractGenerator {
 			}
 			// pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GetLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence, true);
+			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence,
+					true);
 			// new TypedOperationMutated(ps, true, created_pv, true, created_pv)
 		}
 		return null;
@@ -1359,11 +1377,13 @@ public class DateGenerator extends AbstractGenerator {
 
 }
 
-//class ClassDoubleMapValueComparator implements Comparator<Map.Entry<Class<?>, Double>> {
+// class ClassDoubleMapValueComparator implements Comparator<Map.Entry<Class<?>,
+// Double>> {
 //
-//	@Override
-//	public int compare(Map.Entry<Class<?>, Double> me1, Map.Entry<Class<?>, Double> me2) {
-//		return -me1.getValue().compareTo(me2.getValue());
-//	}
+// @Override
+// public int compare(Map.Entry<Class<?>, Double> me1, Map.Entry<Class<?>,
+// Double> me2) {
+// return -me1.getValue().compareTo(me2.getValue());
+// }
 //
-//}
+// }
