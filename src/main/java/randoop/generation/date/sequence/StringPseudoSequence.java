@@ -316,7 +316,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				Assert.isTrue(gap_v_p != null);
 				Influence influ = influence.GetInfluences().get(cared_branch);
 				if (r_state == TaskState.Normal) {
-					if (influ.GetInfluence() > 0.2) {
+					if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
 						new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
 						int modified_v_p = after_v_p + new_gap_v_p;

@@ -157,7 +157,7 @@ public class SimpleInfluenceComputer {
 					} else {
 						sig_influence = 0.2;
 					}
-					influence.influences.put(sig_of_this_vob, new Influence(sig_influence));
+					influence.influences.put(sig_of_this_vob, new Influence(sig_influence, previous_vob.GetState() != current_vob.GetState()));
 //					TreeSet<Integer> positions = branch_positions_with_influence.get(sig_of_this_vob);
 //					if (positions == null) {
 //						positions = new TreeSet<Integer>();
