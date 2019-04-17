@@ -332,13 +332,13 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 				if (r_state == TaskState.LinearConverge) {
 					new_gap_v_p = gap_v_p / 2;
-					if (new_gap_v_p == 0) {
+					if (new_gap_v_p == 0 || influ == null) {
 						new_gap_v_p = (random.nextInt((max_range+1)/2) + 1) * direction;
 						r_state = TaskState.Over;
 						modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
 					} else {
-						if (influ.GetInfluence() > 0.2) {
+						if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
 							modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
 							before_linked_sequence = recent_mutate_result.after_linked_sequence;
 						} else {

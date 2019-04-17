@@ -157,7 +157,9 @@ public class SimpleInfluenceComputer {
 					} else {
 						sig_influence = 0.2;
 					}
-					boolean flip_happen = (previous_vob.GetNonAbsGap() * current_vob.GetNonAbsGap()) <= 0;
+					double flip_happen_material = previous_vob.GetNonAbsGap() * current_vob.GetNonAbsGap();
+					System.out.println("flip_happen_material:" + flip_happen_material);
+					boolean flip_happen = ((int) flip_happen_material) <= 0;
 					influence.influences.put(sig_of_this_vob, new Influence(sig_influence, flip_happen));
 //					TreeSet<Integer> positions = branch_positions_with_influence.get(sig_of_this_vob);
 //					if (positions == null) {
