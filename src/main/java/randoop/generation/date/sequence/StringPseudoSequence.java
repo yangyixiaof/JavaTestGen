@@ -225,13 +225,12 @@ public class StringPseudoSequence extends PseudoSequence {
 			before_linked_sequence = this.container.GetLinkedSequence();
 			// modified_content = "0000000000";
 			// random.nextInt(MaxSequenceLength)+1
+			current_tried_string_length++;
+			modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
 			if (current_tried_string_length >= MaxSequenceLength) {
 				current_tried_string_length = 0;
-				modified_content = null;
+//				modified_content = null;
 				removed_pk = pk;
-			} else {
-				current_tried_string_length++;
-				modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
 			}
 			// recent_mutate_result = null;
 			recent_mutate_result_set_to_null = true;

@@ -660,9 +660,6 @@ public class DateGenerator extends AbstractGenerator {
 					Class<?> sequence_type = GetSequenceTypeFromTypedOperation(to);
 					BeforeAfterLinkedSequence new_created_sequence = CreatePseudoSequenceWithCreateOperation(
 							sequence_type, to);
-					if (new_created_sequence != null) {
-						operation_been_created.put(to, true);
-					}
 					return new_created_sequence;
 				}
 			}
@@ -910,6 +907,7 @@ public class DateGenerator extends AbstractGenerator {
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
 			PseudoVariable created_pv = ps.Append(selected_to, copied_input_pseudo_variables);// , false
 			// ps.SetHeadedVariable(created_pv);
+			operation_been_created.put(selected_to, true);
 			if (operation_kind.get(selected_to) == OperationKind.no_branch && created_pv != null) {
 				Class<?> selected_to_class = operation_class.get(selected_to);
 				hidden_variables.put(selected_to_class, created_pv);
