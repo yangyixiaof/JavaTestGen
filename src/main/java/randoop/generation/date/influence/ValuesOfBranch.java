@@ -45,6 +45,10 @@ public class ValuesOfBranch implements Serializable {
 	public double GetGap() {
 		return Math.abs(branch_value2 - branch_value1);
 	}
+	
+	public double GetNonAbsGap() {
+		return branch_value2 - branch_value1;
+	}
 
 	public String GetCmpOptr() {
 		return cmp_optr;
