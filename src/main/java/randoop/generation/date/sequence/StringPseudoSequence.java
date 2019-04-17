@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.Assert;
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
+import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.StringMutation;
 import randoop.generation.date.util.RandomStringUtil;
 import randoop.operation.TypedOperation;
@@ -307,7 +308,12 @@ public class StringPseudoSequence extends PseudoSequence {
 						.FetchStringPseudoSequence();
 				String after_content = after_mapping.content;
 				int after_v_p = after_content.charAt(pk);
-				int gap_v_p = after_v_p - before_v_p;
+//				int gap_v_p = after_v_p - before_v_p;
+				Mutation mutate = recent_mutate_result.mutation;
+				Assert.isTrue(mutate instanceof StringMutation);
+				StringMutation string_mutate = (StringMutation)mutate;
+				Integer gap_v_p = string_mutate.GetDelta();
+				Assert.isTrue(gap_v_p != null);
 				Influence influ = influence.GetInfluences().get(cared_branch);
 				if (r_state == TaskState.Normal) {
 					if (influ.GetInfluence() > 0.2) {
