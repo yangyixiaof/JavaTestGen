@@ -67,8 +67,6 @@ public class StringPseudoSequence extends PseudoSequence {
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 	boolean recent_mutate_result_set_to_null = false;
 
-	public static final int DefaultTaskTryTimes = 1;
-
 	public static final String DefaultRandom = "DefaultRandom";
 	public static final String NegativePrefix = "Negative_";
 	public static final String PositivePrefix = "Positive_";
@@ -185,10 +183,10 @@ public class StringPseudoSequence extends PseudoSequence {
 				for (int i = 0; i < clen; i++) {
 					LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
 					// branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTaskTryTimes));
-					branch_try_times.add(new MutationPlan(NegativePrefix, DefaultTaskTryTimes));
-					branch_try_times.add(new MutationPlan(NegativeRecord, DefaultTaskTryTimes));
-					branch_try_times.add(new MutationPlan(PositivePrefix, DefaultTaskTryTimes));
-					branch_try_times.add(new MutationPlan(PositiveRecord, DefaultTaskTryTimes));
+					branch_try_times.add(new MutationPlan(NegativePrefix, TaskState.Normal));
+					branch_try_times.add(new MutationPlan(NegativeRecord, TaskState.Normal));
+					branch_try_times.add(new MutationPlan(PositivePrefix, TaskState.Normal));
+					branch_try_times.add(new MutationPlan(PositiveRecord, TaskState.Normal));
 					// TreeSet<String> branches = uncovered_position_branches == null ? null :
 					// uncovered_position_branches.get(i);
 					// int bunch_size = (branches != null ? branches.size() : 0) + 1;
@@ -242,7 +240,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			// Assert.isTrue(remain > 0);
 			MutationPlan mp = remain.get(0);
 			String cared_mutation = mp.in_try_mutate;
-			Integer r_num = mp.try_num;
+			TaskState r_state = mp.state;
 			if (cared_mutation.equals(PositiveRecord) || cared_mutation.equals(NegativeRecord)) {
 				String cared_mutation_prefix = cared_mutation.substring(0, cared_mutation.indexOf('_') + 1);
 				Assert.isTrue(recent_mutate_result != null);
@@ -254,18 +252,18 @@ public class StringPseudoSequence extends PseudoSequence {
 					String in_branch = in_itr.next();
 					Influence influ = influs.get(in_branch);
 					if (influ.GetInfluence() > 0.2) {
-						remain.add(new MutationPlan(cared_mutation_prefix + in_branch, DefaultTaskTryTimes));
+						remain.add(new MutationPlan(cared_mutation_prefix + in_branch, TaskState.Normal));
 					}
 				}
-				Assert.isTrue(r_num == 1);
+				Assert.isTrue(r_state == TaskState.Normal);
 				remain.remove(0);
 				recent_mutate_result = null;
 			}
 			StringBuilder modified_content_builder = new StringBuilder(content);
 			mp = remain.get(0);
 			cared_mutation = mp.in_try_mutate;
-			r_num = mp.try_num;
-			r_num--;
+			r_state = mp.state;
+//			r_num--;
 			// if (cared_mutation.equals(DefaultRandom)) {
 			// before_linked_sequence = this.container.GetLinkedSequence();
 			// modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
@@ -290,7 +288,9 @@ public class StringPseudoSequence extends PseudoSequence {
 				int gap_range_index = 0;
 				if (!cared_branch.equals("")) {
 					gap_range_index++;
-					r_num = r_num + 1;
+					r_state = TaskState.Normal;
+				} else {
+					r_state = TaskState.Over;
 				}
 				modified_content_builder.setCharAt(pk, (char) (before_v_p + direction * GapRanges[gap_range_index]));
 				before_linked_sequence = this.container.GetLinkedSequence();
@@ -308,37 +308,45 @@ public class StringPseudoSequence extends PseudoSequence {
 				int after_v_p = after_content.charAt(pk);
 				int gap_v_p = after_v_p - before_v_p;
 				Influence influ = influence.GetInfluences().get(cared_branch);
-				if (influ.GetInfluence() > 0.2) {
-					before_linked_sequence = recent_mutate_result.after_linked_sequence;
-					int new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
-					int modified_v_p = after_v_p + new_gap_v_p;
-					modified_content_builder.setCharAt(pk, (char) (modified_v_p));
-					int origin_v_p = this.content.charAt(pk);
-					if (Math.abs(modified_v_p - origin_v_p) >= (max_range + 1) / 2) {
-						Assert.isTrue(r_num == 0);
+				if (r_state == TaskState.Normal) {
+					if (influ.GetInfluence() > 0.2) {
+						before_linked_sequence = recent_mutate_result.after_linked_sequence;
+						int new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
+						int modified_v_p = after_v_p + new_gap_v_p;
+						modified_content_builder.setCharAt(pk, (char) (modified_v_p));
+						int origin_v_p = this.content.charAt(pk);
+						if (Math.abs(modified_v_p - origin_v_p) >= (max_range + 1) / 2) {
+							r_state = TaskState.Over;
+						} else {
+							r_state = TaskState.Normal;
+						}
 					} else {
-						r_num = r_num + 1;
+						r_state = TaskState.LinearConverge;
 					}
-				} else {
-					before_linked_sequence = recent_mutate_result.before_linked_sequence;
+				}
+				if (r_state == TaskState.LinearConverge) {
 					int new_gap_v_p = gap_v_p / 2;
 					if (new_gap_v_p == 0) {
-						new_gap_v_p = (random.nextInt((max_range + 1) / 2) + 1) * direction;
-						Assert.isTrue(r_num == 0);
+						new_gap_v_p = (random.nextInt((max_range+1)/2) + 1) * direction;
+						r_state = TaskState.Over;
+						modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
 					} else {
-						r_num = r_num + 1;
+						if (influ.GetInfluence() > 0.2) {
+							modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
+						} else {
+							modified_content_builder.setCharAt(pk, (char) (before_v_p + new_gap_v_p));
+						}
 					}
-					modified_content_builder.setCharAt(pk, (char) (before_v_p + new_gap_v_p));
 				}
-				if (r_num <= 0) {
+				if (r_state == TaskState.Over) {
 					recent_mutate_result_set_to_null = true;
 				}
 			}
 			// }
-			if (r_num <= 0) {
+			if (r_state == TaskState.Over) {
 				remain.remove(0);// cared_mutation
 			} else {
-				mp.try_num = r_num;
+				mp.state = r_state;
 			}
 			modified_content = modified_content_builder.toString();
 			if (remain.size() == 0) {
@@ -539,11 +547,17 @@ public class StringPseudoSequence extends PseudoSequence {
 class MutationPlan {
 
 	String in_try_mutate = null;
-	int try_num = 0;
+	TaskState state = null;
 
-	public MutationPlan(String in_try_mutate, int try_num) {
+	public MutationPlan(String in_try_mutate, TaskState state) {
 		this.in_try_mutate = in_try_mutate;
-		this.try_num = try_num;
+		this.state = state;
 	}
 
+}
+
+enum TaskState {
+	Normal,
+	LinearConverge,
+	Over
 }
