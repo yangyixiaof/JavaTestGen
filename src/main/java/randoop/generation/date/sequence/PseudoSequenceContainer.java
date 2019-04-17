@@ -1,6 +1,5 @@
 package randoop.generation.date.sequence;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.eclipse.core.runtime.Assert;
@@ -219,16 +218,16 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 		return new Reward(trace_info == null ? 0.0 : trace_info.GetReward(dg).rs[0]);
 	}
 
-	public void ResetMutate(DateGenerator dg) {
-		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
-		int s_len = string_sequences.size();
-		if (s_len > 0) {
-			for (int i = 0; i < s_len; i++) {
-				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
-				to_mutate_sequence.ResetMutateString(dg);
-			}
-		}
-	}
+//	public void ResetMutate(DateGenerator dg) {
+//		ArrayList<StringPseudoSequence> string_sequences = FetchAllStringPseudoSequences();
+//		int s_len = string_sequences.size();
+//		if (s_len > 0) {
+//			for (int i = 0; i < s_len; i++) {
+//				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
+//				to_mutate_sequence.ResetMutateString(dg);
+//			}
+//		}
+//	}
 
 	public BeforeAfterLinkedSequence Mutate(DateGenerator dg) {
 		// // here should be specified Mutation for string
@@ -252,18 +251,18 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 		return string_sequence;
 	}
 
-	private ArrayList<StringPseudoSequence> FetchAllStringPseudoSequences() {
-		ArrayList<StringPseudoSequence> string_sequences = new ArrayList<StringPseudoSequence>();
-//		Iterator<PseudoSequence> seq_itr = contained_sequences.iterator();
-//		while (seq_itr.hasNext()) {
-//			PseudoSequence ps = seq_itr.next();
-//			if (ps instanceof StringPseudoSequence) {
-//				string_sequences.add((StringPseudoSequence) ps);
-//			}
-//		}
-		string_sequences.add(string_sequence);
-		return string_sequences;
-	}
+//	private ArrayList<StringPseudoSequence> FetchAllStringPseudoSequences() {
+//		ArrayList<StringPseudoSequence> string_sequences = new ArrayList<StringPseudoSequence>();
+////		Iterator<PseudoSequence> seq_itr = contained_sequences.iterator();
+////		while (seq_itr.hasNext()) {
+////			PseudoSequence ps = seq_itr.next();
+////			if (ps instanceof StringPseudoSequence) {
+////				string_sequences.add((StringPseudoSequence) ps);
+////			}
+////		}
+//		string_sequences.add(string_sequence);
+//		return string_sequences;
+//	}
 
 	// public List<Mutation> UntriedMutations(DateGenerator dg) {
 	//

@@ -57,7 +57,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	String content = "";
 
 	// boolean is_mutating = true;
-	boolean is_making_plan = true;
+//	boolean is_making_plan = true;
 	TreeMap<Integer, LinkedList<MutationPlan>> in_trying = new TreeMap<Integer, LinkedList<MutationPlan>>();
 	// TreeMap<Integer, TreeSet<String>> already_tried_position_branches = new
 	// TreeMap<Integer, TreeSet<String>>();
@@ -163,17 +163,17 @@ public class StringPseudoSequence extends PseudoSequence {
 	// modifying-directly-after-inserting
 	// }
 
-	public void ResetMutateString(DateGenerator dg) {
+//	public void ResetMutateString(DateGenerator dg) {
 		// is_mutating = true;
-		is_making_plan = true;
-	}
+//		is_making_plan = true;
+//	}
 
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
 		// String trace_sig = container.trace_info.GetTraceSignature();
 		BeforeAfterLinkedSequence result = null;
 		LinkedSequence before_linked_sequence = null;
 		// if (is_mutating) {
-		if (is_making_plan) {
+		if (in_trying.isEmpty()) {
 			if (content.equals("")) {
 				in_trying.put(-1, null);
 			} else {
@@ -208,15 +208,15 @@ public class StringPseudoSequence extends PseudoSequence {
 					// plan_for_branches.put(i, p_bs);
 				}
 			}
-			is_making_plan = false;
+//			is_making_plan = false;
 		}
 		recent_mutate_result_set_to_null = false;
 		String modified_content = "";
 		Set<Integer> pkeys = in_trying.keySet();
 		Iterator<Integer> pk_itr = pkeys.iterator();
+		Assert.isTrue(pk_itr.hasNext());
 		Integer pk = null;
 		Integer removed_pk = null;
-		Assert.isTrue(pk_itr.hasNext());
 		// if (pk_itr.hasNext()) {
 		pk = pk_itr.next();
 		Integer new_gap_v_p = null;
@@ -368,28 +368,30 @@ public class StringPseudoSequence extends PseudoSequence {
 			in_trying.remove(removed_pk);
 			// plan_for_branches.remove(removed_pk);
 		}
-		if (pk != null && modified_content != null && !modified_content.equals("")) {
-			StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
-			copied_this.container.SetStringLength(modified_content.length());
-			// copied_this.container.SetLogicMapping(this, copied_this);
-			TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class),
-					modified_content);
-			copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
-			copied_this.content = modified_content;
-			LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
+		
+		Assert.isTrue(pk != null && modified_content != null && !modified_content.equals(""));
+//		if (pk != null && modified_content != null && !modified_content.equals("")) {
+		StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
+		copied_this.container.SetStringLength(modified_content.length());
+		// copied_this.container.SetLogicMapping(this, copied_this);
+		TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class),
+				modified_content);
+		copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
+		copied_this.content = modified_content;
+		LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
 
-			// debug
-			// System.out.println("Begin");
-			// System.out.println("content of after_linked_sequence:" +
-			// after_linked_sequence .toString());
-			// System.out.println("end sequence of after_linked_sequence:" +
-			// copied_this.container.end.toString());
-			// System.out.println("end sequence of this:" + this.container.end.toString());
-			// System.out.println("End" );
+		// debug
+		// System.out.println("Begin");
+		// System.out.println("content of after_linked_sequence:" +
+		// after_linked_sequence .toString());
+		// System.out.println("end sequence of after_linked_sequence:" +
+		// copied_this.container.end.toString());
+		// System.out.println("end sequence of this:" + this.container.end.toString());
+		// System.out.println("End" );
 
 //			StringPseudoSequence before_string_sequence = before_linked_sequence.container.FetchStringPseudoSequence();
-			StringMutation string_mutation = null;
-			if (pk >= 0) {
+		StringMutation string_mutation = null;
+		if (pk >= 0) {
 //				int modified_gap = modified_content.charAt(pk) - before_string_sequence.content.charAt(pk);
 //				TreeSet<Integer> gaps = before_string_sequence.tried_gap_value.get(pk);
 //				if (gaps == null) {
@@ -397,14 +399,14 @@ public class StringPseudoSequence extends PseudoSequence {
 //					before_string_sequence.tried_gap_value.put(pk, gaps);
 //				}
 //				gaps.add(modified_gap);
-				string_mutation = new StringMutation(pk, new_gap_v_p);
-			}
-			result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence);
-			recent_mutate_result = result;
+			string_mutation = new StringMutation(pk, new_gap_v_p);
+		}
+		result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence, in_trying.isEmpty());
+		recent_mutate_result = result;
 			// if (before_linked_sequence == null) {
 			// System.out.println("pk:" + pk);
 			// }
-		}
+//		}
 		if (recent_mutate_result_set_to_null) {
 			recent_mutate_result = null;
 		}
@@ -412,11 +414,11 @@ public class StringPseudoSequence extends PseudoSequence {
 		// is_mutating = false;
 		// }
 		// }
-		if (result != null) {
-			Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
-		} else {
-			Assert.isTrue(in_trying.size() == 0);
-		}
+		Assert.isTrue(result != null);
+		Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
+//		else {
+//			Assert.isTrue(in_trying.size() == 0);
+//		}
 		return result;
 	}
 

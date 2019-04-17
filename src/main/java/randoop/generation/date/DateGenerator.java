@@ -640,9 +640,9 @@ public class DateGenerator extends AbstractGenerator {
 					Class<?> sequence_type = GetSequenceTypeFromTypedOperation(to);
 					BeforeAfterLinkedSequence new_created_sequence = CreatePseudoSequenceWithCreateOperation(
 							sequence_type, to);
-					if (new_created_sequence != null) {
-						return new_created_sequence;
-					}
+//					if (new_created_sequence != null) {
+					return new_created_sequence;
+//					}
 				}
 			}
 		}
@@ -757,7 +757,7 @@ public class DateGenerator extends AbstractGenerator {
 //				System.out.println("==== End ====");
 			}
 			BeforeAfterLinkedSequence result = current_container.Mutate(this);
-			if (result == null) {
+			if (result.IsEnd()) {
 //				System.out.println("result is null.");
 				int cc_len = current_container.GetStringLength();
 				PriorityQueue<PseudoSequenceContainer> ctn = containers.get(cc_len);
@@ -770,10 +770,12 @@ public class DateGenerator extends AbstractGenerator {
 				}
 //				current_container.ResetMutate(this);
 				current_container = null;
-			} else {
-				Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
-				return result;
 			}
+//			else {
+			Assert.isTrue(result != null);
+			Assert.isTrue(result.GetBeforeLinkedSequence() != null && result.GetAfterLinkedSequence() != null);
+			return result;
+//			}
 			// (PseudoSequenceContainer) RandomSelect
 			// .RandomElementFromSetByRewardableElements(pseudo_sequence_containers,
 			// interested_branch,
@@ -824,7 +826,6 @@ public class DateGenerator extends AbstractGenerator {
 		}
 		// }
 		// }
-		return null;
 	}
 
 	public PseudoSequence CreatePseudoSequence(Class<?> sequence_type) {
@@ -889,9 +890,12 @@ public class DateGenerator extends AbstractGenerator {
 				hidden_variables.put(selected_to_class, created_pv);
 				return null;
 			}
+			if (container.FetchStringPseudoSequence() == null) {
+				return null;
+			}
 			// pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GetLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence);
+			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence, true);
 			// new TypedOperationMutated(ps, true, created_pv, true, created_pv)
 		}
 		return null;

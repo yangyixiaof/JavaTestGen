@@ -12,16 +12,18 @@ public class BeforeAfterLinkedSequence {
 	LinkedSequence before_linked_sequence = null;
 	LinkedSequence after_linked_sequence = null;
 	InfluenceOfTraceCompare all_branches_influences = null;
+	boolean is_end = false;
 
 	// PseudoVariable pseudo_variable, PseudoSequence pseudo_sequence,
 	// Mutated mutated
 	public BeforeAfterLinkedSequence(TypedOperation operation, Mutation mutation, LinkedSequence before_linked_sequence,
-			LinkedSequence after_linked_sequence) {
+			LinkedSequence after_linked_sequence, boolean is_end) {
 		this.operation = operation;
 //		this.mutated = mutated;
 		this.mutation = mutation;
 		this.before_linked_sequence = before_linked_sequence;
 		this.after_linked_sequence = after_linked_sequence;
+		this.is_end = is_end;
 	}
 
 	public TypedOperation GetTypedOperation() {
@@ -50,6 +52,10 @@ public class BeforeAfterLinkedSequence {
 	
 	public InfluenceOfTraceCompare GetInfluence() {
 		return all_branches_influences;
+	}
+	
+	public boolean IsEnd() {
+		return is_end;
 	}
 
 }
