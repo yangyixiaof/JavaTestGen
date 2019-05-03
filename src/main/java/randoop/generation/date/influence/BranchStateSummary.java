@@ -1,5 +1,9 @@
 package randoop.generation.date.influence;
 
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 /**
  * A data repository class, storing the coverage states of all visited
  * (byte code) branch nodes.
@@ -19,7 +23,8 @@ public class BranchStateSummary {
 	
 //	Map<Integer, TreeSet<String>> already_covered_position_branches = new TreeMap<Integer, TreeSet<String>>();
 	
-//	Map<String, TreeSet<String>> already_covered_branch = new TreeMap<String, TreeSet<String>>();
+	Map<String, TreeSet<String>> already_flipped_branch = new TreeMap<String, TreeSet<String>>();
+	Map<String, TreeSet<String>> already_hit_branch = new TreeMap<String, TreeSet<String>>();
 //	Map<String, TreeMap<Integer, TreeSet<String>>> not_covered_and_with_influence_position_branches_pair = new TreeMap<String, TreeMap<Integer, TreeSet<String>>>();
 //	Map<String, TreeMap<String, TreeSet<Integer>>> not_covered_and_with_influence_branch_positions_pair = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();
 	
@@ -116,6 +121,40 @@ public class BranchStateSummary {
 //		}
 //		branch_with_states.add(branch_with_state);
 //	}
+	
+	private void BranchStateChange(Map<String, TreeSet<String>> branch_state, String whole_state, String one_branch) {
+		TreeSet<String> whole_state_covered = branch_state.get(whole_state);
+		if (whole_state_covered == null) {
+			whole_state_covered = new TreeSet<String>();
+			branch_state.put(whole_state, whole_state_covered);
+		}
+		whole_state_covered.add(one_branch);
+	}
+	
+	private boolean IsBranchStateChanged(Map<String, TreeSet<String>> branch_state, String whole_state, String one_branch) {
+		TreeSet<String> whole_state_covered = branch_state.get(whole_state);
+		if (whole_state_covered == null) {
+			return false;
+		} else {
+			return whole_state_covered.contains(one_branch);
+		}
+	}
+	
+	public void FlipBranch(String whole_state, String one_branch) {
+		BranchStateChange(already_flipped_branch, whole_state, one_branch);
+	}
+	
+	public boolean IsBranchFlipped(String whole_state, String one_branch) {
+		return IsBranchStateChanged(already_flipped_branch, whole_state, one_branch);
+	}
+	
+	public void HitBranch(String whole_state, String one_branch) {
+		BranchStateChange(already_hit_branch, whole_state, one_branch);
+	}
+	
+	public boolean IsBranchHit(String whole_state, String one_branch) {
+		return IsBranchStateChanged(already_hit_branch, whole_state, one_branch);
+	}
 	
 //	public Map<String, TreeSet<String>> GetAlreadyCoveredBranch() {
 //		return already_covered_branch;
