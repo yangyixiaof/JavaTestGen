@@ -46,6 +46,8 @@ public class TraceInfo implements Rewardable {
 			iob = new InfoOfBranch();
 			vobs.put(sig_info, iob);
 			iob_count = 0;
+		} else {
+			Assert.isTrue(false, "Strange! each branch is unique!");
 		}
 		iob.HandleOneValueOfBranch(vob);
 		iob_count++;
@@ -90,8 +92,11 @@ public class TraceInfo implements Rewardable {
 //		}
 //	}
 	
-	public Integer GetBranchState(String sig) {
-		return vobs.get(sig).GetBranchState();
+	public Integer GetBranchStateForValueOfBranch(String sig_of_vob) {
+		int li = sig_of_vob.lastIndexOf('#');
+		String sig = sig_of_vob.substring(0, li);
+		int vob_index = Integer.parseInt(sig_of_vob.substring(li+1));
+		return vobs.get(sig).GetBranchState(vob_index);
 	}
 
 //	public double Fitness(Map<String, Double> branch_priority, Map<String, Integer> branch_current_interest_state) {

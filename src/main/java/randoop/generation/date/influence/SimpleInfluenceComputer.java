@@ -2,8 +2,6 @@ package randoop.generation.date.influence;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -160,7 +158,8 @@ public class SimpleInfluenceComputer {
 					double flip_happen_material = previous_vob.GetNonAbsGap() * current_vob.GetNonAbsGap();
 					System.out.println("flip_happen_material:" + flip_happen_material);
 					boolean flip_happen = ((int) flip_happen_material) <= 0;
-					influence.influences.put(sig_of_this_vob, new Influence(sig_influence, flip_happen));
+					boolean hit_happen = ((int) flip_happen_material) == 0;
+					influence.influences.put(sig_of_this_vob, new Influence(sig_influence, flip_happen, hit_happen));
 //					TreeSet<Integer> positions = branch_positions_with_influence.get(sig_of_this_vob);
 //					if (positions == null) {
 //						positions = new TreeSet<Integer>();
@@ -231,83 +230,83 @@ public class SimpleInfluenceComputer {
 	// return average_influence;
 	// }
 
-	public static Integer IdentifyStateForBranches(LinkedList<ValuesOfBranch> vobs) {
-		Integer state = null;
-		Iterator<ValuesOfBranch> vob_itr = vobs.iterator();
-		while (vob_itr.hasNext()) {
-			ValuesOfBranch vob = vob_itr.next();
-			state = MergeBranchState(vob.GetCmpOptr(), IdentifyStateForOneBranch(vob), state);
-		}
-		return state;
-	}
+//	public static Integer IdentifyStateForBranches(LinkedList<ValuesOfBranch> vobs) {
+//		Integer state = null;
+//		Iterator<ValuesOfBranch> vob_itr = vobs.iterator();
+//		while (vob_itr.hasNext()) {
+//			ValuesOfBranch vob = vob_itr.next();
+//			state = MergeBranchState(vob.GetCmpOptr(), IdentifyStateForOneBranch(vob), state);
+//		}
+//		return state;
+//	}
 
-	public static Integer MergeBranchState(String cmp_optr, Integer vob_state, Integer state) {
-		if (cmp_optr.startsWith("SWITCH")) {
-			if (state == null) {
-				state = 0b11;
-			}
-		} else {
-			switch (cmp_optr) {
-			// ``compare then store'' series
-			case "D$CMPG":
-			case "D$CMPL":
-			case "F$CMPG":
-			case "F$CMPL":
-			case "L$CMP":
-				if (state == null) {
-					state = 0b111;
-				}
-				// // ``compare then store'' series BLOCK
-				break;
-			// eq neq series... *8
-			case "I$==":
-			case "I$!=":
-			case "A$==":
-			case "A$!=":
-			case "IZ$==":
-			case "IZ$!=":
-			case "N$!=":
-			case "N$==":
-				if (state == null) {
-					state = 0b11;
-				}
-				break;
-			// ge, ge 0 *2
-			case "I$>=":
-			case "IZ$>=":
-				if (state == null) {
-					state = 0b11;
-				}
-				break;
-			// le, le 0
-			case "I$<=":
-			case "IZ$<=":
-				if (state == null) {
-					state = 0b11;
-				}
-				break;
-			// gt, gt 0
-			case "I$>":
-			case "IZ$>":
-				if (state == null) {
-					state = 0b11;
-				}
-				break;
-			// lt, lt 0
-			case "I$<":
-			case "IZ$<":
-				if (state == null) {
-					state = 0b11;
-				}
-				break;
-			default:
-				System.out.println("Serious error! no existing hit cases!");
-				System.exit(1);
-			} // switch (current_vob.GetCmpOptr())
-		}
-		state &= vob_state;
-		return state;
-	}
+//	public static Integer MergeBranchState(String cmp_optr, Integer vob_state, Integer state) {
+//		if (cmp_optr.startsWith("SWITCH")) {
+//			if (state == null) {
+//				state = 0b11;
+//			}
+//		} else {
+//			switch (cmp_optr) {
+//			// ``compare then store'' series
+//			case "D$CMPG":
+//			case "D$CMPL":
+//			case "F$CMPG":
+//			case "F$CMPL":
+//			case "L$CMP":
+//				if (state == null) {
+//					state = 0b111;
+//				}
+//				// // ``compare then store'' series BLOCK
+//				break;
+//			// eq neq series... *8
+//			case "I$==":
+//			case "I$!=":
+//			case "A$==":
+//			case "A$!=":
+//			case "IZ$==":
+//			case "IZ$!=":
+//			case "N$!=":
+//			case "N$==":
+//				if (state == null) {
+//					state = 0b11;
+//				}
+//				break;
+//			// ge, ge 0 *2
+//			case "I$>=":
+//			case "IZ$>=":
+//				if (state == null) {
+//					state = 0b11;
+//				}
+//				break;
+//			// le, le 0
+//			case "I$<=":
+//			case "IZ$<=":
+//				if (state == null) {
+//					state = 0b11;
+//				}
+//				break;
+//			// gt, gt 0
+//			case "I$>":
+//			case "IZ$>":
+//				if (state == null) {
+//					state = 0b11;
+//				}
+//				break;
+//			// lt, lt 0
+//			case "I$<":
+//			case "IZ$<":
+//				if (state == null) {
+//					state = 0b11;
+//				}
+//				break;
+//			default:
+//				System.out.println("Serious error! no existing hit cases!");
+//				System.exit(1);
+//			} // switch (current_vob.GetCmpOptr())
+//		}
+//		state &= vob_state;
+//		return state;
+//	}
 
 	public static Integer IdentifyStateForOneBranch(ValuesOfBranch vob) {
 		double v1 = vob.GetBranchValue1();

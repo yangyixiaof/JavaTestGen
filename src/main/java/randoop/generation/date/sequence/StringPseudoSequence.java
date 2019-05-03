@@ -11,8 +11,10 @@ import java.util.TreeMap;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
+import randoop.generation.date.influence.BranchStateSummary;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
+import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.mutation.Mutation;
 import randoop.generation.date.mutation.StringMutation;
 import randoop.generation.date.util.RandomStringUtil;
@@ -169,7 +171,6 @@ public class StringPseudoSequence extends PseudoSequence {
 //	}
 
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
-		// String trace_sig = container.trace_info.GetTraceSignature();
 		BeforeAfterLinkedSequence result = null;
 		LinkedSequence before_linked_sequence = null;
 		// if (is_mutating) {
@@ -314,6 +315,8 @@ public class StringPseudoSequence extends PseudoSequence {
 				Integer gap_v_p = string_mutate.GetDelta();
 				Assert.isTrue(gap_v_p != null);
 				Influence influ = influence.GetInfluences().get(cared_branch);
+				// handle branch state
+				HandleBranchState(dg.branch_state, cared_branch, recent_mutate_result.before_linked_sequence.container.trace_info, recent_mutate_result.after_linked_sequence.container.trace_info, influ);
 				if (r_state == TaskState.Normal) {
 					if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
@@ -419,6 +422,19 @@ public class StringPseudoSequence extends PseudoSequence {
 //			Assert.isTrue(in_trying.size() == 0);
 //		}
 		return result;
+	}
+	
+	private void HandleBranchState(BranchStateSummary bss, String cared_branch, TraceInfo prev_trace, TraceInfo curr_trace, Influence influ) {
+		String pt = prev_trace.GetTraceSignature();
+		String ct = curr_trace.GetTraceSignature();
+		if (!pt.equals(ct)) {
+			Integer pst = prev_trace.GetBranchStateForValueOfBranch(cared_branch);
+			Integer cst = curr_trace.GetBranchStateForValueOfBranch(cared_branch);
+			if (pst != null && cst != null && pst.intValue() != cst.intValue()) {
+				bss.CoveredBranchStateUpdate2(pt, cared_branch, pst, cst);
+				bss.CoveredBranchStateUpdate2(ct, cared_branch, cst, pst);
+			}
+		}
 	}
 
 	// @Override
