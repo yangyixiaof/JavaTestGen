@@ -2,6 +2,7 @@ package randoop.generation.date.sequence;
 
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
 import randoop.generation.date.mutation.Mutation;
+import randoop.generation.date.mutation.RandomMutationInfo;
 import randoop.operation.TypedOperation;
 
 public class BeforeAfterLinkedSequence {
@@ -13,17 +14,19 @@ public class BeforeAfterLinkedSequence {
 	LinkedSequence after_linked_sequence = null;
 	InfluenceOfTraceCompare all_branches_influences = null;
 	boolean is_end = false;
-
+	RandomMutationInfo rmi;
+	
 	// PseudoVariable pseudo_variable, PseudoSequence pseudo_sequence,
 	// Mutated mutated
 	public BeforeAfterLinkedSequence(TypedOperation operation, Mutation mutation, LinkedSequence before_linked_sequence,
-			LinkedSequence after_linked_sequence, boolean is_end) {
+			LinkedSequence after_linked_sequence, boolean is_end, RandomMutationInfo rmi) {
 		this.operation = operation;
 //		this.mutated = mutated;
 		this.mutation = mutation;
 		this.before_linked_sequence = before_linked_sequence;
 		this.after_linked_sequence = after_linked_sequence;
 		this.is_end = is_end;
+		this.rmi = rmi;
 	}
 
 	public TypedOperation GetTypedOperation() {
@@ -56,6 +59,10 @@ public class BeforeAfterLinkedSequence {
 	
 	public boolean IsEnd() {
 		return is_end;
+	}
+	
+	public RandomMutationInfo GetRandomMutationInfo() {
+		return rmi;
 	}
 
 }

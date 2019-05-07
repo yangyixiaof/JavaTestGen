@@ -31,7 +31,7 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 	
 	LinkedSequence linked_sequence = null;
 	
-	int string_length = 0;
+//	int string_length = 0;
 	
 	StringPseudoSequence string_sequence = null;
 
@@ -382,12 +382,12 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //		logical_mutate_mapping.put(b_this, copied_this);
 //	}
 	
-	public void SetStringLength(int string_length) {
-		this.string_length = string_length;
-	}
+//	public void SetStringLength(int string_length) {
+//		this.string_length = string_length;
+//	}
 	
 	public int GetStringLength() {
-		return string_length;
+		return string_sequence.content.length();
 	}
 
 	@Override

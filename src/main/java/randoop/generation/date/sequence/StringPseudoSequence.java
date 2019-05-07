@@ -1,6 +1,7 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,13 +12,14 @@ import java.util.TreeMap;
 import org.eclipse.core.runtime.Assert;
 
 import randoop.generation.date.DateGenerator;
-import randoop.generation.date.influence.BranchStateSummary;
 import randoop.generation.date.influence.Influence;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
-import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.mutation.Mutation;
+import randoop.generation.date.mutation.RandomMutationInfo;
 import randoop.generation.date.mutation.StringMutation;
+import randoop.generation.date.sequence.helper.SeedHelper;
 import randoop.generation.date.util.RandomStringUtil;
+import randoop.generation.date.util.SortUtil;
 import randoop.operation.TypedOperation;
 import randoop.types.Type;
 
@@ -28,7 +30,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	int current_tried_string_length = 0;
 
 	public static final int MaxSequenceLength = 1;
-	private static final int max_range = 255;
+	private static final int max_range = 127;
 	private static final int[] GapRanges = new int[] { 1, 2, 4, 8 };
 
 	// {
@@ -50,7 +52,8 @@ public class StringPseudoSequence extends PseudoSequence {
 	// tried_value = new TreeMap<Integer, TreeMap<Integer, TreeMap<Integer,
 	// BeforeAfterLinkedSequence>>>();
 	// key: position; value: tried gap;
-//	Map<Integer, TreeSet<Integer>> tried_gap_value = new TreeMap<Integer, TreeSet<Integer>>();
+	// Map<Integer, TreeSet<Integer>> tried_gap_value = new TreeMap<Integer,
+	// TreeSet<Integer>>();
 
 	// int recent_tried_position = -1;
 	// Map<String, ArrayList<Integer>> tried_value_in_order = new TreeMap<String,
@@ -59,15 +62,19 @@ public class StringPseudoSequence extends PseudoSequence {
 	String content = "";
 
 	// boolean is_mutating = true;
-//	boolean is_making_plan = true;
+	// boolean is_making_plan = true;
 	TreeMap<Integer, LinkedList<MutationPlan>> in_trying = new TreeMap<Integer, LinkedList<MutationPlan>>();
 	// TreeMap<Integer, TreeSet<String>> already_tried_position_branches = new
 	// TreeMap<Integer, TreeSet<String>>();
 	// TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer,
 	// ArrayList<String>>();
+	
+	HashMap<String, HashMap<PseudoSequenceContainer, Double>> linear_solve_seeds = new HashMap<String, HashMap<PseudoSequenceContainer, Double>>();
 
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 	boolean recent_mutate_result_set_to_null = false;
+
+//	Map<String, TreeSet<String>> cared_branch_encountered_new_branches = new TreeMap<String, TreeSet<String>>();
 
 	public static final String DefaultRandom = "DefaultRandom";
 	public static final String NegativePrefix = "Negative_";
@@ -165,10 +172,10 @@ public class StringPseudoSequence extends PseudoSequence {
 	// modifying-directly-after-inserting
 	// }
 
-//	public void ResetMutateString(DateGenerator dg) {
-		// is_mutating = true;
-//		is_making_plan = true;
-//	}
+	// public void ResetMutateString(DateGenerator dg) {
+	// is_mutating = true;
+	// is_making_plan = true;
+	// }
 
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
 		BeforeAfterLinkedSequence result = null;
@@ -209,7 +216,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					// plan_for_branches.put(i, p_bs);
 				}
 			}
-//			is_making_plan = false;
+			// is_making_plan = false;
 		}
 		recent_mutate_result_set_to_null = false;
 		String modified_content = "";
@@ -222,15 +229,19 @@ public class StringPseudoSequence extends PseudoSequence {
 		pk = pk_itr.next();
 		Integer new_gap_v_p = null;
 		System.out.println("pk:" + pk + "; recent_mutate_result:" + recent_mutate_result);
+		boolean is_random_mutating = false;
+		TaskState r_state = TaskState.Normal;
 		if (pk < 0) {
 			before_linked_sequence = this.container.GetLinkedSequence();
 			// modified_content = "0000000000";
 			// random.nextInt(MaxSequenceLength)+1
 			current_tried_string_length++;
 			modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
+			is_random_mutating = true;
+			r_state = TaskState.Over;
 			if (current_tried_string_length >= MaxSequenceLength) {
 				current_tried_string_length = 0;
-//				modified_content = null;
+				// modified_content = null;
 				removed_pk = pk;
 			}
 			// recent_mutate_result = null;
@@ -241,7 +252,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			// Assert.isTrue(remain > 0);
 			MutationPlan mp = remain.get(0);
 			String cared_mutation = mp.in_try_mutate;
-			TaskState r_state = mp.state;
+			r_state = mp.state;
 			if (cared_mutation.equals(PositiveRecord) || cared_mutation.equals(NegativeRecord)) {
 				String cared_mutation_prefix = cared_mutation.substring(0, cared_mutation.indexOf('_') + 1);
 				Assert.isTrue(recent_mutate_result != null);
@@ -251,20 +262,25 @@ public class StringPseudoSequence extends PseudoSequence {
 				Iterator<String> in_itr = influ_keys.iterator();
 				while (in_itr.hasNext()) {
 					String in_branch = in_itr.next();
+//					if (!dg.branch_state.IsBranchCovered(container.trace_info.GetTraceSignature(), in_branch)) {
 					Influence influ = influs.get(in_branch);
-					if (influ.GetInfluence() > 0.2) {
-						remain.add(new MutationPlan(cared_mutation_prefix + in_branch, TaskState.Normal));
-					}
+					remain.remove(0);
+//					if (influ.GetInfluence() > 0.2 && !influ.IsHitHappen() && !influ.IsFlipHappen()) {
+					Assert.isTrue(r_state == TaskState.Normal);
+					remain.add(0, new MutationPlan(cared_mutation_prefix + in_branch, TaskState.Normal));
+//					} else {
+//						recent_mutate_result = null;
+//					}
+					Assert.isTrue(linear_solve_seeds.isEmpty());
+					HandleGeneratedStringState(recent_mutate_result.before_linked_sequence.container, influ.GetBeforeGap());
+//					}
 				}
-				Assert.isTrue(r_state == TaskState.Normal);
-				remain.remove(0);
-				recent_mutate_result = null;
 			}
 			StringBuilder modified_content_builder = new StringBuilder(content);
 			mp = remain.get(0);
 			cared_mutation = mp.in_try_mutate;
 			r_state = mp.state;
-//			r_num--;
+			// r_num--;
 			// if (cared_mutation.equals(DefaultRandom)) {
 			// before_linked_sequence = this.container.GetLinkedSequence();
 			// modified_content_builder.setCharAt(pk, (char) random.nextInt(max_range));
@@ -283,22 +299,26 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 			Assert.isTrue(cared_mutation.startsWith(NegativePrefix) || cared_mutation.startsWith(PositivePrefix));
 			Assert.isTrue(cared_branch != null);
-			if (cared_branch.equals("") || recent_mutate_result == null) {
+			if (cared_branch.equals("")) { // || recent_mutate_result == null
 				Assert.isTrue(recent_mutate_result == null);
 				int before_v_p = this.content.charAt(pk);
 				int gap_range_index = 0;
-				if (!cared_branch.equals("")) {
-					gap_range_index++;
-					r_state = TaskState.Normal;
-				} else {
-					r_state = TaskState.Over;
-				}
+//				if (!cared_branch.equals("")) {
+//					gap_range_index++;
+//					r_state = TaskState.Normal;
+//					cared_branch_encountered_new_branches.put(cared_branch, new TreeSet<String>());
+//				} else {
+				r_state = TaskState.Over;
+//				}
 				new_gap_v_p = direction * GapRanges[gap_range_index];
 				modified_content_builder.setCharAt(pk, (char) (before_v_p + new_gap_v_p));
 				before_linked_sequence = this.container.GetLinkedSequence();
 			} else {
 				Assert.isTrue(recent_mutate_result != null);
+//				cared_branch_encountered_new_branches.get(cared_branch)
+//						.add(recent_mutate_result.before_linked_sequence.container.GetTraceInfo().GetTraceSignature());
 				InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
+				// handle other logic
 				StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container
 						.FetchStringPseudoSequence();
 				Assert.isTrue(before_mapping != null);
@@ -308,15 +328,19 @@ public class StringPseudoSequence extends PseudoSequence {
 						.FetchStringPseudoSequence();
 				String after_content = after_mapping.content;
 				int after_v_p = after_content.charAt(pk);
-//				int gap_v_p = after_v_p - before_v_p;
+				// int gap_v_p = after_v_p - before_v_p;
 				Mutation mutate = recent_mutate_result.mutation;
 				Assert.isTrue(mutate instanceof StringMutation);
-				StringMutation string_mutate = (StringMutation)mutate;
+				StringMutation string_mutate = (StringMutation) mutate;
 				Integer gap_v_p = string_mutate.GetDelta();
 				Assert.isTrue(gap_v_p != null);
 				Influence influ = influence.GetInfluences().get(cared_branch);
 				// handle branch state
-				HandleBranchState(dg.branch_state, cared_branch, recent_mutate_result.before_linked_sequence.container.trace_info, recent_mutate_result.after_linked_sequence.container.trace_info, influ);
+				// HandleBranchState(dg.branch_state, cared_branch,
+				// recent_mutate_result.before_linked_sequence.container.trace_info,
+				// recent_mutate_result.after_linked_sequence.container.trace_info, influ);
+				HandleGeneratedStringState(recent_mutate_result.after_linked_sequence.container, influ.GetAfterGap());
+				// handle mutate logic
 				if (r_state == TaskState.Normal) {
 					if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
@@ -336,9 +360,10 @@ public class StringPseudoSequence extends PseudoSequence {
 				if (r_state == TaskState.LinearConverge) {
 					new_gap_v_p = gap_v_p / 2;
 					if (new_gap_v_p == 0 || influ == null) {
-						new_gap_v_p = (random.nextInt((max_range+1)/2) + 1) * direction;
+						new_gap_v_p = (random.nextInt((max_range + 1) / 2) + 1) * direction;
 						r_state = TaskState.Over;
 						modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
+						is_random_mutating = true;
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
 					} else {
 						if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
@@ -370,18 +395,30 @@ public class StringPseudoSequence extends PseudoSequence {
 			in_trying.remove(removed_pk);
 			// plan_for_branches.remove(removed_pk);
 		}
-		
 		Assert.isTrue(pk != null && modified_content != null && !modified_content.equals(""));
-//		if (pk != null && modified_content != null && !modified_content.equals("")) {
+		// if (pk != null && modified_content != null && !modified_content.equals("")) {
 		StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
-		copied_this.container.SetStringLength(modified_content.length());
+//		copied_this.container.SetStringLength(modified_content.length());
 		// copied_this.container.SetLogicMapping(this, copied_this);
-		TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class),
-				modified_content);
+		TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
 		copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
 		copied_this.content = modified_content;
 		LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
-
+		double prob_to_add_random_mutate = 0.0;
+		// handle seeds
+		if (r_state == TaskState.Over) {
+			// when task is over, there should be a random seed. 
+			Assert.isTrue(is_random_mutating);
+			if (linear_solve_seeds.isEmpty()) {
+				prob_to_add_random_mutate = 0.4;
+			} else {
+				int num_of_interests = HandleSeeds(dg);
+				if (num_of_interests <= 0) {
+					prob_to_add_random_mutate = 0.8;
+				}
+			}
+			linear_solve_seeds.clear();
+		}
 		// debug
 		// System.out.println("Begin");
 		// System.out.println("content of after_linked_sequence:" +
@@ -391,24 +428,27 @@ public class StringPseudoSequence extends PseudoSequence {
 		// System.out.println("end sequence of this:" + this.container.end.toString());
 		// System.out.println("End" );
 
-//			StringPseudoSequence before_string_sequence = before_linked_sequence.container.FetchStringPseudoSequence();
+		// StringPseudoSequence before_string_sequence =
+		// before_linked_sequence.container.FetchStringPseudoSequence();
 		StringMutation string_mutation = null;
 		if (pk >= 0) {
-//				int modified_gap = modified_content.charAt(pk) - before_string_sequence.content.charAt(pk);
-//				TreeSet<Integer> gaps = before_string_sequence.tried_gap_value.get(pk);
-//				if (gaps == null) {
-//					gaps = new TreeSet<Integer>();
-//					before_string_sequence.tried_gap_value.put(pk, gaps);
-//				}
-//				gaps.add(modified_gap);
+			// int modified_gap = modified_content.charAt(pk) -
+			// before_string_sequence.content.charAt(pk);
+			// TreeSet<Integer> gaps = before_string_sequence.tried_gap_value.get(pk);
+			// if (gaps == null) {
+			// gaps = new TreeSet<Integer>();
+			// before_string_sequence.tried_gap_value.put(pk, gaps);
+			// }
+			// gaps.add(modified_gap);
 			string_mutation = new StringMutation(pk, new_gap_v_p);
 		}
-		result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence, in_trying.isEmpty());
+		result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence,
+				in_trying.isEmpty(), is_random_mutating ? new RandomMutationInfo(prob_to_add_random_mutate) : null);
 		recent_mutate_result = result;
-			// if (before_linked_sequence == null) {
-			// System.out.println("pk:" + pk);
-			// }
-//		}
+		// if (before_linked_sequence == null) {
+		// System.out.println("pk:" + pk);
+		// }
+		// }
 		if (recent_mutate_result_set_to_null) {
 			recent_mutate_result = null;
 		}
@@ -418,24 +458,67 @@ public class StringPseudoSequence extends PseudoSequence {
 		// }
 		Assert.isTrue(result != null);
 		Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
-//		else {
-//			Assert.isTrue(in_trying.size() == 0);
-//		}
+		// else {
+		// Assert.isTrue(in_trying.size() == 0);
+		// }
 		return result;
 	}
-	
-	private void HandleBranchState(BranchStateSummary bss, String cared_branch, TraceInfo prev_trace, TraceInfo curr_trace, Influence influ) {
-		String pt = prev_trace.GetTraceSignature();
-		String ct = curr_trace.GetTraceSignature();
-		if (!pt.equals(ct)) {
-			Integer pst = prev_trace.GetBranchStateForValueOfBranch(cared_branch);
-			Integer cst = curr_trace.GetBranchStateForValueOfBranch(cared_branch);
-			if (pst != null && cst != null && pst.intValue() != cst.intValue()) {
-				bss.CoveredBranchStateUpdate2(pt, cared_branch, pst, cst);
-				bss.CoveredBranchStateUpdate2(ct, cared_branch, cst, pst);
+
+	private int HandleSeeds(DateGenerator dg) {
+		int num_of_interests = 0;
+		String cts = container.trace_info.GetTraceSignature();
+		Set<String> lkeys = linear_solve_seeds.keySet();
+		Iterator<String> lk_itr = lkeys.iterator();
+		while (lk_itr.hasNext()) {
+			String lk = lk_itr.next();
+			boolean first_encounter = dg.branch_state.StateFirstEncountered(lk);
+			HashMap<PseudoSequenceContainer, Double> c_gaps = linear_solve_seeds.get(lk);
+			ArrayList<PseudoSequenceContainer> sorted_cs = SortUtil.SortMapByValue(c_gaps);
+			PseudoSequenceContainer gap_smallest_cs = sorted_cs.get(0);
+			String scs_content = gap_smallest_cs.string_sequence.content;
+			if (dg.content_container_map.containsKey(scs_content)) {
+				continue;
+			}
+			if (lk.equals(cts)) {
+				Assert.isTrue(!first_encounter);
+				if (linear_solve_seeds.size() == 1) {
+					if (gap_smallest_cs != container) {
+						num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
+					}
+				}
+			} else {
+				if (first_encounter) {
+					num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
+				}
 			}
 		}
+		return num_of_interests;
 	}
+
+	private void HandleGeneratedStringState(PseudoSequenceContainer p_ctr, double gap) {
+		String t_sig = p_ctr.trace_info.GetTraceSignature();
+		HashMap<PseudoSequenceContainer, Double> c_g = linear_solve_seeds.get(t_sig);
+		if (c_g == null) {
+			c_g = new HashMap<PseudoSequenceContainer, Double>();
+			linear_solve_seeds.put(t_sig, c_g);
+		}
+		c_g.put(p_ctr, gap);
+	}
+
+	// private void HandleBranchState(BranchStateSummary bss, String cared_branch,
+	// TraceInfo prev_trace,
+	// TraceInfo curr_trace, Influence influ) {
+	// String pt = prev_trace.GetTraceSignature();
+	// String ct = curr_trace.GetTraceSignature();
+	// if (!pt.equals(ct)) {
+	// Integer pst = prev_trace.GetBranchStateForValueOfBranch(cared_branch);
+	// Integer cst = curr_trace.GetBranchStateForValueOfBranch(cared_branch);
+	// if (pst != null && cst != null && pst.intValue() != cst.intValue()) {
+	// bss.CoveredBranchStateUpdate2(pt, cared_branch, pst, cst);
+	// bss.CoveredBranchStateUpdate2(ct, cared_branch, cst, pst);
+	// }
+	// }
+	// }
 
 	// @Override
 	// public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to,
@@ -584,7 +667,5 @@ class MutationPlan {
 }
 
 enum TaskState {
-	Normal,
-	LinearConverge,
-	Over
+	Normal, LinearConverge, Over
 }

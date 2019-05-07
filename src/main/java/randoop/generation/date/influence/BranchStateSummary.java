@@ -1,7 +1,6 @@
 package randoop.generation.date.influence;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * A data repository class, storing the coverage states of all visited
@@ -20,9 +19,11 @@ public class BranchStateSummary {
 	// the following key is the representation for a trace
 	// the following value is as described in variable name
 	
+	TreeSet<String> encountered_states = new TreeSet<String>();
+	
 //	Map<Integer, TreeSet<String>> already_covered_position_branches = new TreeMap<Integer, TreeSet<String>>();
 	
-	private Map<String, TreeMap<String, Integer>> covered_branch_states = new TreeMap<String, TreeMap<String, Integer>>();
+//	private Map<String, TreeMap<String, Integer>> covered_branch_states = new TreeMap<String, TreeMap<String, Integer>>();
 	
 //	Map<String, TreeSet<String>> already_flipped_branch = new TreeMap<String, TreeSet<String>>();
 //	Map<String, TreeSet<String>> already_hit_branch = new TreeMap<String, TreeSet<String>>();
@@ -30,6 +31,15 @@ public class BranchStateSummary {
 //	Map<String, TreeMap<String, TreeSet<Integer>>> not_covered_and_with_influence_branch_positions_pair = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();
 	
 	public BranchStateSummary() {
+	}
+	
+	public boolean StateFirstEncountered(String trace_sig) {
+		if (encountered_states.contains(trace_sig)) {
+			return true;
+		} else {
+			encountered_states.add(trace_sig);
+			return false;
+		}
 	}
 
 //	public Integer GetBranchState(String sig) {
@@ -123,50 +133,50 @@ public class BranchStateSummary {
 //		branch_with_states.add(branch_with_state);
 //	}
 	
-	public void CoveredBranchStateUpdate2(String whole_trace_sig, String one_branch, Integer state1, Integer state2) {
-		TreeMap<String, Integer> whole_state_covered = covered_branch_states.get(whole_trace_sig);
-		if (whole_state_covered == null) {
-			whole_state_covered = new TreeMap<String, Integer>();
-			covered_branch_states.put(whole_trace_sig, whole_state_covered);
-		}
-		Integer o_state = whole_state_covered.get(one_branch);
-		if (o_state == null) {
-			o_state = state1;
-		} else {
-			o_state &= state1;
-		}
-		o_state &= state2;
-		whole_state_covered.put(one_branch, o_state);
-	}
-	
-	public void CoveredBranchStateUpdate(String whole_trace_sig, String one_branch, Integer state) {
-		TreeMap<String, Integer> whole_state_covered = covered_branch_states.get(whole_trace_sig);
-		if (whole_state_covered == null) {
-			whole_state_covered = new TreeMap<String, Integer>();
-			covered_branch_states.put(whole_trace_sig, whole_state_covered);
-		}
-		Integer o_state = whole_state_covered.get(one_branch);
-		if (o_state == null) {
-			o_state = state;
-		} else {
-			o_state &= state;
-		}
-		whole_state_covered.put(one_branch, o_state);
-	}
-	
-	public boolean IsBranchCovered(String whole_trace_sig, String one_branch) {
-		TreeMap<String, Integer> whole_state_covered = covered_branch_states.get(whole_trace_sig);
-		if (whole_state_covered == null) {
-			return false;
-		} else {
-			Integer o_state = whole_state_covered.get(one_branch);
-			if (o_state != null && o_state == 0) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
+//	public void CoveredBranchStateUpdate2(String whole_trace_sig, String one_branch, Integer state1, Integer state2) {
+//		TreeMap<String, Integer> whole_state_covered = covered_branch_states.get(whole_trace_sig);
+//		if (whole_state_covered == null) {
+//			whole_state_covered = new TreeMap<String, Integer>();
+//			covered_branch_states.put(whole_trace_sig, whole_state_covered);
+//		}
+//		Integer o_state = whole_state_covered.get(one_branch);
+//		if (o_state == null) {
+//			o_state = state1;
+//		} else {
+//			o_state &= state1;
+//		}
+//		o_state &= state2;
+//		whole_state_covered.put(one_branch, o_state);
+//	}
+//	
+//	public void CoveredBranchStateUpdate(String whole_trace_sig, String one_branch, Integer state) {
+//		TreeMap<String, Integer> whole_state_covered = covered_branch_states.get(whole_trace_sig);
+//		if (whole_state_covered == null) {
+//			whole_state_covered = new TreeMap<String, Integer>();
+//			covered_branch_states.put(whole_trace_sig, whole_state_covered);
+//		}
+//		Integer o_state = whole_state_covered.get(one_branch);
+//		if (o_state == null) {
+//			o_state = state;
+//		} else {
+//			o_state &= state;
+//		}
+//		whole_state_covered.put(one_branch, o_state);
+//	}
+//	
+//	public boolean IsBranchCovered(String whole_trace_sig, String one_branch) {
+//		TreeMap<String, Integer> whole_state_covered = covered_branch_states.get(whole_trace_sig);
+//		if (whole_state_covered == null) {
+//			return false;
+//		} else {
+//			Integer o_state = whole_state_covered.get(one_branch);
+//			if (o_state != null && o_state == 0) {
+//				return true;
+//			} else {
+//				return false;
+//			}
+//		}
+//	}
 	
 //	private void BranchStateChange(Map<String, TreeSet<String>> branch_state, String whole_state, String one_branch) {
 //		TreeSet<String> whole_state_covered = branch_state.get(whole_state);

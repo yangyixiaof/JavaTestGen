@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -22,12 +22,11 @@ import randoop.generation.RandoopListenerManager;
 import randoop.generation.date.execution.TracePrintController;
 import randoop.generation.date.influence.BranchStateSummary;
 import randoop.generation.date.influence.InfluenceOfTraceCompare;
-import randoop.generation.date.influence.RewardableInteger;
 import randoop.generation.date.influence.SimpleInfluenceComputer;
 import randoop.generation.date.influence.TraceInfo;
 import randoop.generation.date.influence.TraceReader;
+import randoop.generation.date.mutation.RandomMutationInfo;
 import randoop.generation.date.operation.OperationKind;
-import randoop.generation.date.random.RandomSelect;
 import randoop.generation.date.sequence.BeforeAfterLinkedSequence;
 import randoop.generation.date.sequence.DisposablePseudoSequence;
 import randoop.generation.date.sequence.LinkedSequence;
@@ -35,6 +34,7 @@ import randoop.generation.date.sequence.PseudoSequence;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.generation.date.sequence.PseudoVariable;
 import randoop.generation.date.sequence.StringPseudoSequence;
+import randoop.generation.date.sequence.helper.SeedHelper;
 import randoop.generation.date.sequence.helper.SequenceGeneratorHelper;
 import randoop.generation.date.util.MapUtil;
 import randoop.main.GenInputsAbstract;
@@ -47,9 +47,13 @@ import randoop.util.SimpleList;
 
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
-
+	
 	Random random = new Random();
-
+	
+	public int curr_seed_length = 1;
+	private int curr_length_seed_left_times = -1;
+	public static final int MAX_SEED_LENGTH = 10;
+	
 	// meta data
 	public Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
 	public ArrayList<TypedOperation> create_operations = new ArrayList<TypedOperation>();
@@ -124,19 +128,21 @@ public class DateGenerator extends AbstractGenerator {
 	// been generated, to add the value to the components.
 	// private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 	private static final SimpleList<Statement> empty_statements = new Sequence().statements;
-
+	
+	public Map<String, PseudoSequenceContainer> content_container_map = new TreeMap<String, PseudoSequenceContainer>();
+	
 	// public static final int trying_maximum_steps = 10;
 	// int trying_total_steps = 0;
 	// int trying_step = 1;
 	// int trying_remain_steps = -1;
 	PseudoSequenceContainer current_container = null;
+	TreeMap<Integer, LinkedList<PseudoSequenceContainer>> containers = new TreeMap<Integer, LinkedList<PseudoSequenceContainer>>();
+	
 	// pseudo sequence containers
 	// public TreeMap<Integer, HashSet<PseudoSequenceContainer>>
 	// mutated_number_pseudo_sequence_container_map = new TreeMap<Integer,
 	// HashSet<PseudoSequenceContainer>>();
-
-	TreeMap<Integer, PriorityQueue<PseudoSequenceContainer>> containers = new TreeMap<Integer, PriorityQueue<PseudoSequenceContainer>>();
-
+	
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
 			GenInputsAbstract.Limits limits, ComponentManager componentManager,
 			RandoopListenerManager listenerManager) {
@@ -178,7 +184,7 @@ public class DateGenerator extends AbstractGenerator {
 
 	@Override
 	public ExecutableSequence step() {
-		
+
 		// TODO remove in real mode
 		try {
 			Thread.sleep(1500);
@@ -228,7 +234,7 @@ public class DateGenerator extends AbstractGenerator {
 			n_cmp_sequence = CreateNewCompareSequence();
 			// debugging code, waiting to be deleted.
 			if (n_cmp_sequence != null) {
-//				Assert.isTrue(meet_null == false);
+				// Assert.isTrue(meet_null == false);
 				meet_null = false;
 				// System.out.println("Newly generated sequence:" +
 				// n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
@@ -240,7 +246,7 @@ public class DateGenerator extends AbstractGenerator {
 				break;
 			} else {
 				Assert.isTrue(meet_null == true);
-//				meet_null = true;
+				// meet_null = true;
 				System.out.println("Failed One Generation! The generated sequence is null!");
 				try {
 					Thread.sleep(2000);
@@ -313,6 +319,17 @@ public class DateGenerator extends AbstractGenerator {
 
 		// String branch_state_representation_before =
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
+		
+		RandomMutationInfo rmi = n_cmp_sequence.GetRandomMutationInfo();
+		String newly_content = newly_created_container.FetchStringPseudoSequence().GetContent();
+		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
+		Assert.isTrue(psc_ll != null);
+		if (rmi != null && !content_container_map.containsKey(newly_content)) {
+			double prob = rmi.GetProbToAddRandomMutate();
+			String atsig = after_trace.GetTraceSignature();
+			boolean first_encounter = branch_state.StateFirstEncountered(atsig);
+			SeedHelper.SeedIsInteresting(this, newly_created_container, first_encounter, prob);
+		}
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
 				n_cmp_sequence.GetMutation(), before_trace, after_trace);
@@ -498,9 +515,9 @@ public class DateGenerator extends AbstractGenerator {
 		// if (after_trace.BranchesExistInTrace()) {
 		int sl = newly_created_container.GetStringLength();
 		// System.out.println("sl:" + sl);
-		PriorityQueue<PseudoSequenceContainer> c_arr = containers.get(sl);
+		LinkedList<PseudoSequenceContainer> c_arr = containers.get(sl);
 		if (c_arr == null) {
-			c_arr = new PriorityQueue<PseudoSequenceContainer>();
+			c_arr = new LinkedList<PseudoSequenceContainer>();
 			containers.put(sl, c_arr);
 		}
 		c_arr.add(newly_created_container);
@@ -757,18 +774,38 @@ public class DateGenerator extends AbstractGenerator {
 		// }
 		// }
 		if (current_container == null) {
-			TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer, RewardableInteger>();
-			Set<Integer> c_keys = containers.keySet();
-			Iterator<Integer> c_k_itr = c_keys.iterator();
-			while (c_k_itr.hasNext()) {
-				Integer c_k = c_k_itr.next();
-				rewardables.put(c_k, new RewardableInteger(c_k + 5));
+//			TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer, RewardableInteger>();
+//			Set<Integer> c_keys = containers.keySet();
+//			Iterator<Integer> c_k_itr = c_keys.iterator();
+//			while (c_k_itr.hasNext()) {
+//				Integer c_k = c_k_itr.next();
+//				rewardables.put(c_k, new RewardableInteger(c_k + 5));
+//			}
+//			Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
+			if (curr_length_seed_left_times == -1) {
+				curr_length_seed_left_times = curr_seed_length;
 			}
-			Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
-			PriorityQueue<PseudoSequenceContainer> all_c_k_cs = containers.get(c_k);
-			Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
-			current_container = (PseudoSequenceContainer) RandomSelect
-					.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
+			LinkedList<PseudoSequenceContainer> all_c_k_cs = containers.get(curr_seed_length);
+//			Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
+			if (all_c_k_cs == null) {
+				all_c_k_cs = new LinkedList<PseudoSequenceContainer>();
+				containers.put(curr_seed_length, all_c_k_cs);
+			}
+			if (all_c_k_cs.size() == 0 && curr_length_seed_left_times == curr_seed_length) {
+				current_container = containers.get(0).get(0);
+			} else {
+				current_container = all_c_k_cs.remove(0);
+			}
+			curr_length_seed_left_times--;
+			if (curr_length_seed_left_times == 0) {
+				curr_length_seed_left_times = -1;
+				curr_seed_length++;
+				if (curr_seed_length > MAX_SEED_LENGTH) {
+					curr_seed_length = 1;
+				}
+			}
+//			current_container = (PseudoSequenceContainer) RandomSelect
+//					.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
 			// System.out.println("size of containers: " + containers.size());
 			// System.out.println("==== Begin ====");
 			// System.out.println("ck container size:" + all_c_k_cs.size() +
@@ -784,14 +821,14 @@ public class DateGenerator extends AbstractGenerator {
 		if (result.IsEnd()) {
 			// System.out.println("result is null.");
 			int cc_len = current_container.GetStringLength();
-			PriorityQueue<PseudoSequenceContainer> ctn = containers.get(cc_len);
+			LinkedList<PseudoSequenceContainer> ctn = containers.get(cc_len);
 			Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
 			// System.out.println("remove executed!");
-			ctn.remove(current_container);
-			if (ctn.size() == 0) {
-				System.out.println("container remove executed!");
-				containers.remove(cc_len);
-			}
+//			ctn.remove(current_container);
+//			if (ctn.size() == 0) {
+//				System.out.println("container remove executed!");
+//				containers.remove(cc_len);
+//			}
 			// current_container.ResetMutate(this);
 			current_container = null;
 		}
@@ -919,8 +956,8 @@ public class DateGenerator extends AbstractGenerator {
 			}
 			// pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GetLinkedSequence();
-			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence,
-					true);
+			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence, true,
+					new RandomMutationInfo(1.0));
 			// new TypedOperationMutated(ps, true, created_pv, true, created_pv)
 		}
 		return null;
@@ -940,6 +977,14 @@ public class DateGenerator extends AbstractGenerator {
 	public LinkedHashSet<Sequence> getAllSequences() {
 		LinkedHashSet<Sequence> sequence_set = new LinkedHashSet<Sequence>(allSequences);
 		return sequence_set;
+	}
+
+	public ArrayList<Sequence> GetAllSequencesInReference() {
+		return allSequences;
+	}
+
+	public TreeMap<Integer, LinkedList<PseudoSequenceContainer>> GetContainers() {
+		return containers;
 	}
 
 	// private void process_execute(List<ExecutableSequence> eSeqs) {
