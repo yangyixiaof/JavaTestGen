@@ -25,9 +25,9 @@ import randoop.types.Type;
 
 public class StringPseudoSequence extends PseudoSequence {
 
-	int ready_try_length = 0;
+//	int ready_try_length = 0;
 
-	int current_tried_string_length = 0;
+//	int current_tried_string_length = 0;
 
 	public static final int MaxSequenceLength = 1;
 	private static final int max_range = 127;
@@ -75,13 +75,20 @@ public class StringPseudoSequence extends PseudoSequence {
 	boolean recent_mutate_result_set_to_null = false;
 
 //	Map<String, TreeSet<String>> cared_branch_encountered_new_branches = new TreeMap<String, TreeSet<String>>();
-
+	
 	public static final String DefaultRandom = "DefaultRandom";
 	public static final String NegativePrefix = "Negative_";
 	public static final String PositivePrefix = "Positive_";
-
-	public static final String NegativeRecord = "Negative_Record";
-	public static final String PositiveRecord = "Positive_Record";
+	
+	public static final String Probe = "Probe";
+	
+	public static final String NegativeProbe = NegativePrefix + Probe;
+	public static final String PositiveProbe = PositivePrefix + Probe;
+	
+	public static final String Record = "Record";
+	
+	public static final String NegativeRecord = NegativePrefix + Record;
+	public static final String PositiveRecord = PositivePrefix + Record;
 
 	public StringPseudoSequence() {// ArrayList<TypedOperation> operations
 		super();// operations
@@ -191,9 +198,9 @@ public class StringPseudoSequence extends PseudoSequence {
 				for (int i = 0; i < clen; i++) {
 					LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
 					// branch_try_times.add(new MutationPlan(DefaultRandom, DefaultTaskTryTimes));
-					branch_try_times.add(new MutationPlan(NegativePrefix, TaskState.Normal));
+					branch_try_times.add(new ProbeMutationPlan(NegativeProbe, TaskState.Normal, 0));
 					branch_try_times.add(new MutationPlan(NegativeRecord, TaskState.Normal));
-					branch_try_times.add(new MutationPlan(PositivePrefix, TaskState.Normal));
+					branch_try_times.add(new ProbeMutationPlan(PositiveProbe, TaskState.Normal, 0));
 					branch_try_times.add(new MutationPlan(PositiveRecord, TaskState.Normal));
 					// TreeSet<String> branches = uncovered_position_branches == null ? null :
 					// uncovered_position_branches.get(i);
@@ -235,15 +242,15 @@ public class StringPseudoSequence extends PseudoSequence {
 			before_linked_sequence = this.container.GetLinkedSequence();
 			// modified_content = "0000000000";
 			// random.nextInt(MaxSequenceLength)+1
-			current_tried_string_length++;
-			modified_content = RandomStringUtil.GenerateStringByDefaultChars(current_tried_string_length);
+//			current_tried_string_length++;
+			modified_content = RandomStringUtil.GenerateStringByDefaultChars(dg.curr_seed_length);
 			is_random_mutating = true;
 			r_state = TaskState.Over;
-			if (current_tried_string_length >= MaxSequenceLength) {
-				current_tried_string_length = 0;
+//			if (current_tried_string_length >= MaxSequenceLength) {
+//				current_tried_string_length = 0;
 				// modified_content = null;
-				removed_pk = pk;
-			}
+			removed_pk = pk;
+//			}
 			// recent_mutate_result = null;
 			recent_mutate_result_set_to_null = true;
 		} else {
@@ -299,10 +306,11 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 			Assert.isTrue(cared_mutation.startsWith(NegativePrefix) || cared_mutation.startsWith(PositivePrefix));
 			Assert.isTrue(cared_branch != null);
-			if (cared_branch.equals("")) { // || recent_mutate_result == null
+			if (cared_branch.equals(Probe)) { // || recent_mutate_result == null
 				Assert.isTrue(recent_mutate_result == null);
+				Assert.isTrue(mp instanceof ProbeMutationPlan);
+				ProbeMutationPlan pmp = (ProbeMutationPlan) mp;
 				int before_v_p = this.content.charAt(pk);
-				int gap_range_index = 0;
 //				if (!cared_branch.equals("")) {
 //					gap_range_index++;
 //					r_state = TaskState.Normal;
@@ -310,7 +318,7 @@ public class StringPseudoSequence extends PseudoSequence {
 //				} else {
 				r_state = TaskState.Over;
 //				}
-				new_gap_v_p = direction * GapRanges[gap_range_index];
+				new_gap_v_p = direction * GapRanges[pmp.probe_index];
 				modified_content_builder.setCharAt(pk, (char) (before_v_p + new_gap_v_p));
 				before_linked_sequence = this.container.GetLinkedSequence();
 			} else {
@@ -664,6 +672,17 @@ class MutationPlan {
 		this.state = state;
 	}
 
+}
+
+class ProbeMutationPlan extends MutationPlan {
+	
+	int probe_index = -1;
+
+	public ProbeMutationPlan(String in_try_mutate, TaskState state, int probe_index) {
+		super(in_try_mutate, state);
+		this.probe_index = probe_index;
+	}
+	
 }
 
 enum TaskState {
