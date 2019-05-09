@@ -24,6 +24,9 @@ public class SeedHelper {
 			dg.content_container_map.put(container.FetchStringPseudoSequence().GetContent(), container);
 			added++;
 		} else {
+			if (psc_ll.size() == 0) {
+				prob_to_add = 1.0;
+			}
 			if (Math.random() < prob_to_add) {
 				psc_ll.add(container);
 				dg.content_container_map.put(container.FetchStringPseudoSequence().GetContent(), container);

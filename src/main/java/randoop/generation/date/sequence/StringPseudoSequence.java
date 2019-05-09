@@ -31,7 +31,7 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	public static final int MaxSequenceLength = 1;
 	private static final int max_range = 127;
-	private static final int[] GapRanges = new int[] { 1, 2, 4, 8 };
+	private static final int[] GapRanges = new int[] { 1, 17, 59, 113 };
 
 	// {
 	// deprecated block. it seems delta change is unnecessary
