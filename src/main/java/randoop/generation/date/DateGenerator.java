@@ -238,7 +238,7 @@ public class DateGenerator extends AbstractGenerator {
 				meet_null = false;
 				// System.out.println("Newly generated sequence:" +
 				// n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
-				System.out.println("Newly generated sequence, original form:"
+				System.out.println("Newly generated sequence, char form:"
 						+ n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
 								.FetchStringPseudoSequence().GetContent()
 						+ "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
