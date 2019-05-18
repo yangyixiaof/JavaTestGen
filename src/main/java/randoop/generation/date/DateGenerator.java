@@ -513,14 +513,14 @@ public class DateGenerator extends AbstractGenerator {
 		// newly_created_container,
 		// address_variable_map);
 		// if (after_trace.BranchesExistInTrace()) {
-		int sl = newly_created_container.GetStringLength();
-		// System.out.println("sl:" + sl);
-		LinkedList<PseudoSequenceContainer> c_arr = containers.get(sl);
-		if (c_arr == null) {
-			c_arr = new LinkedList<PseudoSequenceContainer>();
-			containers.put(sl, c_arr);
-		}
-		c_arr.add(newly_created_container);
+//		int sl = newly_created_container.GetStringLength();
+//		// System.out.println("sl:" + sl);
+//		LinkedList<PseudoSequenceContainer> c_arr = containers.get(sl);
+//		if (c_arr == null) {
+//			c_arr = new LinkedList<PseudoSequenceContainer>();
+//			containers.put(sl, c_arr);
+//		}
+//		c_arr.add(newly_created_container);
 		// }
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
@@ -792,6 +792,7 @@ public class DateGenerator extends AbstractGenerator {
 				containers.put(curr_seed_length, all_c_k_cs);
 			}
 			if (all_c_k_cs.size() == 0 && curr_length_seed_left_times == curr_seed_length) {
+				curr_length_seed_left_times = 0;
 				current_container = containers.get(0).get(0);
 			} else {
 				current_container = all_c_k_cs.remove(0);
@@ -825,7 +826,7 @@ public class DateGenerator extends AbstractGenerator {
 			current_container = null;
 			// set up tried times
 			curr_length_seed_left_times--;
-			if (curr_length_seed_left_times == 0) {
+			if (curr_length_seed_left_times <= 0) {
 				curr_length_seed_left_times = -1;
 				curr_seed_length++;
 				if (curr_seed_length > MAX_SEED_LENGTH) {
