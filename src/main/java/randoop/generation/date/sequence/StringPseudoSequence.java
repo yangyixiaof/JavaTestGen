@@ -347,10 +347,13 @@ public class StringPseudoSequence extends PseudoSequence {
 				// HandleBranchState(dg.branch_state, cared_branch,
 				// recent_mutate_result.before_linked_sequence.container.trace_info,
 				// recent_mutate_result.after_linked_sequence.container.trace_info, influ);
-				HandleGeneratedStringState(recent_mutate_result.after_linked_sequence.container, influ.GetAfterGap());
+				System.out.println("recent_mutate_result::" + recent_mutate_result + "#" + "recent_mutate_result.after_linked_sequence::" + recent_mutate_result.after_linked_sequence + "#" + "influ::" + influ);
+				if (influ != null) {
+					HandleGeneratedStringState(recent_mutate_result.after_linked_sequence.container, influ.GetAfterGap());
+				}
 				// handle mutate logic
 				if (r_state == TaskState.Normal) {
-					if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
+					if (influ != null && influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
 						new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
 						int modified_v_p = after_v_p + new_gap_v_p;
@@ -367,14 +370,14 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 				if (r_state == TaskState.LinearConverge) {
 					new_gap_v_p = gap_v_p / 2;
-					if (new_gap_v_p == 0 || influ == null) {
+					if (new_gap_v_p == 0) {
 						new_gap_v_p = (random.nextInt((max_range + 1) / 2) + 1) * direction;
 						r_state = TaskState.Over;
 						modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
 						is_random_mutating = true;
 						before_linked_sequence = recent_mutate_result.after_linked_sequence;
 					} else {
-						if (influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
+						if (influ != null && influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
 							modified_content_builder.setCharAt(pk, (char) (after_v_p + new_gap_v_p));
 							before_linked_sequence = recent_mutate_result.after_linked_sequence;
 						} else {
@@ -416,13 +419,17 @@ public class StringPseudoSequence extends PseudoSequence {
 		// handle seeds
 		if (r_state == TaskState.Over) {
 			// when task is over, there should be a random seed. 
-			Assert.isTrue(is_random_mutating);
 			if (linear_solve_seeds.isEmpty()) {
-				prob_to_add_random_mutate = 0.4;
+//				Assert.isTrue(is_random_mutating);
+				if (is_random_mutating) {
+					prob_to_add_random_mutate = 0.4;
+				}
 			} else {
 				int num_of_interests = HandleSeeds(dg);
 				if (num_of_interests <= 0) {
-					prob_to_add_random_mutate = 0.8;
+					if (is_random_mutating) {
+						prob_to_add_random_mutate = 0.8;
+					}
 				}
 			}
 			linear_solve_seeds.clear();

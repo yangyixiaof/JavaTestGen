@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-import org.eclipse.core.runtime.Assert;
-
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.sequence.PseudoSequenceContainer;
 import randoop.sequence.Sequence;
@@ -16,7 +14,11 @@ public class SeedHelper {
 		int added = 0;
 		TreeMap<Integer, LinkedList<PseudoSequenceContainer>> ctnrs = dg.GetContainers();
 		LinkedList<PseudoSequenceContainer> psc_ll = ctnrs.get(container.GetStringLength());
-		Assert.isTrue(psc_ll != null);
+//		Assert.isTrue(psc_ll != null);
+		if (psc_ll == null) {
+			psc_ll = new LinkedList<PseudoSequenceContainer>();
+			ctnrs.put(container.GetStringLength(), psc_ll);
+		}
 		if (first_encounter) {
 			ArrayList<Sequence> all_seqs = dg.GetAllSequencesInReference();
 			all_seqs.add(container.GetLinkedSequence());

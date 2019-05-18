@@ -52,7 +52,7 @@ public class DateGenerator extends AbstractGenerator {
 	
 	public int curr_seed_length = 1;
 	private int curr_length_seed_left_times = -1;
-	public static final int MAX_SEED_LENGTH = 10;
+	public static final int MAX_SEED_LENGTH = 1;
 	
 	// meta data
 	public Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
@@ -322,8 +322,8 @@ public class DateGenerator extends AbstractGenerator {
 		
 		RandomMutationInfo rmi = n_cmp_sequence.GetRandomMutationInfo();
 		String newly_content = newly_created_container.FetchStringPseudoSequence().GetContent();
-		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
-		Assert.isTrue(psc_ll != null);
+//		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
+//		Assert.isTrue(psc_ll != null);
 		if (rmi != null && !content_container_map.containsKey(newly_content)) {
 			double prob = rmi.GetProbToAddRandomMutate();
 			String atsig = after_trace.GetTraceSignature();

@@ -149,7 +149,7 @@ public class SimpleInfluenceComputer {
 				double curr_vob_gap = current_vob.GetGap();
 				double gap_delta = prev_vob_gap - curr_vob_gap;
 				double sig_influence = 0.0;
-				if (gap_delta != 0) {
+//				if (gap_delta != 0) {
 					if (gap_delta > 0) {
 						sig_influence = 1;
 					} else {
@@ -172,7 +172,7 @@ public class SimpleInfluenceComputer {
 //						position_branches_with_influence.put(string_mutation_position, branches);
 //					}
 //					branches.add(sig_of_this_vob);
-				}
+//				}
 //			}
 		}
 	}
