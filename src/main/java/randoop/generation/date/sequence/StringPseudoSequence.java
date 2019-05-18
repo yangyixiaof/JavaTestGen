@@ -244,7 +244,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			// random.nextInt(MaxSequenceLength)+1
 //			current_tried_string_length++;
 			modified_content = RandomStringUtil.GenerateStringByDefaultChars(dg.curr_seed_length);
-			is_random_mutating = true;
+//			is_random_mutating = true;
 			r_state = TaskState.Over;
 //			if (current_tried_string_length >= MaxSequenceLength) {
 //				current_tried_string_length = 0;
@@ -415,7 +415,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
 		copied_this.content = modified_content;
 		LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
-		double prob_to_add_random_mutate = 0.0;
+		double prob_to_add_random_mutate = 1.0;
 		// handle seeds
 		if (r_state == TaskState.Over) {
 			// when task is over, there should be a random seed. 
