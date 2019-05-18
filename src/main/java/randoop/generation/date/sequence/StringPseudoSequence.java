@@ -244,7 +244,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			// random.nextInt(MaxSequenceLength)+1
 //			current_tried_string_length++;
 			modified_content = RandomStringUtil.GenerateStringByDefaultChars(dg.curr_seed_length);
-//			is_random_mutating = true;
+			is_random_mutating = true;
 			r_state = TaskState.Over;
 //			if (current_tried_string_length >= MaxSequenceLength) {
 //				current_tried_string_length = 0;
