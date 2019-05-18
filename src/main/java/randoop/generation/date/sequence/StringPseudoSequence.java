@@ -420,16 +420,16 @@ public class StringPseudoSequence extends PseudoSequence {
 		if (r_state == TaskState.Over) {
 			// when task is over, there should be a random seed. 
 			if (linear_solve_seeds.isEmpty()) {
-//				Assert.isTrue(is_random_mutating);
-				if (is_random_mutating) {
-					prob_to_add_random_mutate = 0.4;
-				}
+////				Assert.isTrue(is_random_mutating);
+//				if (is_random_mutating) {
+//					prob_to_add_random_mutate = 0.4;
+//				}
 			} else {
 				int num_of_interests = HandleSeeds(dg);
 				if (num_of_interests <= 0) {
-					if (is_random_mutating) {
-						prob_to_add_random_mutate = 0.8;
-					}
+//					if (is_random_mutating) {
+//						prob_to_add_random_mutate = 0.8;
+//					}
 				}
 			}
 			linear_solve_seeds.clear();
