@@ -481,7 +481,7 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	private int HandleSeeds(DateGenerator dg) {
 		int num_of_interests = 0;
-		String cts = container.trace_info.GetTraceSignature();
+//		String cts = container.trace_info.GetTraceSignature();
 		Set<String> lkeys = linear_solve_seeds.keySet();
 		Iterator<String> lk_itr = lkeys.iterator();
 		while (lk_itr.hasNext()) {
@@ -494,18 +494,19 @@ public class StringPseudoSequence extends PseudoSequence {
 			if (dg.content_container_map.containsKey(scs_content)) {
 				continue;
 			}
-			if (lk.equals(cts)) {
-				Assert.isTrue(!first_encounter);
-				if (linear_solve_seeds.size() == 1) {
-					if (gap_smallest_cs != container) {
-						num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
-					}
-				}
-			} else {
-				if (first_encounter) {
-					num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
-				}
+//			if (lk.equals(cts)) {
+//				Assert.isTrue(!first_encounter);
+//			if (linear_solve_seeds.size() == 1) {
+			if (gap_smallest_cs != container) {
+				num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
 			}
+//			}
+//			} 
+//			else {
+//				if (first_encounter) {
+//					num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
+//				}
+//			}
 		}
 		return num_of_interests;
 	}

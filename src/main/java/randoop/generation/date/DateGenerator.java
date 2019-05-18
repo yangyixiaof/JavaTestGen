@@ -52,7 +52,7 @@ public class DateGenerator extends AbstractGenerator {
 	
 	public int curr_seed_length = 1;
 	private int curr_length_seed_left_times = -1;
-	public static final int MAX_SEED_LENGTH = 1;
+	public static final int MAX_SEED_LENGTH = 2;
 	
 	// meta data
 	public Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
@@ -796,14 +796,6 @@ public class DateGenerator extends AbstractGenerator {
 			} else {
 				current_container = all_c_k_cs.remove(0);
 			}
-			curr_length_seed_left_times--;
-			if (curr_length_seed_left_times == 0) {
-				curr_length_seed_left_times = -1;
-				curr_seed_length++;
-				if (curr_seed_length > MAX_SEED_LENGTH) {
-					curr_seed_length = 1;
-				}
-			}
 //			current_container = (PseudoSequenceContainer) RandomSelect
 //					.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
 			// System.out.println("size of containers: " + containers.size());
@@ -811,7 +803,7 @@ public class DateGenerator extends AbstractGenerator {
 			// System.out.println("ck container size:" + all_c_k_cs.size() +
 			// "#current_container:" + current_container);// + "#The container of selected:"
 			// + current_container.FetchStringPseudoSequence()
-			System.out.println("ck container size:" + all_c_k_cs.size() + "#current_container:"
+			System.out.println("=========================== ck container size:" + all_c_k_cs.size() + "#current_container:"
 					+ current_container.toString().trim() + "#The content of selected:"
 					+ current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:"
 					+ current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
@@ -831,6 +823,15 @@ public class DateGenerator extends AbstractGenerator {
 //			}
 			// current_container.ResetMutate(this);
 			current_container = null;
+			// set up tried times
+			curr_length_seed_left_times--;
+			if (curr_length_seed_left_times == 0) {
+				curr_length_seed_left_times = -1;
+				curr_seed_length++;
+				if (curr_seed_length > MAX_SEED_LENGTH) {
+					curr_seed_length = 1;
+				}
+			}
 		}
 		// else {
 		Assert.isTrue(result != null);
