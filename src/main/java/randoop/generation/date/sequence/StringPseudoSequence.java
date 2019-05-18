@@ -29,7 +29,7 @@ public class StringPseudoSequence extends PseudoSequence {
 
 //	int current_tried_string_length = 0;
 
-	public static final int MaxSequenceLength = 1;
+//	public static final int MaxSequenceLength = 1;
 	private static final int max_range = 127;
 	private static final int[] GapRanges = new int[] { 1, 17, 59, 113 };
 
