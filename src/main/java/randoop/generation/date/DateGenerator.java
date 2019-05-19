@@ -52,7 +52,7 @@ public class DateGenerator extends AbstractGenerator {
 	
 	public int curr_seed_length = 1;
 	private int curr_length_seed_left_times = -1;
-	public static final int MAX_SEED_LENGTH = 2;
+	public static final int MAX_SEED_LENGTH = 100;
 	
 	// meta data
 	public Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
