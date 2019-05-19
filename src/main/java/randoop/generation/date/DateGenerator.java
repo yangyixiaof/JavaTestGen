@@ -322,6 +322,11 @@ public class DateGenerator extends AbstractGenerator {
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		after_trace.SetTraceSignature(after_trace_sig);
+		boolean after_trace_first_encounter = branch_state.StateFirstEncountered(after_trace_sig);
+		if (after_trace_first_encounter) {
+			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
+			SeedHelper.SeedIsVeryInteresting(this, newly_created_container);
+		}
 		
 		// String branch_state_representation_before =
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
@@ -330,11 +335,9 @@ public class DateGenerator extends AbstractGenerator {
 		String newly_content = newly_created_container.FetchStringPseudoSequence().GetContent();
 //		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
 //		Assert.isTrue(psc_ll != null);
-		if (rmi != null && !content_container_map.containsKey(newly_content)) {
+		if (!after_trace_first_encounter && rmi != null && !content_container_map.containsKey(newly_content)) {
 			double prob = rmi.GetProbToAddRandomMutate();
-			String atsig = after_trace.GetTraceSignature();
-			boolean first_encounter = branch_state.StateFirstEncountered(atsig);
-			SeedHelper.SeedIsInteresting(this, newly_created_container, first_encounter, prob);
+			SeedHelper.SeedIsInteresting(this, newly_created_container, prob);
 		}
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,

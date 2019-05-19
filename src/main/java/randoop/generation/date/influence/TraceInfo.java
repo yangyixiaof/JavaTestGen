@@ -25,6 +25,7 @@ public class TraceInfo implements Rewardable {
 	
 	// once set, not changed any more
 	String trace_sig = null;
+	boolean first_encounter = false;
 	
 	public TraceInfo() {
 	}
@@ -169,6 +170,14 @@ public class TraceInfo implements Rewardable {
 //		}
 		Assert.isTrue(trace_sig != null);
 		return trace_sig;
+	}
+	
+	public void SetFirstEncounter(boolean first_encounter) {
+		this.first_encounter = first_encounter;
+	}
+	
+	public boolean IsFirstEncounter(String sig) {
+		return first_encounter;
 	}
 
 	@Override

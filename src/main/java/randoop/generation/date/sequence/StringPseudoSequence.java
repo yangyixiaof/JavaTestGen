@@ -486,7 +486,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		Iterator<String> lk_itr = lkeys.iterator();
 		while (lk_itr.hasNext()) {
 			String lk = lk_itr.next();
-			boolean first_encounter = dg.branch_state.StateFirstEncountered(lk);
+//			boolean first_encounter = dg.branch_state.StateFirstEncountered(lk);
 			HashMap<PseudoSequenceContainer, Double> c_gaps = linear_solve_seeds.get(lk);
 			ArrayList<PseudoSequenceContainer> sorted_cs = SortUtil.SortMapByValue(c_gaps);
 			PseudoSequenceContainer gap_smallest_cs = sorted_cs.get(0);
@@ -498,7 +498,7 @@ public class StringPseudoSequence extends PseudoSequence {
 //				Assert.isTrue(!first_encounter);
 //			if (linear_solve_seeds.size() == 1) {
 			if (gap_smallest_cs != container) {
-				num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, first_encounter, 1.0);
+				num_of_interests += SeedHelper.SeedIsInteresting(dg, gap_smallest_cs, 1.0);
 			}
 //			}
 //			} 
