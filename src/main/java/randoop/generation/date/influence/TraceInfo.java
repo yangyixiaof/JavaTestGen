@@ -1,9 +1,7 @@
 package randoop.generation.date.influence;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -152,19 +150,23 @@ public class TraceInfo implements Rewardable {
 //		return sb.toString();
 //	}
 	
+	public void SetTraceSignature(String sig) {
+		this.trace_sig = sig;
+	}
+	
 	public String GetTraceSignature() {
-		if (trace_sig == null) {
-			StringBuilder builder = new StringBuilder();
-			Set<String> vkeys = vobs.keySet();
-			Iterator<String> vk_itr = vkeys.iterator();
-			while (vk_itr.hasNext()) {
-				String vk = vk_itr.next();
-				InfoOfBranch ib = vobs.get(vk);
-				String branch_sig = ib.GenerateBranchStateSignature();
-				builder.append(vk.hashCode() + "#" + branch_sig);
-			}
-			trace_sig = builder.toString();
-		}
+//		if (trace_sig == null) {
+//			StringBuilder builder = new StringBuilder();
+//			Set<String> vkeys = vobs.keySet();
+//			Iterator<String> vk_itr = vkeys.iterator();
+//			while (vk_itr.hasNext()) {
+//				String vk = vk_itr.next();
+//				InfoOfBranch ib = vobs.get(vk);
+//				String branch_sig = ib.GenerateBranchStateSignature();
+//				builder.append(vk.hashCode() + "#" + branch_sig);
+//			}
+//			trace_sig = builder.toString();
+//		}
 		Assert.isTrue(trace_sig != null);
 		return trace_sig;
 	}

@@ -14,6 +14,7 @@ import java.util.TreeMap;
 
 import org.eclipse.core.runtime.Assert;
 
+import cn.yyx.research.bitmap.YYXHaHaStrangeMem;
 import randoop.ExceptionalExecution;
 import randoop.ExecutionOutcome;
 import randoop.generation.AbstractGenerator;
@@ -273,7 +274,12 @@ public class DateGenerator extends AbstractGenerator {
 
 		// try {
 		// execute sequence
+		
+		YYXHaHaStrangeMem.clear();
+		
 		eSeq.execute(executionVisitor, checkGenerator);
+		
+		String after_trace_sig = YYXHaHaStrangeMem.GetSig();
 		// } catch (Exception e) {
 		// System.err.println("=== not flaky ===");
 		// e.printStackTrace();
@@ -315,7 +321,8 @@ public class DateGenerator extends AbstractGenerator {
 		// after_trace);
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
-
+		after_trace.SetTraceSignature(after_trace_sig);
+		
 		// String branch_state_representation_before =
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
 		
@@ -384,6 +391,7 @@ public class DateGenerator extends AbstractGenerator {
 		// branch_v_stat);
 
 		// check whether the outcome has exception.
+		
 		int e_size = eSeq.size();
 		boolean running_with_exception = false;
 		for (int i = 0; i < e_size; i++) {
@@ -403,6 +411,7 @@ public class DateGenerator extends AbstractGenerator {
 				}
 			}
 		}
+		
 		// if (running_with_exception) {
 		// // remove all necessary created objects
 		// pseudo_sequence_containers.remove(newly_created_container);
@@ -782,7 +791,7 @@ public class DateGenerator extends AbstractGenerator {
 //			}
 //			Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
 			if (curr_length_seed_left_times == -1) {
-				curr_length_seed_left_times = curr_seed_length;
+				curr_length_seed_left_times = 1;
 			}
 			LinkedList<PseudoSequenceContainer> all_c_k_cs = containers.get(curr_seed_length);
 //			Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
@@ -790,7 +799,7 @@ public class DateGenerator extends AbstractGenerator {
 				all_c_k_cs = new LinkedList<PseudoSequenceContainer>();
 				containers.put(curr_seed_length, all_c_k_cs);
 			}
-			if (all_c_k_cs.size() == 0 && curr_length_seed_left_times == curr_seed_length) {
+			if (all_c_k_cs.size() == 0) {//  && curr_length_seed_left_times == curr_seed_length
 				curr_length_seed_left_times = 0;
 				current_container = containers.get(0).get(0);
 			} else {
