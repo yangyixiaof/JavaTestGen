@@ -35,10 +35,10 @@ public class BranchStateSummary {
 	
 	public boolean StateFirstEncountered(String trace_sig) {
 		if (encountered_states.contains(trace_sig)) {
-			return true;
+			return false;
 		} else {
 			encountered_states.add(trace_sig);
-			return false;
+			return true;
 		}
 	}
 
