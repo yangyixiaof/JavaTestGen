@@ -614,6 +614,8 @@ public class DateGenerator extends AbstractGenerator {
 		// if (eSeq.sequence.hasActiveFlags()) {
 		// componentManager.addGeneratedSequence(eSeq.sequence);
 		// }
+		
+		System.out.println("### find paths: " + allSequences.size() + " ###");
 
 		eSeq.gentime = System.nanoTime() - startTime;
 		return eSeq;
