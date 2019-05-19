@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.formats.jpeg.JpegImageParser;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.formats.jpeg.JpegImageParser;
 
 public class TestImage {
 	
@@ -17,7 +17,7 @@ public class TestImage {
 		try {
 //			final File file = new File (args[0]);
 			JpegImageParser p = new JpegImageParser();
-			BufferedImage image = p.getBufferedImage(s.getBytes(), new HashMap<>());
+			BufferedImage image = p.getBufferedImage(s.getBytes(), new HashMap<String, Object>());
 			if (image != null) {
 				
 			}
