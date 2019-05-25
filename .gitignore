@@ -31,3 +31,4 @@ gradle-build-output.txt
 /RegressionTest0.java
 /RegressionTest.java
 /FLAKY.txt
+/test-lib/
