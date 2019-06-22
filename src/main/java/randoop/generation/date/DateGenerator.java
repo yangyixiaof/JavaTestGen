@@ -331,14 +331,14 @@ public class DateGenerator extends AbstractGenerator {
 		// String branch_state_representation_before =
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
 		
-		RandomMutationInfo rmi = n_cmp_sequence.GetRandomMutationInfo();
-		String newly_content = newly_created_container.FetchStringPseudoSequence().GetContent();
-//		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
-//		Assert.isTrue(psc_ll != null);
-		if (!after_trace_first_encounter && rmi != null && !content_container_map.containsKey(newly_content)) {
-			double prob = rmi.GetProbToAddRandomMutate();
-			SeedHelper.SeedIsInteresting(this, newly_created_container, prob);
-		}
+//		RandomMutationInfo rmi = n_cmp_sequence.GetRandomMutationInfo();
+//		String newly_content = newly_created_container.FetchStringPseudoSequence().GetContent();
+////		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
+////		Assert.isTrue(psc_ll != null);
+//		if (!after_trace_first_encounter && rmi != null && !content_container_map.containsKey(newly_content)) {
+//			double prob = rmi.GetProbToAddRandomMutate();
+//			SeedHelper.SeedIsInteresting(this, newly_created_container, prob);
+//		}
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
 				n_cmp_sequence.GetMutation(), before_trace, after_trace);
