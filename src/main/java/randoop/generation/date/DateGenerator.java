@@ -48,13 +48,12 @@ import randoop.util.SimpleList;
 
 /** Randoop-DATE's "Sequence-based" generator. */
 public class DateGenerator extends AbstractGenerator {
-	
+
 	Random random = new Random();
-	
+
 	public int curr_seed_length = 1;
 	private int curr_length_seed_left_times = -1;
-	public static final int MAX_SEED_LENGTH = 100;
-	
+
 	// meta data
 	public Map<Class<?>, Class<?>> for_use_object_create_sequence_type = new HashMap<Class<?>, Class<?>>();
 	public ArrayList<TypedOperation> create_operations = new ArrayList<TypedOperation>();
@@ -129,21 +128,21 @@ public class DateGenerator extends AbstractGenerator {
 	// been generated, to add the value to the components.
 	// private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 	private static final SimpleList<Statement> empty_statements = new Sequence().statements;
-	
+
 	public Map<String, PseudoSequenceContainer> content_container_map = new TreeMap<String, PseudoSequenceContainer>();
-	
+
 	// public static final int trying_maximum_steps = 10;
 	// int trying_total_steps = 0;
 	// int trying_step = 1;
 	// int trying_remain_steps = -1;
 	PseudoSequenceContainer current_container = null;
 	TreeMap<Integer, LinkedList<PseudoSequenceContainer>> containers = new TreeMap<Integer, LinkedList<PseudoSequenceContainer>>();
-	
+
 	// pseudo sequence containers
 	// public TreeMap<Integer, HashSet<PseudoSequenceContainer>>
 	// mutated_number_pseudo_sequence_container_map = new TreeMap<Integer,
 	// HashSet<PseudoSequenceContainer>>();
-	
+
 	public DateGenerator(List<TypedOperation> operations, Set<TypedOperation> observers,
 			GenInputsAbstract.Limits limits, ComponentManager componentManager,
 			RandoopListenerManager listenerManager) {
@@ -186,11 +185,11 @@ public class DateGenerator extends AbstractGenerator {
 	@Override
 	public ExecutableSequence step() {
 
-//		try {
-//			Thread.sleep(1500);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// Thread.sleep(1500);
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
 
 		long startTime = System.nanoTime();
 
@@ -274,11 +273,11 @@ public class DateGenerator extends AbstractGenerator {
 
 		// try {
 		// execute sequence
-		
+
 		YYXHaHaStrangeMem.clear();
-		
+
 		eSeq.execute(executionVisitor, checkGenerator);
-		
+
 		String after_trace_sig = YYXHaHaStrangeMem.GetSig();
 		// } catch (Exception e) {
 		// System.err.println("=== not flaky ===");
@@ -327,18 +326,21 @@ public class DateGenerator extends AbstractGenerator {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
 			SeedHelper.SeedIsVeryInteresting(this, newly_created_container);
 		}
-		
+
 		// String branch_state_representation_before =
 		// branch_state.RepresentationOfUnCoveredBranchWithState();
-		
-//		RandomMutationInfo rmi = n_cmp_sequence.GetRandomMutationInfo();
-//		String newly_content = newly_created_container.FetchStringPseudoSequence().GetContent();
-////		LinkedList<PseudoSequenceContainer> psc_ll = containers.get(newly_created_container.GetStringLength());
-////		Assert.isTrue(psc_ll != null);
-//		if (!after_trace_first_encounter && rmi != null && !content_container_map.containsKey(newly_content)) {
-//			double prob = rmi.GetProbToAddRandomMutate();
-//			SeedHelper.SeedIsInteresting(this, newly_created_container, prob);
-//		}
+
+		// RandomMutationInfo rmi = n_cmp_sequence.GetRandomMutationInfo();
+		// String newly_content =
+		// newly_created_container.FetchStringPseudoSequence().GetContent();
+		//// LinkedList<PseudoSequenceContainer> psc_ll =
+		// containers.get(newly_created_container.GetStringLength());
+		//// Assert.isTrue(psc_ll != null);
+		// if (!after_trace_first_encounter && rmi != null &&
+		// !content_container_map.containsKey(newly_content)) {
+		// double prob = rmi.GetProbToAddRandomMutate();
+		// SeedHelper.SeedIsInteresting(this, newly_created_container, prob);
+		// }
 
 		InfluenceOfTraceCompare all_branches_influences = SimpleInfluenceComputer.BuildGuidedModel(branch_state,
 				n_cmp_sequence.GetMutation(), before_trace, after_trace);
@@ -394,7 +396,7 @@ public class DateGenerator extends AbstractGenerator {
 		// branch_v_stat);
 
 		// check whether the outcome has exception.
-		
+
 		int e_size = eSeq.size();
 		boolean running_with_exception = false;
 		for (int i = 0; i < e_size; i++) {
@@ -414,7 +416,7 @@ public class DateGenerator extends AbstractGenerator {
 				}
 			}
 		}
-		
+
 		// if (running_with_exception) {
 		// // remove all necessary created objects
 		// pseudo_sequence_containers.remove(newly_created_container);
@@ -524,14 +526,14 @@ public class DateGenerator extends AbstractGenerator {
 		// newly_created_container,
 		// address_variable_map);
 		// if (after_trace.BranchesExistInTrace()) {
-//		int sl = newly_created_container.GetStringLength();
-//		// System.out.println("sl:" + sl);
-//		LinkedList<PseudoSequenceContainer> c_arr = containers.get(sl);
-//		if (c_arr == null) {
-//			c_arr = new LinkedList<PseudoSequenceContainer>();
-//			containers.put(sl, c_arr);
-//		}
-//		c_arr.add(newly_created_container);
+		// int sl = newly_created_container.GetStringLength();
+		// // System.out.println("sl:" + sl);
+		// LinkedList<PseudoSequenceContainer> c_arr = containers.get(sl);
+		// if (c_arr == null) {
+		// c_arr = new LinkedList<PseudoSequenceContainer>();
+		// containers.put(sl, c_arr);
+		// }
+		// c_arr.add(newly_created_container);
 		// }
 		if (running_with_exception) {// && !newly_created_container.HasUnsolvedObligatoryConstraint()
 			// pseudo_sequence_obligatory_constraint_containers.add(newly_created_container);
@@ -617,7 +619,7 @@ public class DateGenerator extends AbstractGenerator {
 		// if (eSeq.sequence.hasActiveFlags()) {
 		// componentManager.addGeneratedSequence(eSeq.sequence);
 		// }
-		
+
 		System.out.println("### find paths: " + allSequences.size() + " ###");
 
 		eSeq.gentime = System.nanoTime() - startTime;
@@ -787,38 +789,40 @@ public class DateGenerator extends AbstractGenerator {
 		// }
 		// }
 		if (current_container == null) {
-//			TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer, RewardableInteger>();
-//			Set<Integer> c_keys = containers.keySet();
-//			Iterator<Integer> c_k_itr = c_keys.iterator();
-//			while (c_k_itr.hasNext()) {
-//				Integer c_k = c_k_itr.next();
-//				rewardables.put(c_k, new RewardableInteger(c_k + 5));
-//			}
-//			Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables, this);
+			// TreeMap<Integer, RewardableInteger> rewardables = new TreeMap<Integer,
+			// RewardableInteger>();
+			// Set<Integer> c_keys = containers.keySet();
+			// Iterator<Integer> c_k_itr = c_keys.iterator();
+			// while (c_k_itr.hasNext()) {
+			// Integer c_k = c_k_itr.next();
+			// rewardables.put(c_k, new RewardableInteger(c_k + 5));
+			// }
+			// Integer c_k = RandomSelect.RandomKeyFromMapByRewardableValue(rewardables,
+			// this);
 			if (curr_length_seed_left_times == -1) {
 				curr_length_seed_left_times = 1;
 			}
 			LinkedList<PseudoSequenceContainer> all_c_k_cs = containers.get(curr_seed_length);
-//			Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
+			// Assert.isTrue(all_c_k_cs != null, "WTF! all_c_k_cs is null?");
 			if (all_c_k_cs == null) {
 				all_c_k_cs = new LinkedList<PseudoSequenceContainer>();
 				containers.put(curr_seed_length, all_c_k_cs);
 			}
-			if (all_c_k_cs.size() == 0) {//  && curr_length_seed_left_times == curr_seed_length
+			if (all_c_k_cs.size() == 0) {// && curr_length_seed_left_times == curr_seed_length
 				curr_length_seed_left_times = 0;
 				current_container = containers.get(0).get(0);
 			} else {
 				current_container = all_c_k_cs.remove(0);
 			}
-//			current_container = (PseudoSequenceContainer) RandomSelect
-//					.RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
+			// current_container = (PseudoSequenceContainer) RandomSelect
+			// .RandomElementFromSetByRewardableElements(all_c_k_cs, this, null);
 			// System.out.println("size of containers: " + containers.size());
 			// System.out.println("==== Begin ====");
 			// System.out.println("ck container size:" + all_c_k_cs.size() +
 			// "#current_container:" + current_container);// + "#The container of selected:"
 			// + current_container.FetchStringPseudoSequence()
-			System.out.println("=========================== ck container size:" + all_c_k_cs.size() + "#current_container:"
-					+ current_container.toString().trim() + "#The content of selected:"
+			System.out.println("=========================== ck container size:" + all_c_k_cs.size()
+					+ "#current_container:" + current_container.toString().trim() + "#The content of selected:"
 					+ current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:"
 					+ current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 			// System.out.println("==== End ====");
@@ -830,11 +834,11 @@ public class DateGenerator extends AbstractGenerator {
 			LinkedList<PseudoSequenceContainer> ctn = containers.get(cc_len);
 			Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
 			// System.out.println("remove executed!");
-//			ctn.remove(current_container);
-//			if (ctn.size() == 0) {
-//				System.out.println("container remove executed!");
-//				containers.remove(cc_len);
-//			}
+			// ctn.remove(current_container);
+			// if (ctn.size() == 0) {
+			// System.out.println("container remove executed!");
+			// containers.remove(cc_len);
+			// }
 			// current_container.ResetMutate(this);
 			current_container = null;
 			// set up tried times
@@ -842,7 +846,7 @@ public class DateGenerator extends AbstractGenerator {
 			if (curr_length_seed_left_times <= 0) {
 				curr_length_seed_left_times = -1;
 				curr_seed_length++;
-				if (curr_seed_length > MAX_SEED_LENGTH) {
+				if (curr_seed_length > StringPseudoSequence.MAX_SEED_LENGTH) {
 					curr_seed_length = 1;
 				}
 			}

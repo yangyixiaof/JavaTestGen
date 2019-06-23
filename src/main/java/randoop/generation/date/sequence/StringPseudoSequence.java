@@ -25,6 +25,8 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	// int current_tried_string_length = 0;
 
+	public static final int MAX_SEED_LENGTH = 1;
+	
 	// public static final int MaxSequenceLength = 1;
 	private static final int max_range = 65535;
 	private static final int[] GapRanges = new int[] { 1, 17, 59, 113 };
@@ -193,7 +195,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	// }
 
 	private void GeneratePositionRandomMutationPlans() {
-		int clen = content.length();
+		int clen = current_content.length();
 		int number = Math.min(clen, position_random_times);
 		for (int j = 0; j < number; j++) {
 			int pos = random.nextInt(clen);
@@ -259,13 +261,14 @@ public class StringPseudoSequence extends PseudoSequence {
 		case DefaultRandom:
 			Assert.isTrue(mp instanceof RandomMutationPlan);
 			RandomMutationPlan rmp = (RandomMutationPlan) mp;
-			int len = random.nextInt(dg.curr_seed_length + 1);
+			int len = random.nextInt(dg.curr_seed_length) + 1;
 			modified_content = RandomStringUtil.GenerateStringByDefaultChars(len);
 			current_content = modified_content;
 			rmp.random_mutate_time--;
 			if (rmp.random_mutate_time == 0) {
 				in_trying.remove(0);
 			}
+			GeneratePositionRandomMutationPlans();
 			break;
 		case FixedLengthRandom:
 			FixedLengthRandomMutationPlan flrmp = (FixedLengthRandomMutationPlan) mp;
