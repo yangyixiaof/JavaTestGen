@@ -202,6 +202,16 @@ public class StringPseudoSequence extends PseudoSequence {
 			in_trying.add(0, new PositionRandomMutationPlan(TaskKind.PositionRandomMutation, TaskState.Normal, pos));
 		}
 	}
+	
+	private void GeneratePositionLinearMutationPlans() {
+		int clen = current_content.length();
+		int number = Math.min(clen, position_random_times);
+		for (int j = 0; j < number; j++) {
+			int pos = random.nextInt(clen);
+			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveProbe, TaskState.Normal, pos));
+			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeProbe, TaskState.Normal, pos));
+		}
+	}
 
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
 		BeforeAfterLinkedSequence result = null;
@@ -250,6 +260,8 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 			// is_making_plan = false;
 		}
+		MutationPlan it = in_trying.get(0);
+		System.out.println("=== " + "MutationType:" + it.getClass() + " ===");
 		before_linked_sequence = this.container.GetLinkedSequence();
 		String modified_content = null;
 		MutationPlan mp = in_trying.get(0);
@@ -268,14 +280,14 @@ public class StringPseudoSequence extends PseudoSequence {
 			if (rmp.random_mutate_time == 0) {
 				in_trying.remove(0);
 			}
-			GeneratePositionRandomMutationPlans();
+			GeneratePositionLinearMutationPlans();
 			break;
 		case FixedLengthRandom:
 			FixedLengthRandomMutationPlan flrmp = (FixedLengthRandomMutationPlan) mp;
 			modified_content = RandomStringUtil.GenerateStringByDefaultChars(flrmp.fixed_length);
 			current_content = modified_content;
 			in_trying.remove(0);
-			GeneratePositionRandomMutationPlans();
+			GeneratePositionLinearMutationPlans();
 			break;
 		case PositionRandomMutation:
 			PositionRandomMutationPlan prmp = (PositionRandomMutationPlan) mp;
@@ -285,10 +297,8 @@ public class StringPseudoSequence extends PseudoSequence {
 			modified_content = sb.toString();
 			current_content = modified_content;
 			in_trying.remove(0);
-			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeProbe, TaskState.Normal, pos));
-			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeRecord, TaskState.Normal, pos));
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveProbe, TaskState.Normal, pos));
-			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveRecord, TaskState.Normal, pos));
+			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeProbe, TaskState.Normal, pos));
 			break;
 		case NegativeProbe:
 			ProbeMutationPlan npmp = (ProbeMutationPlan) mp;
@@ -298,6 +308,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			string_mutation = new StringMutation(np_pos, -1 * GapRanges[0]);
 			modified_content = np_builder.toString();
 			in_trying.remove(0);
+			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeRecord, TaskState.Normal, np_pos));
 			break;
 		case PositiveProbe:
 			ProbeMutationPlan ppmp = (ProbeMutationPlan) mp;
@@ -307,6 +318,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			string_mutation = new StringMutation(pp_pos, 1 * GapRanges[0]);
 			modified_content = pp_builder.toString();
 			in_trying.remove(0);
+			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveRecord, TaskState.Normal, pp_pos));
 			break;
 		case NegativeRecord:
 			ProbeMutationPlan r_pmp = (ProbeMutationPlan) mp;
@@ -334,6 +346,7 @@ public class StringPseudoSequence extends PseudoSequence {
 							in_branch, r_direct));
 				}
 			}
+			break;
 		case BranchMutation:
 			BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp;
 			TaskState r_state = bgmp.state;
@@ -398,6 +411,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 			}
 			string_mutation = new StringMutation(r_pos, new_gap_v_p);
+			modified_content = mcb.toString();
 		default:
 			new Exception("Strange mutation plan!!").printStackTrace();
 			System.exit(1);
