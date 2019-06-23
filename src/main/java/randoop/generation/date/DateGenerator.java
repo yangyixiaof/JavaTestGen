@@ -827,7 +827,10 @@ public class DateGenerator extends AbstractGenerator {
 					+ current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 			// System.out.println("==== End ====");
 		}
-		BeforeAfterLinkedSequence result = current_container.Mutate(this);
+		BeforeAfterLinkedSequence result = null;
+		while (result == null) {
+			result = current_container.Mutate(this);
+		}
 		if (result.IsEnd()) {
 			// System.out.println("result is null.");
 			int cc_len = current_container.GetStringLength();
