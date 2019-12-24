@@ -2,6 +2,7 @@ package randoop.util;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -218,7 +219,7 @@ public final class Randomness {
       try {
         GenInputsAbstract.selection_log.write(
             String.format(
-                "chosenPoint = %s, cumulativeWeights = %s%n", chosenPoint, cumulativeWeights));
+                "chosenPoint = %s, cumulativeWeights = %s%n", chosenPoint, Arrays.toString(cumulativeWeights)));
       } catch (IOException e) {
         throw new Error("Problem writing to selection-log", e);
       }
