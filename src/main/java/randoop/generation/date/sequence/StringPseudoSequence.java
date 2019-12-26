@@ -31,8 +31,9 @@ public class StringPseudoSequence extends PseudoSequence {
 	// public static final int MaxSequenceLength = 1;
 	private static final int max_range = 65535;
 	private static final int[] GapRanges = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+	private static final int MaxGapRangeIndex = 6;
 
-	private int position_random_times = 10;
+	private static int position_random_times = 1;
 //	private int fixed_length_random_times = 10;
 
 	// {
@@ -393,7 +394,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					int modified_v_p = after_v_p + new_gap_v_p;
 					mcb.setCharAt(r_pos, (char) (modified_v_p));
 //					int origin_v_p = this.current_content.charAt(r_pos);
-					if (Math.abs(new_gap_v_p) >= GapRanges[7]) {
+					if (Math.abs(new_gap_v_p) >= GapRanges[MaxGapRangeIndex]) {
 //						r_state = TaskState.Over;
 //						in_trying.remove(0);
 						r_state = TaskState.LinearConverge;
@@ -431,6 +432,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			System.exit(1);
 			break;
 		}
+		Assert.isTrue(modified_content != null, "Serious Error! modified_content is null?????????");
 		if (modified_content != null) {
 			StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
 			Assert.isTrue(modified_content != null);

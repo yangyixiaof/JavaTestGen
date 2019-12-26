@@ -262,7 +262,7 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 			StringPseudoSequence to_mutate_sequence = (StringPseudoSequence) current_ps;
 			BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
 			if (mutated.IsEnd()) {
-				current_ps = null;
+				current_sequence_index = -1;
 			}
 			return mutated;
 		} else {
