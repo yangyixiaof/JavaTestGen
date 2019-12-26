@@ -275,7 +275,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		before_linked_sequence = this.container.GetLinkedSequence();
 		String modified_content = null;
 		int r_direct = 0;
-		TaskState r_pmp_state = null;
+//		TaskState r_pmp_state = null;
 		int r_pmp_pos = -1;
 		StringMutation string_mutation = null;
 		boolean set_current = false;
@@ -335,14 +335,14 @@ public class StringPseudoSequence extends PseudoSequence {
 		case NegativeRecord:
 			ProbeMutationPlan r_pmp = (ProbeMutationPlan) mp;
 			r_direct = -1;
-			r_pmp_state = r_pmp.state;
+//			r_pmp_state = r_pmp.state;
 			r_pmp_pos = r_pmp.position;
 		case PositiveRecord:
 			ProbeMutationPlan pr_pmp = (ProbeMutationPlan) mp;
 			if (r_direct == 0) {
 				r_direct = 1;
 			}
-			r_pmp_state = pr_pmp.state;
+//			r_pmp_state = pr_pmp.state;
 			r_pmp_pos = pr_pmp.position;
 			in_trying.remove(0);
 			InfluenceOfTraceCompare r_influence = recent_mutate_result.GetInfluence();
@@ -351,13 +351,13 @@ public class StringPseudoSequence extends PseudoSequence {
 			Iterator<String> in_itr = influ_keys.iterator();
 			while (in_itr.hasNext()) {
 				String in_branch = in_itr.next();
-				Influence influ = influs.get(in_branch);
+//				Influence influ = influs.get(in_branch);
 //				System.out.println("influ:" + influ.GetInfluence());
-				if (!influ.IsHitHappen() && !influ.IsFlipHappen() && influ.GetInfluence() > 0.2) {
-					Assert.isTrue(r_pmp_state == TaskState.Normal);
-					in_trying.add(0, new BranchGuidedMutationPlan(TaskKind.BranchMutation, TaskState.Normal, r_pmp_pos,
-							in_branch, r_direct));
-				}
+//				if (!influ.IsHitHappen() && !influ.IsFlipHappen() && influ.GetInfluence() > 0.2) {
+//					Assert.isTrue(r_pmp_state == TaskState.Normal);
+				in_trying.add(0, new BranchGuidedMutationPlan(TaskKind.BranchMutation, TaskState.Normal, r_pmp_pos,
+						in_branch, r_direct, recent_mutate_result));
+//				}
 			}
 			break;
 		default:
@@ -365,94 +365,112 @@ public class StringPseudoSequence extends PseudoSequence {
 //			System.exit(1);
 			break;
 		}
-		MutationPlan mp2 = in_trying.get(0);
-		switch (mp2.mutate_type) {
-		case BranchMutation:
-			BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp2;
-			TaskState r_state = bgmp.state;
-			int r_pos = bgmp.position;
-			Assert.isTrue(recent_mutate_result != null);
-			// cared_branch_encountered_new_branches.get(cared_branch)
-			// .add(recent_mutate_result.before_linked_sequence.container.GetTraceInfo().GetTraceSignature());
-			InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
-			// handle other logic
-			StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.contained_sequences.get(string_sequence_index);
-//					.FetchStringPseudoSequence();
-			Assert.isTrue(before_mapping != null);
-			String before_content = before_mapping.content;
-			int before_v_p = before_content.charAt(r_pos);
-			StringPseudoSequence after_mapping = (StringPseudoSequence) recent_mutate_result.after_linked_sequence.container.contained_sequences.get(string_sequence_index);
-//					.FetchStringPseudoSequence();
-			String after_content = after_mapping.content;
-			int after_v_p = after_content.charAt(r_pos);
-			Mutation mutate = recent_mutate_result.mutation;
-			Assert.isTrue(mutate instanceof StringMutation);
-			StringMutation string_mutate = (StringMutation) mutate;
-			Integer gap_v_p = string_mutate.GetDelta();
-			Assert.isTrue(gap_v_p != null);
-			Influence influ = influence.GetInfluences().get(bgmp.cared_branch);
-			// handle mutate logic
-			StringBuilder mcb = new StringBuilder(current_content);
-			int new_gap_v_p = -1;
-			if (r_state == TaskState.Normal) {
-				if (influ != null && influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
-					before_linked_sequence = recent_mutate_result.after_linked_sequence;
-					new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
-					int modified_v_p = after_v_p + new_gap_v_p;
-					mcb.setCharAt(r_pos, (char) (modified_v_p));
-//					int origin_v_p = this.current_content.charAt(r_pos);
-					if (Math.abs(new_gap_v_p) >= GapRanges[MaxGapRangeIndex]) {
-//						r_state = TaskState.Over;
-//						in_trying.remove(0);
-						r_state = TaskState.LinearConverge;
-					} else {
-						r_state = TaskState.Normal;
-					}
-				} else {
-					r_state = TaskState.LinearConverge;
-				}
-			} else if (r_state == TaskState.LinearConverge) {
-				new_gap_v_p = gap_v_p / 2;
-				if (new_gap_v_p == 0) {
-					new_gap_v_p = (random.nextInt((max_range + 1) / 2) + 1) * bgmp.direction;
-					r_state = TaskState.Over;
-					mcb.setCharAt(r_pos, (char) (after_v_p + new_gap_v_p));
-					// is_random_mutating = true;
-					before_linked_sequence = recent_mutate_result.after_linked_sequence;
-					in_trying.remove(0);
-				} else {
+		boolean linear_converge_remove = false;
+		if (in_trying.size() > 0) {
+			MutationPlan mp2 = in_trying.get(0);
+			switch (mp2.mutate_type) {
+			case BranchMutation:
+				BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp2;
+				TaskState r_state = bgmp.state;
+				int r_pos = bgmp.position;
+				Assert.isTrue(bgmp.recent_mutate_result != null);
+				// cared_branch_encountered_new_branches.get(cared_branch)
+				// .add(recent_mutate_result.before_linked_sequence.container.GetTraceInfo().GetTraceSignature());
+				InfluenceOfTraceCompare influence = bgmp.recent_mutate_result.GetInfluence();
+				// handle other logic
+				StringPseudoSequence before_mapping = (StringPseudoSequence) bgmp.recent_mutate_result.before_linked_sequence.container.contained_sequences.get(string_sequence_index);
+//						.FetchStringPseudoSequence();
+				Assert.isTrue(before_mapping != null);
+				String before_content = before_mapping.content;
+				int before_v_p = before_content.charAt(r_pos);
+				StringPseudoSequence after_mapping = (StringPseudoSequence) bgmp.recent_mutate_result.after_linked_sequence.container.contained_sequences.get(string_sequence_index);
+//						.FetchStringPseudoSequence();
+				String after_content = after_mapping.content;
+				int after_v_p = after_content.charAt(r_pos);
+				Mutation mutate = bgmp.recent_mutate_result.mutation;
+				Assert.isTrue(mutate instanceof StringMutation);
+				StringMutation string_mutate = (StringMutation) mutate;
+				Integer gap_v_p = string_mutate.GetDelta();
+				Assert.isTrue(gap_v_p != null);
+				Influence influ = influence.GetInfluences().get(bgmp.cared_branch);
+				// handle mutate logic
+				StringBuilder mcb = new StringBuilder(current_content);
+				int modified_v_p = -1;
+				int new_gap_v_p = -1;
+				if (r_state == TaskState.Normal) {
 					if (influ != null && influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
-						mcb.setCharAt(r_pos, (char) (after_v_p + new_gap_v_p));
-						before_linked_sequence = recent_mutate_result.after_linked_sequence;
+						before_linked_sequence = bgmp.recent_mutate_result.after_linked_sequence;
+						new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
+						modified_v_p = after_v_p + new_gap_v_p;
+//						int origin_v_p = this.current_content.charAt(r_pos);
+						if (Math.abs(new_gap_v_p) >= GapRanges[MaxGapRangeIndex+1]) {
+//							r_state = TaskState.Over;
+//							in_trying.remove(0);
+							r_state = TaskState.LinearConverge;
+						} else {
+							r_state = TaskState.Normal;
+						}
 					} else {
-						mcb.setCharAt(r_pos, (char) (before_v_p + new_gap_v_p));
-						before_linked_sequence = recent_mutate_result.before_linked_sequence;
+						r_state = TaskState.LinearConverge;
 					}
 				}
+				mp2.state = r_state;
+				if (r_state == TaskState.LinearConverge) {
+					new_gap_v_p = gap_v_p / 2;
+					if (new_gap_v_p == 0) {
+						new_gap_v_p = (random.nextInt((max_range + 1) / 2) + 1) * bgmp.direction;
+//						r_state = TaskState.Over;
+						modified_v_p = after_v_p + new_gap_v_p;
+						// is_random_mutating = true;
+						before_linked_sequence = bgmp.recent_mutate_result.after_linked_sequence;
+						in_trying.remove(0);
+						linear_converge_remove = true;
+					} else {
+						if (influ != null && influ.GetInfluence() > 0.2 && !influ.IsFlipHappen()) {
+							modified_v_p = after_v_p + new_gap_v_p;
+//							mcb.setCharAt(r_pos, (char) (after_v_p + new_gap_v_p));
+							before_linked_sequence = bgmp.recent_mutate_result.after_linked_sequence;
+						} else {
+							modified_v_p = before_v_p + new_gap_v_p;
+//							mcb.setCharAt(r_pos, (char) (before_v_p + new_gap_v_p));
+							before_linked_sequence = bgmp.recent_mutate_result.before_linked_sequence;
+						}
+					}
+				}
+				mcb.setCharAt(r_pos, (char) (modified_v_p));
+				string_mutation = new StringMutation(string_sequence_index, r_pos, new_gap_v_p);
+				modified_content = mcb.toString();
+				break;
+			default:
+				break;
 			}
-			string_mutation = new StringMutation(string_sequence_index, r_pos, new_gap_v_p);
-			modified_content = mcb.toString();
-			break;
-		default:
-			break;
 		}
 		Assert.isTrue(modified_content != null, "Serious Error! modified_content is null?????????");
-		if (modified_content != null) {
-			StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
-			Assert.isTrue(modified_content != null);
-			TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
-			copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
-			copied_this.content = modified_content;
-			LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
-			result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence,
-					in_trying.isEmpty(), null); // is_random_mutating ? new RandomMutationInfo(1.0) :
-			recent_mutate_result = result;
-			Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
-			if (set_current) {
-				current_content = modified_content;
-				current_linked_sequence = after_linked_sequence;
+//		if (modified_content != null) {
+		StringPseudoSequence copied_this = (StringPseudoSequence) this.CopySelfAndCitersInDeepCloneWay(dg);
+		Assert.isTrue(modified_content != null);
+		TypedOperation to = TypedOperation.createPrimitiveInitialization(Type.forClass(String.class), modified_content);
+		copied_this.statements.set(0, new PseudoStatement(to, new ArrayList<PseudoVariable>()));
+		copied_this.content = modified_content;
+		LinkedSequence after_linked_sequence = copied_this.container.GetLinkedSequence();
+		result = new BeforeAfterLinkedSequence(to, string_mutation, before_linked_sequence, after_linked_sequence,
+				in_trying.isEmpty(), null); // is_random_mutating ? new RandomMutationInfo(1.0) :
+		recent_mutate_result = result;
+		if (!linear_converge_remove) {
+			if (in_trying.size() > 0) {
+				MutationPlan mp2 = in_trying.get(0);
+				if (mp2.mutate_type == TaskKind.BranchMutation) {
+					BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp2;
+					bgmp.recent_mutate_result = result;
+				}
 			}
 		}
+		Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
+		if (set_current) {
+			current_content = modified_content;
+			current_linked_sequence = after_linked_sequence;
+		}
+//		}
 		return result;
 	}
 
@@ -678,13 +696,15 @@ class BranchGuidedMutationPlan extends MutationPlan {
 	int position = -1;
 	String cared_branch = null;
 	int direction = 0;
+	BeforeAfterLinkedSequence recent_mutate_result = null;
 
 	public BranchGuidedMutationPlan(TaskKind mutate_type, TaskState state, int position, String cared_branch,
-			int direction) {
+			int direction, BeforeAfterLinkedSequence recent_mutate_result) {
 		super(mutate_type, state);
 		this.position = position;
 		this.cared_branch = cared_branch;
 		this.direction = direction;
+		this.recent_mutate_result = recent_mutate_result;
 	}
 
 }
