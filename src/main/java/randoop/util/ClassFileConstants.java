@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.bcel.Const;
@@ -65,7 +66,7 @@ public class ClassFileConstants {
     public Set<Float> floats = new TreeSet<>();
     public Set<Double> doubles = new TreeSet<>();
     public Set<String> strings = new TreeSet<>();
-    public Set<Class<?>> classes = new TreeSet<>();
+    public Set<Class<?>> classes = new HashSet<>();
 
     @Override
     public String toString() {

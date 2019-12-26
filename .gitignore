@@ -32,3 +32,4 @@ gradle-build-output.txt
 /RegressionTest.java
 /FLAKY.txt
 /test-lib/
+/java_pid3452.hprof
