@@ -129,7 +129,7 @@ public class DateGenerator extends AbstractGenerator {
 	// private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 	private static final SimpleList<Statement> empty_statements = new Sequence().statements;
 
-	public Map<String, PseudoSequenceContainer> content_container_map = new TreeMap<String, PseudoSequenceContainer>();
+//	public Map<String, PseudoSequenceContainer> content_container_map = new TreeMap<String, PseudoSequenceContainer>();
 
 	// public static final int trying_maximum_steps = 10;
 	// int trying_total_steps = 0;
@@ -235,13 +235,12 @@ public class DateGenerator extends AbstractGenerator {
 			if (n_cmp_sequence != null) {
 				// Assert.isTrue(meet_null == false);
 				meet_null = false;
-				// System.out.println("Newly generated sequence:" +
-				// n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
-				System.out.println("Newly generated sequence, char form:"
-						+ n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
-								.FetchStringPseudoSequence().GetContent()
-						+ "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
-								.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+				System.out.println("Newly generated sequence:" + n_cmp_sequence.GetAfterLinkedSequence().toCodeString());
+//				System.out.println("Newly generated sequence, char form:"
+//						+ n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
+//								.FetchStringPseudoSequence().GetContent()
+//						+ "#each char int form:" + n_cmp_sequence.GetAfterLinkedSequence().GetPseudoSequenceContainer()
+//								.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 				break;
 			} else {
 				Assert.isTrue(meet_null == true);
@@ -822,9 +821,10 @@ public class DateGenerator extends AbstractGenerator {
 			// "#current_container:" + current_container);// + "#The container of selected:"
 			// + current_container.FetchStringPseudoSequence()
 			System.out.println("=========================== ck container size:" + all_c_k_cs.size()
-					+ "#current_container:" + current_container.toString().trim() + "#The content of selected:"
-					+ current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:"
-					+ current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
+					+ "#current_container:" + current_container.toString().trim());
+//					+ "#The content of selected:"
+//					+ current_container.FetchStringPseudoSequence().GetContent().trim() + "#its each char:"
+//					+ current_container.FetchStringPseudoSequence().GetContentWithTheFormOfEachCharIntegerValue());
 			// System.out.println("==== End ====");
 		}
 		BeforeAfterLinkedSequence result = null;
@@ -833,9 +833,9 @@ public class DateGenerator extends AbstractGenerator {
 		}
 		if (result.IsEnd()) {
 			// System.out.println("result is null.");
-			int cc_len = current_container.GetStringLength();
-			LinkedList<PseudoSequenceContainer> ctn = containers.get(cc_len);
-			Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
+//			int cc_len = current_container.GetStringLength();
+//			LinkedList<PseudoSequenceContainer> ctn = containers.get(cc_len);
+//			Assert.isTrue(ctn != null, "WTF! container queue is null? cc_len:" + cc_len);
 			// System.out.println("remove executed!");
 			// ctn.remove(current_container);
 			// if (ctn.size() == 0) {
@@ -951,7 +951,7 @@ public class DateGenerator extends AbstractGenerator {
 		ArrayList<PseudoVariable> input_pseudo_variables = SequenceGeneratorHelper
 				.GetExactlyMatchedPseudoVariableAsOneList(type_list, hidden_variables);
 		if (input_pseudo_variables.size() == type_list.size()) {
-			PseudoSequenceContainer container = new PseudoSequenceContainer(null);
+			PseudoSequenceContainer container = new PseudoSequenceContainer();
 			// SequenceGeneratorHelper.GenerateInputPseudoVariables(candidates, container,
 			// input_pseudo_variables,
 			// type_list, this);
@@ -973,9 +973,9 @@ public class DateGenerator extends AbstractGenerator {
 				hidden_variables.put(selected_to_class, created_pv);
 				return null;
 			}
-			if (container.FetchStringPseudoSequence() == null) {
-				return null;
-			}
+//			if (container.FetchStringPseudoSequence() == null) {
+//				return null;
+//			}
 			// pseudo_variable_headed_sequence.put(created_pv, ps);
 			LinkedSequence after_linked_sequence = container.GetLinkedSequence();
 			return new BeforeAfterLinkedSequence(selected_to, null, before_linked_sequence, after_linked_sequence, true,

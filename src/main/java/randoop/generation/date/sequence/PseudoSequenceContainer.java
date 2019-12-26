@@ -1,6 +1,7 @@
 package randoop.generation.date.sequence;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Random;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -11,15 +12,16 @@ import randoop.generation.date.influence.TraceInfo;
 import randoop.operation.TypedOperation;
 
 public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSequenceContainer> {
-
+	
 	PseudoSequence end = null;
 
-	HashSet<PseudoSequence> contained_sequences = new HashSet<PseudoSequence>();
-
+	ArrayList<PseudoSequence> contained_sequences = new ArrayList<PseudoSequence>();
+	
+	int current_sequence_index = -1;
+	
 	// ========= split line =========
 	// the following are set up by execution trace
 	// ArrayList<TraceInfo> infos = null;
-	TraceInfo trace_info = null;
 //	BranchValueState val_state = null;
 	
 	// the key is meaning the previous trace info
@@ -29,11 +31,18 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 	// note that this is just the logical mapping, the real values may mutated from intermediate results.
 //	HashMap<PseudoSequence, PseudoSequence> logical_mutate_mapping = new HashMap<PseudoSequence, PseudoSequence>();
 	
+	/**
+	 * do not copy
+	 */
+	Random rand = new Random();
+	TraceInfo trace_info = null;
 	LinkedSequence linked_sequence = null;
+	
+//	PseudoSequence current_ps = null;
 	
 //	int string_length = 0;
 	
-	StringPseudoSequence string_sequence = null;
+//	StringPseudoSequence string_sequence = null;
 
 	// must satisfied constraint in next generation
 	// HashSet<PseudoSequenceAddressConstraint> acs = new
@@ -57,12 +66,20 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 
 //	int mutated_number = 0;
 
-	public PseudoSequenceContainer(PseudoSequenceContainer previous) {
+	public PseudoSequenceContainer() {
 //		if (previous != null) {
 //			previous.nexts.add(this);
 //			this.previous = previous;
 //			this.mutated_number = previous.mutated_number;
 //		}
+	}
+	
+	public void SetCurrentSequenceIndex(int current_sequence_index) {
+		this.current_sequence_index = current_sequence_index;
+	}
+	
+	public int GetCurrentSequenceIndex() {
+		return current_sequence_index;
 	}
 
 	public void SetEndPseudoSequence(PseudoSequence end) {
@@ -74,10 +91,10 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 	}
 
 	public void AddPseudoSequence(PseudoSequence e) {
-		if (e != null && e instanceof StringPseudoSequence) {
-			Assert.isTrue(string_sequence == null);
-			string_sequence = (StringPseudoSequence) e;
-		}
+//		if (e != null && e instanceof StringPseudoSequence) {
+//			Assert.isTrue(string_sequence == null);
+//			string_sequence = (StringPseudoSequence) e;
+//		}
 		contained_sequences.add(e);
 	}
 
@@ -214,7 +231,7 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 	public Reward GetReward(DateGenerator dg) {
 		// Assert.isTrue(infos != null && val_state != null);
 		// return val_state.GetReward(interested_branch);
-		// TODO combine history & mutation number of the branch state of seed (many seeds)
+//		 combine history & mutation number of the branch state of seed (many seeds)
 		return new Reward(trace_info == null ? 0.0 : trace_info.GetReward(dg).rs[0]);
 	}
 
@@ -237,19 +254,26 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //		if (s_len > 0) {
 //			for (int i = 0; i < s_len; i++) {
 //				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
-		StringPseudoSequence to_mutate_sequence = FetchStringPseudoSequence();
-		BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
-//		if (mutated != null) {
-		return mutated;
-//		}
-//			}
-//		}
-//		return null;
+		if (current_sequence_index < 0) {
+			current_sequence_index = rand.nextInt(contained_sequences.size());
+		}
+		PseudoSequence current_ps = contained_sequences.get(current_sequence_index);
+		if (current_ps instanceof StringPseudoSequence) {
+			StringPseudoSequence to_mutate_sequence = (StringPseudoSequence) current_ps;
+			BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
+			if (mutated.IsEnd()) {
+				current_ps = null;
+			}
+			return mutated;
+		} else {
+			Assert.isTrue(false, "Not String Pseudo Sequence!");
+		}
+		return null;
 	}
 	
-	public StringPseudoSequence FetchStringPseudoSequence() {
-		return string_sequence;
-	}
+//	public StringPseudoSequence FetchStringPseudoSequence() {
+//		return string_sequence;
+//	}
 
 //	private ArrayList<StringPseudoSequence> FetchAllStringPseudoSequences() {
 //		ArrayList<StringPseudoSequence> string_sequences = new ArrayList<StringPseudoSequence>();
@@ -387,7 +411,14 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //	}
 	
 	public int GetStringLength() {
-		return string_sequence.content.length();
+		int string_length = 0;
+		for (PseudoSequence seq : contained_sequences) {
+			if (seq instanceof StringPseudoSequence) {
+				StringPseudoSequence sps = (StringPseudoSequence) seq;
+				string_length += sps.content.length();
+			}
+		}
+		return string_length;
 	}
 
 	@Override

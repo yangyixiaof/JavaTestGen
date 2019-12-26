@@ -174,7 +174,8 @@ public class PseudoSequence implements Rewardable {
 		}
 		boolean container_created = false;
 		if (container == null) {
-			container = new PseudoSequenceContainer(this.container);
+			container = new PseudoSequenceContainer();
+			container.SetCurrentSequenceIndex(this.container.GetCurrentSequenceIndex());
 			container_created = true;
 		}
 		PseudoSequence copy_version = null;

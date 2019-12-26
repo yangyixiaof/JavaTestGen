@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -25,14 +26,14 @@ public class StringPseudoSequence extends PseudoSequence {
 
 	// int current_tried_string_length = 0;
 
-	public static final int MAX_SEED_LENGTH = 1;
+	public static final int MAX_SEED_LENGTH = 50;
 	
 	// public static final int MaxSequenceLength = 1;
 	private static final int max_range = 65535;
-	private static final int[] GapRanges = new int[] { 1, 17, 59, 113 };
+	private static final int[] GapRanges = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 
 	private int position_random_times = 10;
-	private int fixed_length_random_times = 10;
+//	private int fixed_length_random_times = 10;
 
 	// {
 	// deprecated block. it seems delta change is unnecessary
@@ -205,29 +206,36 @@ public class StringPseudoSequence extends PseudoSequence {
 	}
 	
 	private void GeneratePositionLinearMutationPlans(String modified_content) {
+		Set<Integer> a_pos = new TreeSet<Integer>();
 		int clen = modified_content.length();
 		int number = Math.min(clen, position_random_times);
 		for (int j = 0; j < number; j++) {
 			int pos = random.nextInt(clen);
+			if (a_pos.contains(pos)) {
+				continue;
+			} else {
+				a_pos.add(pos);
+			}
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveProbe, TaskState.Normal, pos));
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeProbe, TaskState.Normal, pos));
 		}
 	}
 
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
+		int string_sequence_index = this.container.contained_sequences.indexOf(this);
 		BeforeAfterLinkedSequence result = null;
 		LinkedSequence before_linked_sequence = null;
 		// if (is_mutating) {
 		if (in_trying.isEmpty()) {
 			if (content.equals("")) {
-				in_trying.add(new RandomMutationPlan(TaskKind.DefaultRandom, TaskState.Normal, 10));
+				in_trying.add(new RandomMutationPlan(TaskKind.DefaultRandom, TaskState.Normal, 1));
 			} else {
 				// Map<Integer, TreeSet<String>> uncovered_position_branches = dg.branch_state
 				// .GetNotCoveredAndWithInfluencePositionBranchesPairForTrace(container.trace_info);
 				GeneratePositionRandomMutationPlans(content);
-				for (int i = 0; i < fixed_length_random_times; i++) {
-					in_trying.add(new FixedLengthRandomMutationPlan(TaskKind.FixedLengthRandom, TaskState.Normal, i));
-				}
+//				for (int i = 0; i < fixed_length_random_times; i++) {
+//					in_trying.add(new FixedLengthRandomMutationPlan(TaskKind.FixedLengthRandom, TaskState.Normal, i));
+//				}
 				// for (int i = 0; i < clen; i++) {
 				// LinkedList<MutationPlan> branch_try_times = new LinkedList<MutationPlan>();
 				// // branch_try_times.add(new MutationPlan(DefaultRandom,
@@ -283,13 +291,13 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 			GeneratePositionLinearMutationPlans(modified_content);
 			break;
-		case FixedLengthRandom:
-			FixedLengthRandomMutationPlan flrmp = (FixedLengthRandomMutationPlan) mp;
-			modified_content = RandomStringUtil.GenerateStringByDefaultChars(flrmp.fixed_length);
-			set_current = true;
-			in_trying.remove(0);
-			GeneratePositionLinearMutationPlans(modified_content);
-			break;
+//		case FixedLengthRandom:
+//			FixedLengthRandomMutationPlan flrmp = (FixedLengthRandomMutationPlan) mp;
+//			modified_content = RandomStringUtil.GenerateStringByDefaultChars(flrmp.fixed_length);
+//			set_current = true;
+//			in_trying.remove(0);
+//			GeneratePositionLinearMutationPlans(modified_content);
+//			break;
 		case PositionRandomMutation:
 			PositionRandomMutationPlan prmp = (PositionRandomMutationPlan) mp;
 			int pos = prmp.position;
@@ -306,7 +314,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			int np_pos = npmp.position;
 			StringBuilder np_builder = new StringBuilder(current_content);
 			np_builder.setCharAt(np_pos, (char) (np_builder.charAt(np_pos) + -1 * GapRanges[0]));
-			string_mutation = new StringMutation(np_pos, -1 * GapRanges[0]);
+			string_mutation = new StringMutation(string_sequence_index, np_pos, -1 * GapRanges[0]);
 			modified_content = np_builder.toString();
 			before_linked_sequence = current_linked_sequence;
 			in_trying.remove(0);
@@ -317,7 +325,7 @@ public class StringPseudoSequence extends PseudoSequence {
 			int pp_pos = ppmp.position;
 			StringBuilder pp_builder = new StringBuilder(current_content);
 			pp_builder.setCharAt(pp_pos, (char) (pp_builder.charAt(pp_pos) + 1 * GapRanges[0]));
-			string_mutation = new StringMutation(pp_pos, 1 * GapRanges[0]);
+			string_mutation = new StringMutation(string_sequence_index, pp_pos, 1 * GapRanges[0]);
 			modified_content = pp_builder.toString();
 			before_linked_sequence = current_linked_sequence;
 			in_trying.remove(0);
@@ -360,13 +368,13 @@ public class StringPseudoSequence extends PseudoSequence {
 			// .add(recent_mutate_result.before_linked_sequence.container.GetTraceInfo().GetTraceSignature());
 			InfluenceOfTraceCompare influence = recent_mutate_result.GetInfluence();
 			// handle other logic
-			StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container
-					.FetchStringPseudoSequence();
+			StringPseudoSequence before_mapping = (StringPseudoSequence) recent_mutate_result.before_linked_sequence.container.contained_sequences.get(string_sequence_index);
+//					.FetchStringPseudoSequence();
 			Assert.isTrue(before_mapping != null);
 			String before_content = before_mapping.content;
 			int before_v_p = before_content.charAt(r_pos);
-			StringPseudoSequence after_mapping = recent_mutate_result.after_linked_sequence.container
-					.FetchStringPseudoSequence();
+			StringPseudoSequence after_mapping = (StringPseudoSequence) recent_mutate_result.after_linked_sequence.container.contained_sequences.get(string_sequence_index);
+//					.FetchStringPseudoSequence();
 			String after_content = after_mapping.content;
 			int after_v_p = after_content.charAt(r_pos);
 			Mutation mutate = recent_mutate_result.mutation;
@@ -384,10 +392,11 @@ public class StringPseudoSequence extends PseudoSequence {
 					new_gap_v_p = (int) Math.ceil(gap_v_p * 2);
 					int modified_v_p = after_v_p + new_gap_v_p;
 					mcb.setCharAt(r_pos, (char) (modified_v_p));
-					int origin_v_p = this.current_content.charAt(r_pos);
-					if (Math.abs(modified_v_p - origin_v_p) >= 4095) {
-						r_state = TaskState.Over;
-						in_trying.remove(0);
+//					int origin_v_p = this.current_content.charAt(r_pos);
+					if (Math.abs(new_gap_v_p) >= GapRanges[7]) {
+//						r_state = TaskState.Over;
+//						in_trying.remove(0);
+						r_state = TaskState.LinearConverge;
 					} else {
 						r_state = TaskState.Normal;
 					}
@@ -414,7 +423,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					}
 				}
 			}
-			string_mutation = new StringMutation(r_pos, new_gap_v_p);
+			string_mutation = new StringMutation(string_sequence_index, r_pos, new_gap_v_p);
 			modified_content = mcb.toString();
 			break;
 		default:
