@@ -3,8 +3,6 @@ package randoop.generation.date.sequence;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.eclipse.core.runtime.Assert;
-
 import randoop.generation.date.DateGenerator;
 import randoop.generation.date.influence.Reward;
 import randoop.generation.date.influence.Rewardable;
@@ -254,21 +252,27 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //		if (s_len > 0) {
 //			for (int i = 0; i < s_len; i++) {
 //				StringPseudoSequence to_mutate_sequence = string_sequences.get(i);
-		if (current_sequence_index < 0) {
-			current_sequence_index = rand.nextInt(contained_sequences.size());
-		}
-		PseudoSequence current_ps = contained_sequences.get(current_sequence_index);
-		if (current_ps instanceof StringPseudoSequence) {
-			StringPseudoSequence to_mutate_sequence = (StringPseudoSequence) current_ps;
-			BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
-			if (mutated.IsEnd()) {
-				current_sequence_index = -1;
+		ArrayList<StringPseudoSequence> m_sequences = new ArrayList<StringPseudoSequence>();
+		for (PseudoSequence seq : contained_sequences) {
+			if (seq instanceof StringPseudoSequence) {
+				m_sequences.add((StringPseudoSequence) seq);
 			}
-			return mutated;
-		} else {
-			Assert.isTrue(false, "Not String Pseudo Sequence!");
 		}
-		return null;
+		if (current_sequence_index < 0) {
+			current_sequence_index = rand.nextInt(m_sequences.size());
+		}
+		PseudoSequence current_ps = m_sequences.get(current_sequence_index);
+//		if (current_ps instanceof StringPseudoSequence) {
+		StringPseudoSequence to_mutate_sequence = (StringPseudoSequence) current_ps;
+		BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
+		if (mutated.IsEnd()) {
+			current_sequence_index = -1;
+		}
+		return mutated;
+//		} else {
+//			Assert.isTrue(false, "Not String Pseudo Sequence!" + " " + current_ps.getClass());
+//		}
+//		return null;
 	}
 	
 //	public StringPseudoSequence FetchStringPseudoSequence() {

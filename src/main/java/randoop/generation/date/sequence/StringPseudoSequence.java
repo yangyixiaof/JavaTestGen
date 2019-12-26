@@ -360,8 +360,15 @@ public class StringPseudoSequence extends PseudoSequence {
 				}
 			}
 			break;
+		default:
+//			new Exception("Strange mutation plan!!").printStackTrace();
+//			System.exit(1);
+			break;
+		}
+		MutationPlan mp2 = in_trying.get(0);
+		switch (mp2.mutate_type) {
 		case BranchMutation:
-			BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp;
+			BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp2;
 			TaskState r_state = bgmp.state;
 			int r_pos = bgmp.position;
 			Assert.isTrue(recent_mutate_result != null);
@@ -404,8 +411,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				} else {
 					r_state = TaskState.LinearConverge;
 				}
-			}
-			if (r_state == TaskState.LinearConverge) {
+			} else if (r_state == TaskState.LinearConverge) {
 				new_gap_v_p = gap_v_p / 2;
 				if (new_gap_v_p == 0) {
 					new_gap_v_p = (random.nextInt((max_range + 1) / 2) + 1) * bgmp.direction;
@@ -428,8 +434,6 @@ public class StringPseudoSequence extends PseudoSequence {
 			modified_content = mcb.toString();
 			break;
 		default:
-			new Exception("Strange mutation plan!!").printStackTrace();
-			System.exit(1);
 			break;
 		}
 		Assert.isTrue(modified_content != null, "Serious Error! modified_content is null?????????");
