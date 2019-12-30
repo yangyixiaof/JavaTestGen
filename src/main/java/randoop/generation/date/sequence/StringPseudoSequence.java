@@ -1,7 +1,6 @@
 package randoop.generation.date.sequence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -33,7 +32,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	private static final int[] GapRanges = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 	private static final int MaxGapRangeIndex = 6;
 
-	private static int position_random_times = 1;
+	private static final int position_random_times = 1;
 //	private int fixed_length_random_times = 10;
 
 	// {
@@ -74,10 +73,10 @@ public class StringPseudoSequence extends PseudoSequence {
 	// TreeMap<Integer, ArrayList<String>> plan_for_branches = new TreeMap<Integer,
 	// ArrayList<String>>();
 
-	HashMap<String, HashMap<PseudoSequenceContainer, Double>> linear_solve_seeds = new HashMap<String, HashMap<PseudoSequenceContainer, Double>>();
+//	HashMap<String, HashMap<PseudoSequenceContainer, Double>> linear_solve_seeds = new HashMap<String, HashMap<PseudoSequenceContainer, Double>>();
 
-	String current_content = null;
-	LinkedSequence current_linked_sequence = null;
+//	String current_content = null;
+//	LinkedSequence current_linked_sequence = null;
 	BeforeAfterLinkedSequence recent_mutate_result = null;
 	// boolean recent_mutate_result_set_to_null = false;
 
@@ -113,6 +112,16 @@ public class StringPseudoSequence extends PseudoSequence {
 	// ArrayList<TypedOperation> operations) {
 	// super(pv, operations);
 	// }
+	
+	@Override
+	public PseudoSequence CopySelfInDeepCloneWay(PseudoSequenceContainer container,
+			Map<PseudoSequence, PseudoSequence> origin_copied_sequence_map, DateGenerator dg) {
+		PseudoSequence copied_string_sequence = super.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, dg);
+		Assert.isTrue(copied_string_sequence instanceof StringPseudoSequence);
+		StringPseudoSequence sps = (StringPseudoSequence) copied_string_sequence;
+		sps.content = this.content;
+		return sps;
+	}
 
 	// @Override
 	// public BeforeAfterLinkedSequence Mutate(TypedOperation selected_to,
@@ -223,7 +232,7 @@ public class StringPseudoSequence extends PseudoSequence {
 	}
 
 	public BeforeAfterLinkedSequence MutateString(DateGenerator dg) {
-		int string_sequence_index = this.container.contained_sequences.indexOf(this);
+//		int string_sequence_index = this.container.contained_sequences.indexOf(this);
 		BeforeAfterLinkedSequence result = null;
 		LinkedSequence before_linked_sequence = null;
 		// if (is_mutating) {
@@ -278,14 +287,14 @@ public class StringPseudoSequence extends PseudoSequence {
 //		TaskState r_pmp_state = null;
 		int r_pmp_pos = -1;
 		StringMutation string_mutation = null;
-		boolean set_current = false;
+//		boolean set_current = false;
 		switch (mp.mutate_type) {
 		case DefaultRandom:
 			Assert.isTrue(mp instanceof RandomMutationPlan);
 			RandomMutationPlan rmp = (RandomMutationPlan) mp;
 			int len = random.nextInt(dg.curr_seed_length) + 1;
 			modified_content = RandomStringUtil.GenerateStringByDefaultChars(len);
-			set_current = true;
+//			set_current = true;
 			rmp.random_mutate_time--;
 			if (rmp.random_mutate_time == 0) {
 				in_trying.remove(0);
@@ -302,10 +311,10 @@ public class StringPseudoSequence extends PseudoSequence {
 		case PositionRandomMutation:
 			PositionRandomMutationPlan prmp = (PositionRandomMutationPlan) mp;
 			int pos = prmp.position;
-			StringBuilder sb = new StringBuilder(current_content);
+			StringBuilder sb = new StringBuilder(content);
 			sb.setCharAt(pos, (char) (random.nextInt(max_range) + sb.charAt(pos)));
 			modified_content = sb.toString();
-			set_current = true;
+//			set_current = true;
 			in_trying.remove(0);
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveProbe, TaskState.Normal, pos));
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeProbe, TaskState.Normal, pos));
@@ -313,22 +322,28 @@ public class StringPseudoSequence extends PseudoSequence {
 		case NegativeProbe:
 			ProbeMutationPlan npmp = (ProbeMutationPlan) mp;
 			int np_pos = npmp.position;
+			String current_content = recent_mutate_result == null ? content : ((StringPseudoSequence)recent_mutate_result.after_linked_sequence.container.current_ps).content;
 			StringBuilder np_builder = new StringBuilder(current_content);
 			np_builder.setCharAt(np_pos, (char) (np_builder.charAt(np_pos) + -1 * GapRanges[0]));
-			string_mutation = new StringMutation(string_sequence_index, np_pos, -1 * GapRanges[0]);
+			string_mutation = new StringMutation(np_pos, -1 * GapRanges[0]);
 			modified_content = np_builder.toString();
-			before_linked_sequence = current_linked_sequence;
+			if (recent_mutate_result != null) {
+				before_linked_sequence = recent_mutate_result.after_linked_sequence;
+			}
 			in_trying.remove(0);
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.NegativeRecord, TaskState.Normal, np_pos));
 			break;
 		case PositiveProbe:
 			ProbeMutationPlan ppmp = (ProbeMutationPlan) mp;
 			int pp_pos = ppmp.position;
-			StringBuilder pp_builder = new StringBuilder(current_content);
+			String current_content2 = recent_mutate_result == null ? content : ((StringPseudoSequence)recent_mutate_result.after_linked_sequence.container.current_ps).content;
+			StringBuilder pp_builder = new StringBuilder(current_content2);
 			pp_builder.setCharAt(pp_pos, (char) (pp_builder.charAt(pp_pos) + 1 * GapRanges[0]));
-			string_mutation = new StringMutation(string_sequence_index, pp_pos, 1 * GapRanges[0]);
+			string_mutation = new StringMutation(pp_pos, 1 * GapRanges[0]);
 			modified_content = pp_builder.toString();
-			before_linked_sequence = current_linked_sequence;
+			if (recent_mutate_result != null) {
+				before_linked_sequence = recent_mutate_result.after_linked_sequence;
+			}
 			in_trying.remove(0);
 			in_trying.add(0, new ProbeMutationPlan(TaskKind.PositiveRecord, TaskState.Normal, pp_pos));
 			break;
@@ -378,12 +393,12 @@ public class StringPseudoSequence extends PseudoSequence {
 				// .add(recent_mutate_result.before_linked_sequence.container.GetTraceInfo().GetTraceSignature());
 				InfluenceOfTraceCompare influence = bgmp.recent_mutate_result.GetInfluence();
 				// handle other logic
-				StringPseudoSequence before_mapping = (StringPseudoSequence) bgmp.recent_mutate_result.before_linked_sequence.container.contained_sequences.get(string_sequence_index);
+				StringPseudoSequence before_mapping = (StringPseudoSequence) bgmp.recent_mutate_result.before_linked_sequence.container.current_ps;// contained_sequences.get(string_sequence_index)
 //						.FetchStringPseudoSequence();
 				Assert.isTrue(before_mapping != null);
 				String before_content = before_mapping.content;
 				int before_v_p = before_content.charAt(r_pos);
-				StringPseudoSequence after_mapping = (StringPseudoSequence) bgmp.recent_mutate_result.after_linked_sequence.container.contained_sequences.get(string_sequence_index);
+				StringPseudoSequence after_mapping = (StringPseudoSequence) bgmp.recent_mutate_result.after_linked_sequence.container.current_ps;
 //						.FetchStringPseudoSequence();
 				String after_content = after_mapping.content;
 				int after_v_p = after_content.charAt(r_pos);
@@ -394,6 +409,7 @@ public class StringPseudoSequence extends PseudoSequence {
 				Assert.isTrue(gap_v_p != null);
 				Influence influ = influence.GetInfluences().get(bgmp.cared_branch);
 				// handle mutate logic
+				String current_content = after_content;
 				StringBuilder mcb = new StringBuilder(current_content);
 				int modified_v_p = -1;
 				int new_gap_v_p = -1;
@@ -438,7 +454,7 @@ public class StringPseudoSequence extends PseudoSequence {
 					}
 				}
 				mcb.setCharAt(r_pos, (char) (modified_v_p));
-				string_mutation = new StringMutation(string_sequence_index, r_pos, new_gap_v_p);
+				string_mutation = new StringMutation(r_pos, new_gap_v_p);
 				modified_content = mcb.toString();
 				break;
 			default:
@@ -466,10 +482,10 @@ public class StringPseudoSequence extends PseudoSequence {
 			}
 		}
 		Assert.isTrue(result.before_linked_sequence != null && result.after_linked_sequence != null);
-		if (set_current) {
-			current_content = modified_content;
-			current_linked_sequence = after_linked_sequence;
-		}
+//		if (set_current) {
+//			current_content = modified_content;
+//			current_linked_sequence = after_linked_sequence;
+//		}
 //		}
 		return result;
 	}

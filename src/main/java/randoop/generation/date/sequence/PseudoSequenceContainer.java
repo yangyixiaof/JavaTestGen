@@ -14,8 +14,10 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 	PseudoSequence end = null;
 
 	ArrayList<PseudoSequence> contained_sequences = new ArrayList<PseudoSequence>();
+//	Map<PseudoSequence, Integer> sequence_index_map = new HashMap<PseudoSequence, Integer>();
 	
-	int current_sequence_index = -1;
+	PseudoSequence current_ps = null;
+//	int current_sequence_index = -1;
 	
 	// ========= split line =========
 	// the following are set up by execution trace
@@ -72,12 +74,20 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //		}
 	}
 	
-	public void SetCurrentSequenceIndex(int current_sequence_index) {
-		this.current_sequence_index = current_sequence_index;
+//	public void SetCurrentSequenceIndex(int current_sequence_index) {
+//		this.current_sequence_index = current_sequence_index;
+//	}
+//	
+//	public int GetCurrentSequenceIndex() {
+//		return current_sequence_index;
+//	}
+	
+	public void SetCurrentSequence(PseudoSequence current_ps) {
+		this.current_ps = current_ps;
 	}
 	
-	public int GetCurrentSequenceIndex() {
-		return current_sequence_index;
+	public PseudoSequence GetCurrentSequence() {
+		return this.current_ps;
 	}
 
 	public void SetEndPseudoSequence(PseudoSequence end) {
@@ -93,8 +103,14 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 //			Assert.isTrue(string_sequence == null);
 //			string_sequence = (StringPseudoSequence) e;
 //		}
+//		sequence_index_map.put(e, contained_sequences.size());
 		contained_sequences.add(e);
 	}
+	
+//	public void AddPseudoSequenceAtSpecifiedIndex(PseudoSequence e, int index) {
+////		sequence_index_map.put(e, index);
+//		ArrayUtil.InsertAtSpecifiedPositionOfArray(contained_sequences, e, index);
+//	}
 
 	public void SetTraceInfo(TraceInfo info) {
 		if (this.trace_info == null) {
@@ -258,15 +274,17 @@ public class PseudoSequenceContainer implements Rewardable, Comparable<PseudoSeq
 				m_sequences.add((StringPseudoSequence) seq);
 			}
 		}
-		if (current_sequence_index < 0) {
-			current_sequence_index = rand.nextInt(m_sequences.size());
+		if (current_ps == null) {
+//			current_sequence_index = rand.nextInt(m_sequences.size());
+			current_ps = m_sequences.get(rand.nextInt(m_sequences.size()));
 		}
-		PseudoSequence current_ps = m_sequences.get(current_sequence_index);
+//		PseudoSequence current_ps = m_sequences.get(current_sequence_index);
 //		if (current_ps instanceof StringPseudoSequence) {
 		StringPseudoSequence to_mutate_sequence = (StringPseudoSequence) current_ps;
 		BeforeAfterLinkedSequence mutated = to_mutate_sequence.MutateString(dg);
 		if (mutated.IsEnd()) {
-			current_sequence_index = -1;
+//			current_sequence_index = -1;
+			current_ps = null;
 		}
 		return mutated;
 //		} else {

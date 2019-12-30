@@ -175,7 +175,7 @@ public class PseudoSequence implements Rewardable {
 		boolean container_created = false;
 		if (container == null) {
 			container = new PseudoSequenceContainer();
-			container.SetCurrentSequenceIndex(this.container.GetCurrentSequenceIndex());
+//			container.SetCurrentSequenceIndex(this.container.GetCurrentSequenceIndex());
 			container_created = true;
 		}
 		PseudoSequence copy_version = null;
@@ -189,8 +189,12 @@ public class PseudoSequence implements Rewardable {
 			container.SetEndPseudoSequence(copy_version);
 		}
 		copy_version.SetContainer(container);
+//		int this_index = this.container.sequence_index_map.get(this);
 		container.AddPseudoSequence(copy_version);
 		origin_copied_sequence_map.put(this, copy_version);
+		if (this.container.current_ps == this) {
+			container.current_ps = copy_version;
+		}
 		// PseudoVariable copied_headed_variable =
 		// headed_variable.CopySelfInDeepCloneWay(container,
 		// origin_copied_sequence_map, dg);
