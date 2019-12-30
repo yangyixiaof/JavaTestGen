@@ -276,8 +276,7 @@ public class DateGenerator extends AbstractGenerator {
 		YYXHaHaStrangeMem.clear();
 
 		eSeq.execute(executionVisitor, checkGenerator);
-
-		String after_trace_sig = YYXHaHaStrangeMem.GetSig();
+		
 		// } catch (Exception e) {
 		// System.err.println("=== not flaky ===");
 		// e.printStackTrace();
@@ -300,7 +299,8 @@ public class DateGenerator extends AbstractGenerator {
 
 		// analyze trace and compute influence.
 		String after_trace_info = TracePrintController.GetPrintedTrace();
-
+//		String after_trace_sig = YYXHaHaStrangeMem.GetSig();
+		
 		// System.out.println("one trace:" + after_trace_info);
 		// if (!after_trace_info.equals("")) {
 		// System.exit(1);
@@ -319,7 +319,11 @@ public class DateGenerator extends AbstractGenerator {
 		// after_trace);
 
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
-		after_trace.SetTraceSignature(after_trace_sig);
+		String after_trace_sig = after_trace.GetTraceSignature();
+//		after_trace.SetTraceSignature(after_trace_sig);
+		System.out.println(" ========= begin printing after_trace_sig ========= ");
+		System.out.println("after_trace_sig:" + after_trace_sig);
+		System.out.println(" ========= end printing after_trace_sig ========= ");
 		boolean after_trace_first_encounter = branch_state.StateFirstEncountered(after_trace_sig);
 		if (after_trace_first_encounter) {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
