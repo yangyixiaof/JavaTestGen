@@ -68,20 +68,24 @@ public class TraceReader {
 					} else {
 //						TraceInfo ti = traces.get(traces.size() - 1);
 						String[] parts = one_line.split("#");
+//						System.err.println("one_line:" + one_line);
 						if (parts[0].equals("@Branch-Operand")) {
 							// branch_operand++;
 							try {
 								String operandSig = parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3];
 								int relativeOffset = Integer.parseInt(parts[4]);
 								String cmpOperator = parts[5];
-								double op1 = Double.parseDouble(parts[6]);
-								double op2 = Double.parseDouble(parts[7]);
+								try {
+									double op1 = Double.parseDouble(parts[6]);
+									double op2 = Double.parseDouble(parts[7]);
+									ProcessBranchOperand(line_index, operandSig, relativeOffset, cmpOperator, op1, op2, overall_ti);
+								} catch (Exception e) {
+								}
 								// if (cmpOperator.equals("A$==") || cmpOperator.equals("A$!=")) {
 								// ProcessObjectAddressSameConstraint(operandSig, relativeOffset, (int) op1,
 								// (int) op2, ti);
 								// }
 								// String enclosingMethod = runtime_stack.peek();
-								ProcessBranchOperand(line_index, operandSig, relativeOffset, cmpOperator, op1, op2, overall_ti);
 							} catch (Exception e) {
 								// System.out.println("lastPop: " + lastPop);
 								// System.out.println("currentLineFrom1 " + currentLineFrom1);

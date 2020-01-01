@@ -49,7 +49,7 @@ public class TraceInfo implements Rewardable {
 			vobs.put(sig_info, iob);
 			iob_count = 0;
 		} else {
-			Assert.isTrue(false, "Strange! each branch is unique!");
+//			Assert.isTrue(false, "Strange! each branch is unique!");
 		}
 		iob.HandleOneValueOfBranch(vob);
 		iob_count++;
