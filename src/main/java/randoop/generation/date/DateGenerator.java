@@ -320,12 +320,12 @@ public class DateGenerator extends AbstractGenerator {
 		
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		String after_trace_sig = after_trace.GetTraceSignature();
-		String after_trace_content = after_trace.GetTraceContent();
+//		String after_trace_content = after_trace.GetTraceContent();
 //		after_trace.SetTraceSignature(after_trace_sig);
-		System.out.println(" ========= begin printing after_trace_content ========= ");
+//		System.out.println(" ========= begin printing after_trace_content ========= ");
 //		System.out.println("after_trace_content:" + after_trace_sig);
 		System.out.print(after_trace_info);
-		System.out.println(" ========= end printing after_trace_content ========= ");
+//		System.out.println(" ========= end printing after_trace_content ========= ");
 		boolean after_trace_first_encounter = branch_state.StateFirstEncountered(after_trace_sig);
 		if (after_trace_first_encounter) {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
