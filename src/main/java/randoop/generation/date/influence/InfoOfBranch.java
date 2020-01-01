@@ -53,6 +53,14 @@ public class InfoOfBranch {
 		}
 		return String.join("#", state_array);
 	}
+	
+	public String GenerateBranchValueSignature() {
+		String[] state_array = new String[traces.size()];
+		for (int i = 0; i < traces.size(); i++) {
+			state_array[i] = traces.get(i).toValueString() + "";
+		}
+		return String.join("#", state_array);
+	}
 
 	// A B C
 	// D A C

@@ -22,7 +22,6 @@ import randoop.types.Type;
 public class StringPseudoSequence extends PseudoSequence {
 
 	// int ready_try_length = 0;
-
 	// int current_tried_string_length = 0;
 
 	public static final int MAX_SEED_LENGTH = 50;
@@ -31,8 +30,11 @@ public class StringPseudoSequence extends PseudoSequence {
 	private static final int max_range = 65535;
 	private static final int[] GapRanges = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 	private static final int MaxGapRangeIndex = 6;
-
+	
 	private static final int position_random_times = 1;
+	
+	private static final String NotExistBranch = "null_branch";
+	
 //	private int fixed_length_random_times = 10;
 
 	// {
@@ -237,6 +239,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		LinkedSequence before_linked_sequence = null;
 		// if (is_mutating) {
 		if (in_trying.isEmpty()) {
+			recent_mutate_result = null;
 			if (content.equals("")) {
 				in_trying.add(new RandomMutationPlan(TaskKind.DefaultRandom, TaskState.Normal, 1));
 			} else {
@@ -364,15 +367,20 @@ public class StringPseudoSequence extends PseudoSequence {
 			Map<String, Influence> influs = r_influence.GetInfluences();
 			Set<String> influ_keys = influs.keySet();
 			Iterator<String> in_itr = influ_keys.iterator();
-			while (in_itr.hasNext()) {
-				String in_branch = in_itr.next();
-//				Influence influ = influs.get(in_branch);
-//				System.out.println("influ:" + influ.GetInfluence());
-//				if (!influ.IsHitHappen() && !influ.IsFlipHappen() && influ.GetInfluence() > 0.2) {
-//					Assert.isTrue(r_pmp_state == TaskState.Normal);
+			if (influ_keys.isEmpty()) {
 				in_trying.add(0, new BranchGuidedMutationPlan(TaskKind.BranchMutation, TaskState.Normal, r_pmp_pos,
-						in_branch, r_direct, recent_mutate_result));
-//				}
+						NotExistBranch, r_direct, recent_mutate_result));
+			} else {
+				while (in_itr.hasNext()) {
+					String in_branch = in_itr.next();
+//					Influence influ = influs.get(in_branch);
+//					System.out.println("influ:" + influ.GetInfluence());
+//					if (!influ.IsHitHappen() && !influ.IsFlipHappen() && influ.GetInfluence() > 0.2) {
+//						Assert.isTrue(r_pmp_state == TaskState.Normal);
+					in_trying.add(0, new BranchGuidedMutationPlan(TaskKind.BranchMutation, TaskState.Normal, r_pmp_pos,
+							in_branch, r_direct, recent_mutate_result));
+//					}
+				}
 			}
 			break;
 		default:
@@ -383,6 +391,7 @@ public class StringPseudoSequence extends PseudoSequence {
 		boolean linear_converge_remove = false;
 		if (in_trying.size() > 0) {
 			MutationPlan mp2 = in_trying.get(0);
+			System.out.println("############## " + "MutationType2:" + mp2.getClass() + " ##############");
 			switch (mp2.mutate_type) {
 			case BranchMutation:
 				BranchGuidedMutationPlan bgmp = (BranchGuidedMutationPlan) mp2;

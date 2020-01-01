@@ -26,6 +26,7 @@ public class TraceInfo implements Rewardable {
 //	LinkedList<ObjectAddressConstraint> optional_constraint = new LinkedList<ObjectAddressConstraint>();
 	
 	// once set, not changed any more
+	String trace_content = null;
 	String trace_sig = null;
 	boolean first_encounter = false;
 	
@@ -142,16 +143,28 @@ public class TraceInfo implements Rewardable {
 		return vobs.size() > 0;
 	}
 	
-//	@Override
-//	public String toString() {
+	public String GetTraceContent() {
 //		StringBuilder sb = new StringBuilder();
 //		Set<String> bs_keys = branch_state.keySet();
 //		for (String bs_key : bs_keys) {
 //			Integer b_state = branch_state.get(bs_key);
 //			sb.append(bs_key + ":" + b_state + "#");
 //		}
-//		return sb.toString();
-//	}
+		if (trace_content == null) {
+			StringBuilder builder = new StringBuilder();
+			Set<String> vkeys = vobs.keySet();
+			Iterator<String> vk_itr = vkeys.iterator();
+			while (vk_itr.hasNext()) {
+				String vk = vk_itr.next();
+				InfoOfBranch ib = vobs.get(vk);
+				String branch_sig = ib.GenerateBranchValueSignature();
+				builder.append(vk + "#" + branch_sig + "\n");
+			}
+			trace_content = builder.toString();
+		}
+		Assert.isTrue(trace_content != null);
+		return trace_content;
+	}
 	
 //	public void SetTraceSignature(String sig) {
 //		this.trace_sig = sig;

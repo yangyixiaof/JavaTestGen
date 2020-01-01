@@ -317,13 +317,15 @@ public class DateGenerator extends AbstractGenerator {
 		// TraceInfo after_trace = after_traces.get(after_traces.size() - 1);
 		// recorded_traces.put(n_cmp_sequence.GetAfterLinkedSequence().toParsableString(),
 		// after_trace);
-
+		
 		TraceInfo after_trace = TraceReader.HandleOneTrace(after_trace_info);
 		String after_trace_sig = after_trace.GetTraceSignature();
+		String after_trace_content = after_trace.GetTraceContent();
 //		after_trace.SetTraceSignature(after_trace_sig);
-		System.out.println(" ========= begin printing after_trace_sig ========= ");
-		System.out.println("after_trace_sig:" + after_trace_sig);
-		System.out.println(" ========= end printing after_trace_sig ========= ");
+		System.out.println(" ========= begin printing after_trace_content ========= ");
+//		System.out.println("after_trace_content:" + after_trace_sig);
+		System.out.print(after_trace_info);
+		System.out.println(" ========= end printing after_trace_content ========= ");
 		boolean after_trace_first_encounter = branch_state.StateFirstEncountered(after_trace_sig);
 		if (after_trace_first_encounter) {
 			allSequences.add(n_cmp_sequence.GetAfterLinkedSequence());
@@ -963,11 +965,14 @@ public class DateGenerator extends AbstractGenerator {
 			ps.SetContainer(container);
 			container.AddPseudoSequence(ps);
 			container.SetEndPseudoSequence(ps);
-			HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
+//			System.out.println(" ======== printing begin! ======== ");
 			for (PseudoVariable pv : input_pseudo_variables) {
+				HashMap<PseudoSequence, PseudoSequence> origin_copied_sequence_map = new HashMap<PseudoSequence, PseudoSequence>();
 				PseudoVariable copied_pv = pv.CopySelfInDeepCloneWay(container, origin_copied_sequence_map, this);
 				copied_input_pseudo_variables.add(copied_pv);
+//				System.out.println("copied_pv sequence address:" + copied_pv.sequence.hashCode());
 			}
+//			System.out.println(" ======== printing end! ======== ");
 			LinkedSequence before_linked_sequence = new LinkedSequence(null, empty_statements, null);
 			PseudoVariable created_pv = ps.Append(selected_to, copied_input_pseudo_variables);// , false
 			// ps.SetHeadedVariable(created_pv);

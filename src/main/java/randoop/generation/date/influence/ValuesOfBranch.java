@@ -97,4 +97,8 @@ public class ValuesOfBranch implements Serializable {
 		}
 		this.state = state;
 	}
+	
+	public String toValueString() {
+		return branch_value1 + ":" + branch_value2;
+	}
 }
